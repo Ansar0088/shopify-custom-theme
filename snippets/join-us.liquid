@@ -1,0 +1,355 @@
+<style>
+
+
+  /*
+   -------------------------------------
+   BASE STYLES & UTILITY CLASSES
+   -------------------------------------
+*/
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue'
+    , Arial
+    , sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f7f7f7;
+  }
+
+  /* Common Typography */
+  .section-title {
+    font-size: 1.8em;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  .section-tag {
+    font-size: 0.75em;
+    color: #666;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 1: THREE-COLUMN FEATURES (Design, Materials, Know-How)
+   -------------------------------------
+*/
+  .three-feature-section {
+    padding: 80px 20px;
+    background-color: #f7f7f7;
+    text-align: center;
+  }
+
+  .feature-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 30px;
+    text-align: left;
+  }
+
+  .feature-item {
+    flex: 1 1 30%;
+    /* Allows items to grow/shrink equally */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feature-image-container {
+    height: 550px;
+    /* Consistent height for images */
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .feature-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .feature-item:hover .feature-image-container img {
+    transform: scale(1.05);
+  }
+
+  .feature-title {
+    font-size: 1.1em;
+    font-weight: 500;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px;
+  }
+
+  .feature-body {
+    font-size: 0.85em;
+    color: #555;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 2: NEWSLETTER BANNER
+   -------------------------------------
+*/
+  .newsletter-section {
+    position: relative;
+    padding: 100px 20px;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .newsletter-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    object-fit: cover;
+    /* Dark overlay to ensure text contrast */
+    filter: brightness(0.65) saturate(1.1);
+  }
+
+  .newsletter-content {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+    width: 100%;
+  }
+
+  .newsletter-tag {
+    font-size: 0.75em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    color: #ccc;
+  }
+
+  .newsletter-title {
+    font-size: 2.2em;
+    font-weight: 300;
+    text-transform: uppercase;
+    margin: 5px 0 25px;
+  }
+
+  .newsletter-description {
+    font-size: 0.9em;
+    margin-bottom: 30px;
+    font-weight: 300;
+  }
+
+  .newsletter-form {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    /* No gap between input and button */
+  }
+
+  .newsletter-input {
+    flex: 1 1 60%;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-size: 0.9em;
+    outline: none;
+    transition: border-color 0.3s;
+    border-radius: 0;
+    max-width: 300px;
+  }
+  .newsletter-input::placeholder {
+    color: #aaa;
+  }
+
+  .newsletter-button {
+    flex: 1 1 40%;
+    padding: 15px 20px;
+    background-color: #fff;
+    color: #333;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    max-width: 150px;
+  }
+  .newsletter-button:hover {
+    background-color: #eee;
+  }
+
+
+  /*
+   -------------------------------------
+   RESPONSIVENESS (BREAKPOINTS) -------------------------------------
+*/
+
+  @media (max-width: 900px) {
+    /* Three-Column grid stacks to two columns */
+    .feature-grid {
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .feature-item {
+      flex: 1 1 calc(50% - 10px);
+      /* Two columns */
+    }
+    .feature-image-container {
+      height: 300px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    /* Three-Column grid stacks to a single column */
+    .feature-grid {
+      flex-direction: column;
+      gap: 40px;
+    }
+    .feature-item {
+      flex: 1 1 100%;
+      /* Single column */
+      text-align: center;
+    }
+    .feature-image-container {
+      height: 250px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .feature-title {
+      text-align: center;
+    }
+    .feature-body {
+      text-align: center;
+    }
+    /* Newsletter Form Stacking */
+    .newsletter-form {
+      flex-direction: column;
+      gap: 10px;
+      gap: 10px;
+      max-width: 350px;
+      margin: 0 auto;
+    }
+    .newsletter-input,
+    .newsletter-button {
+      flex: none;
+
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+</style>
+
+<!-- ====================================================================
+  SECTION 1: THREE-COLUMN FEATURES (DESIGN, MATERIALS, KNOW-HOW) - Image 1
+  ==================================================================== -->
+<section class="three-feature-section">
+  <p style="font-size: small; font-family: sans-serif;">About us</p>
+  <h2 style="margin-top: 10px; margin-bottom: 20px;">From A to Z</h2>
+  <div class="feature-grid">
+
+    <!-- Feature 1: The Design -->
+    <div class="feature-item">
+      <div class="feature-image-container">
+        <img
+          src="{{ 'jn.png' | asset_url }}"
+          alt="Bags on a shelf, representing design"
+          onerror=""
+          width=""
+          height="" />
+      </div>
+      <h3 class="feature-title">THE DESIGN</h3>
+      <p class="feature-body">
+        At Léo et Violette, we create our bags with you in mind. All our products are imagined and designed in Paris, in our offices on rue Sainte-Anne.
+      </p>
+    </div>
+
+    <!-- Feature 2: Materials -->
+    <div class="feature-item">
+      <div class="feature-image-container">
+        <img
+          src="{{ 'join.png' | asset_url }}"
+          alt="Close-up of hands selecting leather material"
+          onerror=""
+          width=""
+          height="" />
+      </div>
+      <h3 class="feature-title">MATERIALS</h3>
+      <p class="feature-body">
+        Our leathers come exclusively from hides recovered from the food industry. We work exclusively with tanneries in Italy, France and Spain.
+      </p>
+    </div>
+
+    <!-- Feature 3: The Know-How -->
+    <div class="feature-item">
+      <div class="feature-image-container">
+        <img
+          src="{{ 'join-one.png' | asset_url }}"
+          alt="Craftsman working on a leather bag"
+          onerror=""
+          width=""
+          height="" />
+      </div>
+      <h3 class="feature-title">THE KNOW-HOW</h3>
+      <p class="feature-body">
+        Each step of the manufacturing process is carried out according to the strict specifications of the leatherworker’s craft.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ====================================================================
+  SECTION 2: NEWSLETTER BANNER - Image 2
+  ==================================================================== -->
+<section class="newsletter-section">
+
+    <!-- Background Image -->
+  <img
+    src="{{ 'sleter.png' | asset_url }}"
+    alt="Dark blue leather bags"
+    class="newsletter-background"
+    onerror=""
+    width=""
+    height="" />
+
+  <!-- Centered Content -->
+  <div class="newsletter-content">
+    <span class="newsletter-tag">KEEP ME UPDATED</span>
+    <h2 class="newsletter-title">NEWSLETTER</h2>
+    <p class="newsletter-description">
+      Subscribe to get notified about product launches, special offers and company news.
+    </p>
+
+    <!-- Newsletter Form (replace with Liquid/Shopify form actions if needed) -->
+    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed with: ' + document.getElementById('email-input').value)">
+      <input
+        type="email"
+        id="email-input"
+        class="newsletter-input"
+        placeholder="E-mail"
+        required>
+      <button type="submit" class="newsletter-button">SUBSCRIBE</button>
+    </form>
+  </div>
+
+</section>
+
+{% render 'footer' %}

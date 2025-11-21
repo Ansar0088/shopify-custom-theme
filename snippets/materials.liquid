@@ -1,0 +1,238 @@
+<style>
+
+
+  /*
+   -------------------------------------
+   BASE STYLES & UTILITY CLASSES
+   -------------------------------------
+*/
+  body {
+    margin: 0;
+    font-family: 'Helvetica Neue'
+    , Arial
+    , sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+
+  /*
+   -------------------------------------
+   MATERIALS SECTION STYLES (Image 1)
+   -------------------------------------
+*/
+  .materials-section {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    /* Fixed height for desktop to match image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #333;
+    /* Fallback for background */
+  }
+  .materials-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%);
+    /* Apply grayscale filter as in image */
+    z-index: 1;
+  }
+  .materials-content-box {
+    position: relative;
+    background-color: #fff;
+    padding: 40px 50px;
+    text-align: center;
+    max-width: 450px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+    /* Ensure content box is above background image */
+  }
+  .materials-title {
+    font-size: 1em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .materials-description {
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #555;
+  }
+  .materials-learn-more {
+    display: inline-block;
+    font-size: 0.9em;
+    text-transform: capitalize;
+    padding-bottom: 2px;
+    border-bottom: 1px solid currentColor;
+    transition: opacity 0.3s;
+  }
+  .materials-learn-more:hover {
+    opacity: 0.7;
+  }
+
+
+  /*
+   -------------------------------------
+   GQ QUOTE SECTION STYLES (Image 2)
+   -------------------------------------
+*/
+  .gq-section {
+    background-color: #1a1a1a;
+    /* Dark background as in image */
+    color: #e0e0e0;
+    padding: 100px 20px;
+    text-align: center;
+  }
+  .gq-quote {
+    font-size: 1.4em;
+    line-height: 1.5;
+    max-width: 700px;
+    margin: 0 auto 60px;
+    font-weight: 300;
+  }
+  .gq-logos {
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+
+    /* Space between logos */
+  }
+  .gq-logo img {
+    height: 30px;
+    /* Fixed height for logos */
+    filter: brightness(0.7);
+    /* Slightly dim to match image */
+    transition: filter 0.3s;
+  }
+  .gq-logo img:hover {
+    filter: brightness(1);
+    /* Brighten on hover */
+  }
+
+
+  /*
+   -------------------------------------
+   RESPONSIVENESS (BREAKPOINTS) -------------------------------------
+*/
+  @media (max-width: 768px) {
+    .materials-section {
+      height: 400px;
+      /* Shorter height on mobile */
+    }
+    .materials-content-box {
+      padding: 30px 25px;
+      max-width: 90%;
+      /* Wider box on small screens */
+    }
+    .materials-title {
+      font-size: 0.9em;
+    }
+    .materials-description {
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+
+    .gq-section {
+      padding: 60px 20px;
+    }
+    .gq-quote {
+      font-size: 1.1em;
+      margin-bottom: 40px;
+    }
+    .gq-logos {
+      flex-direction: column;
+      /* Stack logos on mobile */
+      gap: 30px;
+    }
+    .gq-logo img {
+      height: 25px;
+      /* Slightly smaller logos on mobile */
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .materials-content-box {
+      padding: 35px 40px;
+    }
+    .gq-quote {
+      font-size: 1.25em;
+    }
+    .gq-logos {
+      gap: 40px;
+    }
+  }
+
+</style>
+
+<section class="materials-section">
+  <img
+    src="{{ 'mtrls.png' | asset_url }}"
+    alt="Rolls of leather material"
+    class="materials-background-image"
+    height=""
+    width="" />
+  <div class="materials-content-box">
+    <h2 class="materials-title">MATERIALS</h2>
+    <p class="materials-description">
+      We only work with the best leather, chosen in collaboration with our factory. Made in Italy.
+    </p>
+    <a href="#" class="materials-learn-more">Learn more</a>
+  </div>
+</section>
+
+<section class="gq-section">
+  <div class="container">
+    <p class="gq-quote">
+      The GQ choice: "black or green, with its leather both flexible and rigid, small Binder protects your equipment in dedicated compartments"
+    </p>
+    <div class="gq-logos">
+      <div class="gq-logo">
+        <img
+          src="{{ 'gq.png' | asset_url }}"
+          alt="GQ Logo"
+          height=""
+          width="" />
+      </div>
+      <div class="gq-logo">
+        <img
+          src="{{ 'frq.png' | asset_url }}"
+          alt="Farfetch Logo"
+          height=""
+          width="" />
+      </div>
+      <div class="gq-logo">
+        <img
+          src="{{ 'for.png' | asset_url }}"
+          alt="Forbes Logo"
+          height=""
+          width="" />
+      </div>
+    </div>
+  </div>
+</section>
+
+{% render 'years' %}

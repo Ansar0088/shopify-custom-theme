@@ -1,0 +1,345 @@
+{% comment %}
+    IMAGE-ON-IMAGE SCROLL SECTION
+    This section creates a full-height, two-column layout designed to place a foreground image 
+    and scrollable text content over a large, fixed background image, replicating the provided design.
+{% endcomment %}
+
+<style>
+    
+    /* --- CORE CONTAINER STYLES --- */
+    .section-{{ section.id }} {
+        font-family: 'Inter', sans-serif;
+        background-color: #0a0a0a; /* Fallback background */
+        color: #fff;
+        display: flex;
+        flex-direction: column; /* Stacked on mobile */
+        overflow: hidden;
+        border-radius: 8px; 
+        position: relative; /* Context for absolute background */
+        min-height: 100vh; /* Always aim for full height */
+    }
+
+    /* --- BACKGROUND IMAGE (The Blue Pattern) --- */
+    .section-background-{{ section.id }} {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1; /* Below content */
+    }
+
+    /* --- CONTENT WRAPPER (To layer the columns above the background) --- */
+    .content-wrapper-{{ section.id }} {
+        position: relative;
+        z-index: 5; /* Above background */
+        width: 100%;
+        display: flex;
+        flex-direction: column; /* Stacked on mobile */
+        min-height: 100vh;
+    }
+
+    /* Crucial: Ensure the content wrapper uses min-height: 100vh on desktop 
+       to enable the independent scrolling in the right column. */
+    @media (min-width: 1024px) {
+        .content-wrapper-{{ section.id }} {
+            flex-direction: row; /* Side-by-side on desktop */
+        }
+    }
+
+    /* --- LEFT COLUMN: IMAGE COLUMN (The Snowboards) --- */
+    .image-column-{{ section.id }} {
+        width: 100%;
+        padding: 32px;
+        min-height: 50vh; /* Half screen height on mobile */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* The container itself has a transparent background to show the section background */
+        background-color: transparent; 
+    }
+    
+   
+
+    .image-container-{{ section.id }} img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+    @media (min-width: 1024px) {
+        .image-column-{{ section.id }} {
+            width: 50%;
+            height: 100vh;
+            min-height: 100vh;
+        }
+        .image-container-{{ section.id }} {
+             /* Adjust size for desktop */
+            width: 65%; 
+            height: auto;
+        }
+    }
+
+    /* --- RIGHT COLUMN: TEXT CONTENT (SCROLLABLE) --- */
+    .text-column-{{ section.id }} {
+        width: 100%;
+        padding: 40px; /* p-10 */
+        background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent overlay to make text readable */
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        justify-content: center; 
+        text-align: center;
+    }
+    
+    @media (min-width: 768px) {
+        .text-column-{{ section.id }} {
+            padding: 64px; /* md:p-16 */
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .text-column-{{ section.id }} {
+            width: 50%;
+            height: 100vh;
+            min-height: 100vh;
+            /* The key to independent scroll: */
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+    }
+
+    /* --- Typography Styles --- */
+    .text-content-wrapper {
+        max-width: 448px; /* max-w-md */
+        text-align: center; /* Center the text within the wrapper */
+    }
+    
+    .subheading {
+        font-size: 0.75rem; /* text-xs */
+        letter-spacing: 0.1em; /* tracking-widest */
+        color: #9ca3af; /* gray-400 */
+        font-weight: 500; /* font-medium */
+        margin-bottom: 8px; /* mb-2 */
+    }
+
+    /* Specific Heading Style Adjustment */
+    .heading {
+        font-size: 15px; /* REQUESTED SIZE */
+        font-weight: 600; 
+        margin-bottom: 24px; 
+        text-transform: uppercase;
+    }
+    
+    @media (min-width: 768px) {
+        .heading {
+            font-size: 1.5rem; /* Slightly larger on tablet */
+        }
+    }
+
+    .content-body {
+        font-size: 1rem; 
+        color: #d1d5db; 
+        margin-bottom: 32px; 
+        line-height: 1.625; 
+    }
+
+    /* Button Styles - Underline Link */
+    .learn-more-btn {
+        display: inline-block;
+        margin-top: 32px; 
+        font-size: 0.875rem; 
+        font-weight: 600; 
+        letter-spacing: 0.05em; 
+        text-transform: uppercase;
+        transition: opacity 0.3s, color 0.3s, border-color 0.3s;
+    }
+    
+    .learn-more-btn-underline {
+        padding-bottom: 2px;
+        border-bottom: 1px solid #fff;
+        color: #fff;
+        text-decoration: none;
+    }
+    .learn-more-btn-underline:hover {
+        border-bottom: 1px solid #6b7280; 
+        color: #6b7280; 
+    }
+
+    /* Custom scrollbar styling for the text container (for aesthetics) */
+    .custom-scroll-{{ section.id }}::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scroll-{{ section.id }}::-webkit-scrollbar-thumb {
+        background-color: #4a4a4a;
+        border-radius: 2px;
+    }
+</style>
+
+
+<section 
+    id="design-section-{{ section.id }}" 
+    class="section-{{ section.id }}"
+>
+
+    {% comment %} 1. Large Background Image {% endcomment %}
+    {% if section.settings.background_image != blank %}
+        <img
+            src="{{ section.settings.background_image | img_url: '2000x' }}"
+            alt="Section Background"
+            loading="lazy"
+            class="section-background-{{ section.id }}"
+            height=""
+            width=""
+        >
+    {% endif %}
+
+    {% comment %} 2. Content Wrapper (Holds the two columns over the background) {% endcomment %}
+    <div class="content-wrapper-{{ section.id }}">
+        
+        <!-- LEFT COLUMN: FOREGROUND IMAGE (The Snowboards - Fixed) -->
+        <div class="image-column-{{ section.id }}">
+            
+            {% if section.settings.image != blank %}
+                {% comment %} Display the uploaded foreground image {% endcomment %}
+                <div class="image-container-{{ section.id }}">
+                    <img
+                        src="{{ section.settings.image | img_url: '1000x' }}"
+                        alt="{{ section.settings.heading | escape }}"
+                        loading="lazy"
+                        width=""
+                        height=""
+                    >
+                </div>
+            {% else %}
+                {% comment %} Placeholder if no foreground image is uploaded {% endcomment %}
+                <div class="image-container-{{ section.id }}" style="background-color: #EFEFEF; width: 65%; height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 112px; height: 112px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-12 10a2 2 0 01-2-2v-4a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 9h.01"></path>
+                    </svg>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT COLUMN: TEXT CONTENT (SCROLLABLE) -->
+        <div class="text-column-{{ section.id }} custom-scroll-{{ section.id }}">
+            
+            <div class="text-content-wrapper">
+                <!-- Subheading -->
+                <p class="subheading">
+                    {{ section.settings.subheading | escape }}
+                </p>
+                
+                <!-- Heading -->
+                <h2 class="heading">
+                    {{ section.settings.heading | escape }}
+                </h2>
+
+                <!-- Content -->
+                <div class="content-body">
+                    {{ section.settings.content }}
+                </div>
+                
+                <!-- Button: Hardcoded to use the underline style -->
+                {% if section.settings.button_text != blank %}
+                    <a 
+                        href="{{ section.settings.button_link }}" 
+                        class="learn-more-btn learn-more-btn-underline"
+                    >
+                        {{ section.settings.button_text | escape }}
+                    </a>
+                {% endif %}
+            </div>
+            
+        </div>
+
+    </div>
+    
+</section>
+
+<script>
+    // No JavaScript is required for this fixed/scroll layout.
+</script>
+
+
+{% schema %}
+{
+    "name": "Image-on-Image Scroll",
+    "tag": "section",
+    "class": "section-image-on-image-scroll",
+    "settings": [
+        {
+            "type": "header",
+            "content": "Aesthetic & Background"
+        },
+        {
+            "type": "image_picker",
+            "id": "background_image",
+            "label": "Background Image (Pattern)",
+            "info": "This image stretches across the entire section. Use a high-res pattern or background image."
+        },
+        {
+            "type": "range",
+            "id": "text_overlay_opacity",
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "label": "Text Column Background Opacity",
+            "default": 0.4
+        },
+        {
+            "type": "header",
+            "content": "Content Settings"
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Foreground Image (The Snowboard)",
+            "info": "This image is placed in a white box on the left side."
+        },
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": "Subheading",
+            "default": "OUR COMMITMENTS"
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": "Heading",
+            "default": "SUSTAINABILITY"
+        },
+        {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>From the very beginning, responsibility has been a core value - both towards you and the environment. From design to distribution, each step is approached with care to create pieces that are timeless, high quality, and fairly priced.</p>"
+        },
+        {
+            "type": "header",
+            "content": "Button"
+        },
+        {
+            "type": "text",
+            "id": "button_text",
+            "label": "Button text",
+            "default": "Learn more"
+        },
+        {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+        }
+    ],
+    "presets": [
+        {
+            "name": "Image-on-Image Scroll Section",
+            "category": "Image"
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,405 @@
+<style>
+
+
+  /*
+   -------------------------------------
+   BASE STYLES & UTILITY CLASSES
+   -------------------------------------
+*/
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.5s ease-in-out;
+    /* Smooth image change */
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 1: COLLABORATION (Image 1)
+   -------------------------------------
+*/
+  .collaboration-section {
+    display: flex;
+    flex-direction: column;
+    padding: 80px 0;
+    background-color: #f7f7f7;
+  }
+
+  .collaboration-grid {
+    display: flex;
+    max-width: 1200px;
+    /* Constrain the inner grid width */
+    margin: 0 auto;
+    background-color: #fff;
+    /* White background for the grid area */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .collab-image-container {
+    flex: 1 1 55%;
+    /* Image takes slightly more space */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .collab-text-content {
+    flex: 1 1 45%;
+    /* Text takes slightly less space */
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Vertically center the text */
+    /* Add smooth transition for content fading */
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Style for hiding content during fade transition */
+  .content-fading {
+    opacity: 0;
+  }
+
+
+  .collab-tag {
+    font-size: 0.75em;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .collab-title {
+    font-size: 1.8em;
+    line-height: 1.2;
+    margin: 0 0 20px;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+
+  .collab-body {
+    font-size: 0.9em;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .timeline {
+    text-align: center;
+    padding: 40px 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    font-size: 15px;
+    color: #999;
+  }
+
+  .timeline-year {
+    position: relative;
+    padding-bottom: 5px;
+    cursor: pointer;
+    /* Change to pointer to indicate interactivity */
+    transition: color 0.3s;
+  }
+  .timeline-year:hover {
+    color: #555;
+  }
+
+  .timeline-year.active {
+    color: #333;
+    font-weight: 500;
+  }
+
+  .timeline-year.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #333;
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 2: HERO BANNER (Image 2)
+   -------------------------------------
+*/
+  .hero-banner-section {
+    padding: 0;
+    position: relative;
+    min-height: 500px;
+    /* Ensure a decent height for the banner */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: #fff;
+    /* White text on dark background */
+    text-align: center;
+  }
+
+  .hero-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    /* Apply a dark overlay and grayscale for the mood */
+    filter: grayscale(100%) brightness(0.7);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    /* Ensure text is above the image */
+    max-width: 600px;
+    padding: 20px;
+  }
+
+  .hero-tag {
+    font-size: 0.85em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .hero-title {
+    font-size: 3em;
+    margin: 0 0 20px;
+    font-weight: 300;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .hero-description {
+    font-size: 1em;
+    font-weight: 300;
+    margin-bottom: 0;
+  }
+
+
+  /*
+   -------------------------------------
+   RESPONSIVENESS (BREAKPOINTS) -------------------------------------
+*/
+
+  @media (max-width: 900px) {
+    /* Collaboration Grid Stacking */
+    .collaboration-grid {
+      flex-direction: column;
+      max-width: 90%;
+      margin: 0 auto;
+    }
+    .collab-text-content {
+      padding: 40px 30px;
+      order: 2;
+    }
+    .collab-image-container {
+      order: 1;
+      height: 350px;
+      /* Give the image a fixed height on mobile */
+    }
+    .collab-image-container img {
+      height: 100%;
+      object-fit: cover;
+    }
+    .timeline {
+      gap: 15px;
+      font-size: 0.8em;
+    }
+  }
+
+  @media (max-width: 500px) {
+    /* Smaller text and padding for very small devices */
+    .hero-title {
+      font-size: 2em;
+    }
+    .collab-title {
+      font-size: 1.5em;
+    }
+    .collab-text-content {
+      padding: 30px 20px;
+    }
+  }
+</style>
+
+<!-- ====================================================================
+  SECTION 1: COLLABORATION (LÉO ET VIOLETTE X WENDY SWAN) - Image 1
+  ==================================================================== -->
+<section class="collaboration-section">
+  <div class="collaboration-grid">
+
+    <!-- Left Column: Image -->
+    <div class="collab-image-container">
+      <img
+        id="collab-image"
+        src="{{ 'cpl-four.png' | asset_url }}"
+        alt="Woman holding a black leather handbag above her head"
+        height=""
+        width="" />
+    </div>
+
+    <!-- Right Column: Text Content -->
+    <div id="collab-content" class="collab-text-content">
+      <span id="collab-tag" class="collab-tag">FIRST COLLABORATION</span>
+      <h2 id="collab-title" class="collab-title">LÉO ET VIOLETTE X WENDY SWAN</h2>
+      <p id="collab-body" class="collab-body">
+        The meeting between Wendy and Léo et Violette gave birth to our new bag: The Dalia. Every detail, from the choice of leather quality to the metal parts, has been carefully thought out.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Timeline/Year Indicator -->
+  <div class="timeline">
+    <span class="timeline-year" data-year="2013">2013</span>
+    <span class="timeline-year" data-year="2014">2014</span>
+    <span class="timeline-year" data-year="2015">2015</span>
+    <span class="timeline-year" data-year="2017">2017</span>
+    <span class="timeline-year" data-year="2020">2020</span>
+    <span class="timeline-year active" data-year="2021">2021</span>
+  </div>
+</section>
+
+
+<!-- ====================================================================
+  SECTION 2: HERO BANNER (THE COUPLET LÉO ET VIOLETTE) - Image 2
+  ==================================================================== -->
+<section class="hero-banner-section">
+
+    <!-- Background Image with Overlay/Grayscale Effect -->
+  <img
+    src="{{ 'cpls.png' | asset_url }}"
+    alt="Smiling couple in black and white"
+    class="hero-background-image"
+    height=""
+    width="" />
+
+  <!-- Centered Text Content -->
+  <div class="hero-content">
+    <span class="hero-tag">THE COUPLET</span>
+    <h1 class="hero-title">LÉO ET VIOLETTE</h1>
+    <p class="hero-description">
+      We aspire to be a brand of the 21st century. 100% online and without any intermediary. <br>From you to us directly.
+    </p>
+  </div>
+
+</section>
+
+
+{% render 'join-us' %}
+
+<script>
+    // --- Data Store for Collaboration Timeline ---
+    const collaborationData = {
+        '2013': {
+            tag: 'THE BEGINNING',
+            title: 'LÉO ET VIOLETTE IS BORN',
+            body: 'Léo and Violette launch their first collection of small leather goods, focused on timeless design and artisanal quality. They commit to being 100% online from day one.',
+            image: "{{ 'cpls-one.png' | asset_url }}",
+            alt: 'Founders starting the brand in 2013'
+        },
+        '2014': {
+            tag: 'NEW HORIZONS',
+            title: 'FIRST BAG COLLECTION',
+            body: 'Following the success of the small leather goods, the brand expands into handbags, blending functional urban design with elegant leather materials sourced from Italy.',
+            image: "{{ 'cpl-two.png' | asset_url }}",
+            alt: 'Display of the first handbag collection'
+        },
+        '2015': {
+            tag: 'GLOBAL REACH',
+            title: 'POP-UP IN EUROPE',
+            body: 'Léo et Violette opens its first temporary physical store in Paris, followed by successful pop-up installations in other European capitals, growing its international community.',
+            image: "https://prestige-theme-allure.myshopify.com/cdn/shop/files/Timeline_-_Desktop_-_2015.jpg?v=1677505855&width=600",
+            alt: 'Photo of a brand pop-up store'
+        },
+        '2017': {
+            tag: 'DESIGN FOCUS',
+            title: 'THE DALIÁ BACKPACK LAUNCH',
+            body: 'Introduction of the iconic Daliá backpack, designed specifically for the modern professional, combining style, space, and comfort for daily commutes.',
+            image: "https://prestige-theme-allure.myshopify.com/cdn/shop/files/Timeline_-_Desktop_-_2017.jpg?v=1677506209&width=600",
+            alt: 'Model wearing the Daliá backpack'
+        },
+        '2020': {
+            tag: 'SUSTAINABILITY PUSH',
+            title: 'RECYCLED LEATHER INITIATIVE',
+            body: 'The brand formalizes its commitment to the environment by introducing a line using certified recycled leather and focusing on minimizing waste in the production process.',
+            image: "https://prestige-theme-allure.myshopify.com/cdn/shop/files/Timeline_-_Desktop_-_2020.jpg?v=1677506700&width=600",
+            alt: 'Detail photo of recycled leather material'
+        },
+        '2021': {
+            tag: 'FIRST COLLABORATION',
+            title: 'LÉO ET VIOLETTE X WENDY SWAN',
+            body: 'The meeting between Wendy and Léo et Violette gave birth to our new bag: The Dalia. Every detail, from the choice of leather quality to the metal parts, has been carefully thought out.',
+            image: "{{ 'cpl-four.png' | asset_url }}",
+            alt: 'Woman holding a black leather handbag above her head'
+        }
+    };
+
+    // --- DOM Elements ---
+    const timelineYears = document.querySelectorAll('.timeline-year');
+    const imageElement = document.getElementById('collab-image');
+    const contentContainer = document.getElementById('collab-content');
+    const tagElement = document.getElementById('collab-tag');
+    const titleElement = document.getElementById('collab-title');
+    const bodyElement = document.getElementById('collab-body');
+
+    // --- Function to update content smoothly ---
+    function updateContent(year) {
+        const data = collaborationData[year];
+
+        if (!data) return; // Exit if data not found
+
+        // 1. Start Fade-out for Image and Text
+        contentContainer.classList.add('content-fading');
+        imageElement.style.opacity = '0';
+
+        // Wait for fade-out to complete (400ms based on CSS transition)
+        setTimeout(() => {
+            // 2. Change content (DOM update)
+            imageElement.src = data.image;
+            imageElement.alt = data.alt;
+            tagElement.textContent = data.tag;
+            titleElement.textContent = data.title;
+            bodyElement.textContent = data.body;
+            
+            // 3. Update active state for the years
+            timelineYears.forEach(yearEl => {
+                yearEl.classList.remove('active');
+                if (yearEl.getAttribute('data-year') === year) {
+                    yearEl.classList.add('active');
+                }
+            });
+
+            // 4. Start Fade-in
+            contentContainer.classList.remove('content-fading');
+            imageElement.style.opacity = '1';
+
+        }, 400); // Must match or exceed the CSS transition time
+    }
+
+    // --- Event Listeners ---
+    timelineYears.forEach(yearEl => {
+        yearEl.addEventListener('click', () => {
+            const year = yearEl.getAttribute('data-year');
+            updateContent(year);
+        });
+    });
+
+</script>

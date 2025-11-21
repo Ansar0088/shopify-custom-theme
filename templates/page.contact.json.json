@@ -1,0 +1,10 @@
+{
+      "sections": {
+        "main": {
+          "type": "main-contact-minimal" 
+        }
+      },
+      "order": [
+        "main"
+      ]
+    }

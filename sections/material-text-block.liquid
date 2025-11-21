@@ -1,0 +1,322 @@
+{% comment %}
+  SECTION: MATERIALS WITH CENTERED TEXT BLOCK (Image 1)
+
+  This section uses a full-width background image with a centered, contrasting text box overlaid,
+  matching the line-art style reference. It includes settings for responsiveness and color scheme.
+{% endcomment %}
+
+{% assign current_scheme = section.settings.color_scheme %}
+
+<style>
+  /* Load Inter font */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+  /* --- General Section Styles --- */
+  .section-{{ section.id }} {
+    font-family: 'Inter'
+    , sans-serif;
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    /* Minimum height for desktop */
+    height: 100vh;
+    /* Attempt to fill screen height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    /* Apply color scheme styles */
+    background-color: {{ current_scheme.background }};
+    color: {{ current_scheme.text }};
+
+    {% if section.settings.remove_spacing %}
+      padding-top: 0;
+      padding-bottom: 0;
+    {% endif %}
+  }
+
+  /* Responsive height adjustment for mobile */
+  @media (max-width: 767px) {
+    .section-{{ section.id }} {
+      min-height: 500px;
+      height: auto;
+      padding: 50px 0;
+    }
+  }
+
+  /* --- Background Image Styles --- */
+  .materials-background-image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .materials-background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Fit screen setting */
+    /* Apply grayscale filter as in the line-art image */
+    filter: grayscale(100%);
+    transition: transform 0.3s ease-out;
+
+    {% if section.settings.parallax_enabled %}
+      /* Apply a slight scale for the parallax effect if enabled */
+      transform: scale(1.05);
+    {% endif %}
+  }
+
+  /* --- Content Box Styles --- */
+  .materials-content-box-wrapper {
+    position: relative;
+    z-index: 2;
+
+    /* Set max width dynamically based on settings */
+    {% assign content_width = section.settings.content_width %}
+    {% if content_width == 'small' %}
+      max-width: 400px;
+    {% elsif content_width == 'medium' %}
+      max-width: 600px;
+    {% elsif content_width == 'large' %}
+      max-width: 800px;
+    {% endif %}
+  }
+
+  .materials-content-box {
+    background-color: #fff;
+    /* Always white for contrast as per image */
+    padding: 40px 50px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #333;
+    /* Dark text color for readability on white box */
+    border: 1px solid #e0e0e0;
+    /* Subtle border to define the block */
+  }
+
+  /* --- Typography Styles --- */
+  .materials-title {
+    font-size: 0.85em;
+    letter-spacing: 3px;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .materials-description {
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #555;
+    max-width: 350px;
+    /* Constraints text width for clean look */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* --- Button/Link Styles --- */
+  .materials-learn-more {
+    display: inline-block;
+    font-size: 0.9em;
+    text-transform: capitalize;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #333;
+    /* Dark underline */
+    color: #333;
+    transition: opacity 0.3s;
+    text-decoration: none;
+  }
+  .materials-learn-more:hover {
+    opacity: 0.7;
+    border-color: #555;
+  }
+
+  /* Parallax Scroll Effect (via JavaScript/Liquid) */
+  {% if section.settings.parallax_enabled %}
+    .materials-section[data-parallax="true"] {
+    ;
+
+    /*
+   Placeholder for potential JS implementation if required,
+   but CSS translation is often enough for simple effects
+*/
+  }
+{% endif %}
+
+/* Mobile adjustments for padding and box size */
+@media (max-width: 500px) {
+  .materials-content-box {
+    padding: 30px 20px;
+  }
+  .materials-description {
+    font-size: 0.9em;
+  }
+}
+
+</style>
+
+<section
+  id="materials-section-{{ section.id }}"
+  class="section-{{ section.id }}"
+  {% if section.settings.parallax_enabled %}
+  data-parallax="true"
+  {% endif %}>
+
+  <div class="materials-background-image-wrapper">
+    {% assign desktop_image = section.settings.image %}
+    {% assign mobile_image = section.settings.mobile_image | default: desktop_image %}
+
+      {% if desktop_image != blank %}
+      {% comment %} Render Image Tag with different sources for responsiveness {% endcomment %}
+      <picture>
+        {% if mobile_image != blank %}
+          <source media="(max-width: 767px)" srcset="{{ mobile_image | img_url: '1000x' }}">
+        {% endif %}
+
+        <img
+          src="{{ desktop_image | img_url: '1600x' }}"
+          srcset="{{ desktop_image | img_url: '1000x' }} 1000w, {{ desktop_image | img_url: '2000x' }} 2000w"
+          alt="{{ section.settings.title | escape }}"
+          class="materials-background-image"
+          loading="lazy" />
+      </picture>
+    {% else %}
+      {% comment %} Placeholder if no image is uploaded {% endcomment %}
+      <div style="width: 100%; height: 100%; background-color: #f0f0f0; filter: grayscale(100%);"></div>
+    {% endif %}
+  </div>
+
+  <div class="materials-content-box-wrapper">
+    <div class="materials-content-box">
+      <h2 class="materials-title">
+        {{ section.settings.title | escape }}
+      </h2>
+      <p class="materials-description">
+        {{ section.settings.description | escape }}
+      </p>
+      {% if section.settings.button_text != blank %}
+        <a href="{{ section.settings.button_link }}" class="materials-learn-more">
+          {{ section.settings.button_text | escape }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% comment %}
+  NOTE: For the parallax effect to work smoothly on scroll,
+  you might need a small amount of JavaScript, but the CSS scale
+  is included above for a basic effect.
+{% endcomment %}
+
+
+{% schema %}
+  {
+    "name": "Image with Text Block",
+    "tag": "section",
+    "class": "section-materials-block",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Background Image"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Desktop Background Image",
+        "info": "2500 x 900px recommended"
+      },
+      {
+        "type": "image_picker",
+        "id": "mobile_image",
+        "label": "Mobile Background Image",
+        "info": "1100 x 1500px recommended. Default to desktop image."
+      },
+      {
+        "type": "checkbox",
+        "id": "parallax_enabled",
+        "label": "Enable parallax effect",
+        "default": false
+      }, {
+        "type": "header",
+        "content": "Content Box"
+      }, {
+        "type": "text",
+        "id": "title",
+        "label": "Heading",
+        "default": "MATERIALS"
+      }, {
+        "type": "textarea",
+        "id": "description",
+        "label": "Text",
+        "default": "We only work with the best leather, chosen in collaboration with our factory."
+      }, {
+        "type": "select",
+        "id": "content_width",
+        "label": "Content width",
+        "options": [
+          {
+            "value": "small",
+            "label": "Small"
+          }, {
+            "value": "medium",
+            "label": "Medium"
+          }, {
+            "value": "large",
+            "label": "Large"
+          }
+        ],
+        "default": "small"
+      }, {
+        "type": "header",
+        "content": "Button"
+      }, {
+        "type": "text",
+        "id": "button_text",
+        "label": "Button text",
+        "default": "Learn more"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button link"
+      }, {
+        "type": "header",
+        "content": "Design & Spacing"
+      }, {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1",
+        "options": [
+          {
+            "value": "scheme-1",
+            "label": "Scheme 1"
+          }, {
+            "value": "scheme-2",
+            "label": "Scheme 2"
+          }, {
+            "value": "scheme-3",
+            "label": "Scheme 3"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "remove_spacing",
+        "label": "Remove vertical spacing",
+        "default": false
+      }
+    ],
+    "presets": [
+      {
+        "name": "Materials Text Block",
+        "category": "Image"
+      }
+    ]
+  }
+{% endschema %}

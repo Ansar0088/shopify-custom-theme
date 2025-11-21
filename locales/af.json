@@ -1,0 +1,71 @@
+{
+  "404": {
+    "title": "Bladsy nie gevind nie",
+    "not_found": "Die bladsy wat u soek, kon nie gevind word nie.",
+    "back_to_shopping": "Terug na inkopies"
+  },
+  "blog": {
+    "article_comments": "Opmerkings",
+    "article_metadata_html": "Gepubliseer deur {{ author }} op {{ date }}",
+    "comment_form_body": "Jou opmerking",
+    "comment_form_email": "E-posadres",
+    "comment_form_name": "Naam",
+    "comment_form_submit": "Publiseer",
+    "comment_form_title": "Los 'n opmerking"
+  },
+  "cart": {
+    "checkout": "Betaal",
+    "title": "Winkelmandjie",
+    "update": "Opdateer",
+    "remove": "Verwyder"
+  },
+  "customers": {
+    "login": {  
+      "email": "E-pos",
+      "password": "Wagwoord",
+      "submit": "Meld aan",
+      "title": "Aanmelding"
+    }
+  },
+  "collections": {
+    "title": "Versamelings"
+  },
+  "gift_card": {
+    "add_to_apple_wallet": "Voeg by Apple Wallet",
+    "card": "Geskenkkaart",
+    "expired": "Vervaldatum",
+    "expires_on": "Verval op {{ expiry_date }}",
+    "use_at_checkout": "Gebruik by die betaalpunt"
+  },
+  "password": {
+    "title": "Wagwoord van die winkel",
+    "password": "Wagwoord",
+    "enter": "Voer die wagwoord in om toegang tot die winkel te kry"
+  },
+  "search": {
+    "title": "Soek",
+    "placeholder": "Soek vir produkte, artikels, ens.",
+    "submit": "Soek",
+    "no_results_html": "Geen resultate gevind vir « {{ terms }} »",
+    "results_for_html": "Resultate vir « {{ terms }} »"
+  },
+  "sections": {
+    "countdown": {
+      "day": "Dag",
+      "hrs": "Ure",
+      "min": "Minute",
+      "sec": "Sekondes"
+    },
+    "rich_text": {
+      "our_aim": "ONS DOEL: OM ELEGANTE, TYDLOSE EN FUNKSIONELE PRODUKTE AAN TE BIED",
+      "subheading": "SUBHOOF",
+      "our_story": "Ons storie",
+      "commitments": "Verbintenisse",
+      "sustainability": "Volhoubaarheid",
+      "craftsmanship": "Vakmanskap",
+      "quality": "Kwaliteit",
+      "heritage": "Erfenis",
+      "innovation": "Innovasie"
+    }
+  }
+}

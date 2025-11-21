@@ -1,0 +1,494 @@
+{% comment %}
+  SECTION: FOOTER
+  Renders the three-column footer layout (Newsletter, Menu, About).
+  FIX: Removed max-width constraints on the content grid for a full-width experience.
+{% endcomment %}
+
+{% assign color_scheme = section.settings.color_scheme %}
+{% assign show_border = section.settings.separator %}
+{% assign show_social = section.settings.show_social_media %}
+{% assign show_payment = section.settings.show_payment_icons %}
+{% assign show_country_selector = section.settings.show_country_selector %}
+{% assign show_language_selector = section.settings.show_language_selector %}
+
+<style>
+  /* Basic Font and Color Scheme Setup */
+  footer.footer-{{ section.id }} {
+    /* Set background and color variables based on scheme */
+    {% case color_scheme %}
+    {% when 'scheme_1' %}
+      --footer-background: #f4f4f4;
+      --footer-text-color: #333333;
+      /* Dark text for light background */
+      --footer-text-secondary: #888888;
+      --footer-border-color: rgba(0, 0, 0, 0.1);
+    {% when 'scheme_2' %}
+      --footer-background: #1c1c1c;
+      /* Black background from image */
+      --footer-text-color: #ffffff;
+      /* White text for dark background */
+      --footer-text-secondary: #aaaaaa;
+      --footer-border-color: rgba(255, 255, 255, 0.1);
+    {% else %} /* Default / Transparent */
+    --footer-background: transparent;
+    --footer-text-color: #333333;
+    --footer-text-secondary: #888888;
+    --footer-border-color: rgba(0, 0, 0, 0.1);
+  {% endcase %}
+
+  background-color: var(--footer-background);
+  color: var(--footer-text-secondary);
+  /* Default color for minor text */
+  padding: 60px 40px;
+  border-top: {% if show_border %}1px solid var(--footer-border-color){% else %}none{% endif %};
+  font-family: Arial
+  , sans-serif;
+}
+
+/* Text that needs the main foreground color (like headings and main links) */
+.footer-{{ section.id }}h4
+, .footer-{{ section.id }}
+.footer__copyright {
+  color: var(--footer-text-color);
+}
+
+/* Main Grid Layout - Now truly full width relative to the footer padding */
+.footer__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  /* max-width removed for full width */
+  margin: 0 auto 50px;
+}
+
+/* Newsletter Input Styling */
+.newsletter__input-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
+/* Inline form layout for button next to input */
+.newsletter__inline-form {
+  display: flex;
+  gap: 10px;
+}
+
+.newsletter__email-input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border: 1px solid var(--footer-border-color);
+  background-color: transparent;
+  color: var(--footer-text-color);
+  font-size: 0.9rem;
+}
+.newsletter__email-input::placeholder {
+  color: var(--footer-text-secondary);
+}
+
+.newsletter__button {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background-color 0.3s
+  , color 0.3s;
+  border: 1px solid var(--footer-border-color);
+
+  /* Dynamic Button Colors */
+  background-color: {{ section.settings.button_background }};
+  color: {{ section.settings.button_text }};
+
+  /* Handle 'transparent' case */
+  {% if section.settings.button_background == 'transparent' %}
+    background-color: transparent;
+  {% endif %}
+  {% if section.settings.button_text == 'transparent' %}
+    color: var(--footer-text-color);
+    /* Use main text color if 'transparent' text is selected */
+  {% endif %}
+
+}
+
+/* Footer Menu Links */
+.footer__menu ul {
+  list-style: none;
+  padding: 0;
+}
+.footer__menu li {
+  margin-bottom: 8px;
+}
+.footer__menu a {
+  color: var(--footer-text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.footer__menu a:hover {
+  color: var(--footer-text-color);
+}
+
+/* About Content */
+.footer__about-content {
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+/* Copyright & Selector Area */
+.footer__info-bar {
+  /* Removed max-width here as well for consistency */
+  margin: 0 auto;
+  border-top: 1px solid var(--footer-border-color);
+  padding-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.footer__utilities {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.footer__selectors,
+.footer__social,
+.footer__payment {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.footer__payment svg {
+  height: 18px;
+  width: auto;
+  fill: var(--footer-text-secondary);
+}
+
+/* Localization Selectors */
+.localization-form select {
+  background-color: transparent;
+  color: var(--footer-text-secondary);
+  border: 1px solid var(--footer-border-color);
+  padding: 5px 10px;
+  font-size: 0.8rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  footer.footer-{{ section.id }} {
+    padding: 40px 20px;
+  }
+  .footer__grid {
+    grid-template-columns: 1fr;
+    /* Stacks to 1 column on mobile */
+    gap: 30px;
+  }
+  .footer__info-bar {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .footer__utilities {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .footer__selectors,
+  .footer__social,
+  .footer__payment {
+    flex-wrap: wrap;
+  }
+  .newsletter__inline-form {
+    flex-direction: column;
+  }
+}
+
+/* Custom CSS from settings */
+{%- if section.settings.custom_css != blank -%}
+  {{ section.settings.custom_css }}
+{%- endif -%}
+</style>
+
+<footer class="footer-{{ section.id }}" data-color-scheme="{{ color_scheme }}">
+
+  <div class="footer__grid">
+
+    <div class="footer__column footer__newsletter">
+      <h4>{{ section.settings.newsletter_heading | default: 'Newsletter' }}</h4>
+      <div class="footer__content">{{ section.settings.newsletter_content | default: 'Sign up to our newsletter to receive exclusive offers.' }}</div>
+
+      {% form 'customer'
+        , id: 'footer-newsletter-form' %}
+        {% if form.posted_successfully? %}
+          <p class="form-message--success" style="color: var(--footer-text-color);">Thank you for subscribing!</p>
+        {% else %}
+          <div class="newsletter__inline-form">
+            <input
+              type="email"
+              name="contact[email]"
+              id="NewsletterForm--{{ section.id }}"
+              class="newsletter__email-input"
+              value="{{ form.email }}"
+              placeholder="E-mail"
+              aria-label="E-mail"
+              required>
+            <button
+              type="submit"
+              name="commit"
+              class="newsletter__button">
+              {{ section.settings.button_label | default: 'SUBSCRIBE' }}
+            </button>
+          </div>
+          {%- if form.errors -%}
+            <small class="form-message--error" style="color: #EA2525; margin-top: 10px; display: block;">{{ form.errors | default_errors }}</small>
+          {%- endif -%}
+        {% endif %}
+      {% endform %}
+    </div>
+
+    <div class="footer__column footer__menu">
+      <h4>{{ section.settings.menu_heading | default: 'Footer Menu' }}</h4>
+      {% if section.settings.menu != blank %}
+        <ul>
+          {% for link in section.settings.menu.links %}
+            <li>
+              <a href="{{ link.url }}">{{ link.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+
+    <div class="footer__column footer__about">
+      <h4>{{ section.settings.about_heading | default: 'About' }}</h4>
+      <div class="footer__about-content">
+        {{ section.settings.about_content | default: "<p>Use this text area to tell your customers about your brand and vision. You can change it in the theme editor.</p>" }}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer__info-bar">
+    <div class="footer__copyright">
+      &copy;
+      {{ 'now' | date: '%Y' }}
+      {{ shop.name | link_to: routes.root_url }}
+      {% if powered_by_link %}, {{ powered_by_link }}{% endif %}
+    </div>
+
+    <div class="footer__utilities">
+
+      {% if show_social %}
+        <div class="footer__social">
+          <p style="color: var(--footer-text-secondary);">Social Icons Here</p>
+        </div>
+      {% endif %}
+
+      <div class="footer__selectors">
+        {% comment %} Country/Region Selector {% endcomment %}
+        {% if show_country_selector and shop.published_locales.size > 1 %}
+          {% form 'localization'
+            , id: 'footer-country-form'
+            , class: 'localization-form' %}
+            <div class="localization-form__select">
+              <select
+                name="country_code"
+                aria-label="Country/region"
+                data-default="{{ form.current_country.iso_code }}">
+                {% for country in form.available_countries %}
+                  <option
+                    value="{{ country.iso_code }}"
+                    {% if country.iso_code == form.current_country.iso_code %}
+                    selected{% endif %}>
+                    {% if section.settings.show_country_flag %}
+                      {{ country.iso_code | upcase }}
+                    {% endif %}
+                    {% if section.settings.show_country_name %}
+                      {{ country.name }}
+                    {% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" hidden>{{ 'general.language_selector.submit' | t }}</button>
+          {% endform %}
+        {% endif %}
+
+        {% comment %} Language Selector {% endcomment %}
+        {% if show_language_selector and shop.published_locales.size > 1 %}
+          {% form 'localization'
+            , id: 'footer-language-form'
+            , class: 'localization-form' %}
+            <div class="localization-form__select">
+              <select
+                name="locale_code"
+                aria-label="Language"
+                data-default="{{ form.current_locale.iso_code }}">
+                {% for locale in form.available_locales %}
+                  <option
+                    value="{{ locale.iso_code }}"
+                    {% if locale.iso_code == form.current_locale.iso_code %}
+                    selected{% endif %}>
+                    {{ locale.endonym_name | capitalize }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" hidden>{{ 'general.language_selector.submit' | t }}</button>
+          {% endform %}
+        {% endif %}
+      </div>
+
+      <div class="footer__payment">
+        {% comment %} Payment Icons {% endcomment %}
+        {% if show_payment %}
+          {% for type in shop.enabled_payment_types %}
+            {{ type | payment_type_svg_tag }}
+          {% endfor %}
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+  {
+    "name": "Footer",
+    "tag": "footer",
+    "class": "section-footer",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Design"
+      },
+      {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "options": [
+          {
+            "value": "scheme_1",
+            "label": "Scheme 1 (Light Gray)"
+          }, {
+            "value": "scheme_2",
+            "label": "Scheme 2 (Dark/Black)"
+          }, {
+            "value": "transparent",
+            "label": "Transparent"
+          }
+        ],
+        "default": "scheme_2",
+        "info": "Note: Your theme must define schemes in settings_data.json and settings_schema.json to fully support color schemes."
+      },
+      {
+        "type": "checkbox",
+        "id": "separator",
+        "label": "Separate section with border",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "Content - Newsletter"
+      }, {
+        "type": "text",
+        "id": "newsletter_heading",
+        "label": "Heading",
+        "default": "Newsletter"
+      }, {
+        "type": "textarea",
+        "id": "newsletter_content",
+        "label": "Content",
+        "default": "Sign up to our newsletter to receive exclusive offers."
+      }, {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button text",
+        "default": "Subscribe",
+        "info": "This is the text shown inside the button."
+      }, {
+        "type": "color",
+        "id": "button_background",
+        "label": "Button background color",
+        "default": "#1c1c1c"
+      }, {
+        "type": "color",
+        "id": "button_text",
+        "label": "Button text color",
+        "default": "#ffffff"
+      }, {
+        "type": "header",
+        "content": "Content - Footer Menu"
+      }, {
+        "type": "text",
+        "id": "menu_heading",
+        "label": "Heading",
+        "default": "Footer Menu"
+      }, {
+        "type": "link_list",
+        "id": "menu",
+        "label": "Menu",
+        "default": "footer"
+      }, {
+        "type": "header",
+        "content": "Content - About"
+      }, {
+        "type": "text",
+        "id": "about_heading",
+        "label": "Heading",
+        "default": "About"
+      }, {
+        "type": "richtext",
+        "id": "about_content",
+        "label": "Content",
+        "default": "<p>Use this text area to tell your customers about your brand and vision. You can change it in the theme editor.</p>"
+      }, {
+        "type": "header",
+        "content": "Bottom Bar Settings"
+      }, {
+        "type": "checkbox",
+        "id": "show_social_media",
+        "label": "Show social media",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "show_payment_icons",
+        "label": "Show payment icons",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_country_selector",
+        "label": "Show country/region selector",
+        "default": false,
+        "info": "Requires Markets setup."
+      }, {
+        "type": "checkbox",
+        "id": "show_country_name",
+        "label": "Show country name",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "show_country_flag",
+        "label": "Show country flag",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "show_language_selector",
+        "label": "Show language selector",
+        "default": false,
+        "info": "Requires Languages setup."
+      }, {
+        "type": "header",
+        "content": "Custom CSS"
+      }, {
+        "type": "textarea",
+        "id": "custom_css",
+        "label": "Custom CSS",
+        "info": "Add custom styles for this section."
+      }
+    ]
+  }
+{% endschema %}

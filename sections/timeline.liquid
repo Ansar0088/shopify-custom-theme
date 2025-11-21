@@ -1,0 +1,605 @@
+{% comment %}
+  SECTION: TIMELINE / MILESTONES
+  This section displays milestones in a horizontal grid with interactive year navigation
+{% endcomment %}
+
+<style>
+  /* Load Inter font */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+  /* --- General Section and Grid Styles --- */
+  .section-{{ section.id }} {
+    font-family: 'Inter'
+    , sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 80px 20px;
+    background-color: {{ section.settings.background_color | default: '#ffffff' }};
+    color: {{ section.settings.text_color | default: '#000000' }};
+  }
+
+  .collaboration-grid {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    background-color: {{ section.settings.grid_background | default: '#f8f8f8' }};
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  /* --- Image Column --- */
+  .collab-image-container {
+    flex: 1 1 55%;
+    position: relative;
+    overflow: hidden;
+    background-color: #000;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .collab-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  /* Placeholder */
+  .collab-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 1em;
+    text-align: center;
+    padding: 20px;
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  .collab-placeholder svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.3;
+    stroke: #999;
+  }
+
+  /* --- Text Content Column --- */
+  .collab-text-content {
+    flex: 1 1 45%;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: opacity 0.4s ease-in-out;
+    color: {{ section.settings.grid_text_color | default: '#111111' }};
+    background-color: {{ section.settings.grid_background | default: '#f8f8f8' }};
+  }
+
+  .content-fading {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .collab-tag {
+    font-size: 0.75em;
+    letter-spacing: 1px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .collab-title {
+    font-size: 1.8em;
+    line-height: 1.2;
+    margin: 0 0 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .collab-body {
+    font-size: 0.9em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .collab-body p {
+    margin-bottom: 10px;
+  }
+
+  /* --- Timeline/Navigation Styles --- */
+  .timeline {
+    text-align: center;
+    padding: 40px 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    font-size: 15px;
+    color: #999;
+    flex-wrap: wrap;
+    font-weight: 500;
+  }
+
+  .timeline-year {
+    position: relative;
+    padding-bottom: 5px;
+    cursor: pointer;
+    transition: color 0.3s;
+    user-select: none;
+  }
+
+  .timeline-year:hover {
+    color: #555;
+  }
+
+  .timeline-year.active {
+    color: #333;
+    font-weight: 700;
+  }
+
+  /* Active Border Bottom - FIXED: Only active year has border */
+  .timeline-year.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #333;
+  }
+
+  /* --- Button Styles --- */
+  .collab-button {
+    margin-top: 15px;
+    display: inline-block;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+  }
+
+  .button--link {
+    color: #333;
+    border-bottom: 1px solid #333;
+    padding: 0 0 2px;
+  }
+
+  .button--solid {
+    background-color: #333;
+    color: white;
+  }
+
+  .button--outline {
+    border: 2px solid #333;
+    color: #333;
+  }
+
+  .button--link:hover {
+    opacity: 0.7;
+  }
+
+  .button--solid:hover {
+    background-color: #555;
+  }
+
+  .button--outline:hover {
+    background-color: #333;
+    color: white;
+  }
+
+  /* --- RESPONSIVENESS --- */
+  @media (max-width: 900px) {
+    .section-{{ section.id }} {
+      padding: 60px 0;
+    }
+
+    .collaboration-grid {
+      flex-direction: column;
+      width: calc(100% - 40px);
+      margin: 0 auto;
+    }
+
+    .collab-image-container {
+      min-height: 300px;
+      flex: 1 1 auto;
+    }
+
+    .collab-text-content {
+      padding: 40px 30px;
+      flex: 1 1 auto;
+    }
+
+    .collab-title {
+      font-size: 1.5em;
+    }
+
+    .timeline {
+      overflow-x: auto;
+      padding: 40px 20px 0;
+      justify-content: center;
+      gap: 25px;
+      width: 100%;
+    }
+
+    .timeline-year {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .section-{{ section.id }} {
+      padding: 40px 0;
+    }
+
+    .collab-text-content {
+      padding: 30px 20px;
+    }
+
+    .collab-title {
+      font-size: 1.3em;
+    }
+
+    .collab-body {
+      font-size: 0.85em;
+    }
+
+    .collab-tag {
+      font-size: 0.7em;
+    }
+
+    .timeline {
+      gap: 20px;
+      padding: 40px 15px 0;
+    }
+  }
+</style>
+
+<section class="collaboration-section section-{{ section.id }}">
+  <div class="collaboration-grid">
+    <div class="collab-image-container" id="collab-image-wrapper-{{ section.id }}">
+      {% assign first_block = section.blocks | first %}
+
+      {% if first_block.settings.image != blank %}
+        <img
+          id="collab-image-{{ section.id }}"
+          src="{{ first_block.settings.image | img_url: '800x800' }}"
+          alt="{{ first_block.settings.heading | escape }}"
+          loading="lazy" />
+      {% else %}
+        <div id="collab-image-{{ section.id }}" class="collab-placeholder">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      {% endif %}
+    </div>
+
+    <div id="collab-content-{{ section.id }}" class="collab-text-content">
+      <span id="collab-tag-{{ section.id }}" class="collab-tag">{{ first_block.settings.navigation_label | default: "MILESTONE" | escape }}</span>
+      <h2 id="collab-title-{{ section.id }}" class="collab-title">{{ first_block.settings.heading | default: "Your Milestone Title" | escape }}</h2>
+      <div id="collab-body-{{ section.id }}" class="collab-body">{{ first_block.settings.content | default: "<p>Add your milestone content here.</p>" }}</div>
+
+      {% if first_block.settings.button_text != blank and first_block.settings.button_link != blank %}
+        <a
+          id="collab-button-{{ section.id }}"
+          href="{{ first_block.settings.button_link }}"
+          class="collab-button button button--{{ first_block.settings.button_style | default: 'link' }}">
+          {{ first_block.settings.button_text | escape }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="timeline" id="timeline-nav-{{ section.id }}">
+    {% for block in section.blocks %}
+      {% assign year_label = block.settings.navigation_label | default: forloop.index %}
+      <span
+        class="timeline-year {% if forloop.first %}active{% endif %}"
+        data-year="{{ year_label | handle }}"
+        data-index="{{ forloop.index0 }}">
+        {{ year_label | escape }}
+      </span>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  (function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      const sectionId = '{{ section.id }}';
+      
+      // DOM Elements
+      const timelineNav = document.getElementById(`timeline-nav-${sectionId}`);
+      const timelineYears = timelineNav ? timelineNav.querySelectorAll('.timeline-year') : [];
+      const imageWrapper = document.getElementById(`collab-image-wrapper-${sectionId}`);
+      const contentContainer = document.getElementById(`collab-content-${sectionId}`);
+      const tagElement = document.getElementById(`collab-tag-${sectionId}`);
+      const titleElement = document.getElementById(`collab-title-${sectionId}`);
+      const bodyElement = document.getElementById(`collab-body-${sectionId}`);
+
+      if (!timelineNav || timelineYears.length === 0) return;
+
+      // Data Store
+      const collaborationData = {
+        {% for block in section.blocks %}
+          {% assign nav_label = block.settings.navigation_label | default: forloop.index %}
+          "{{ nav_label | handle }}": {
+            "tag": "{{ nav_label | default: 'MILESTONE' | escape }}",
+            "title": "{{ block.settings.heading | default: 'Your Milestone Title' | escape }}",
+            "body": {{ block.settings.content | default: '<p>Add your milestone content here.</p>' | json }},
+            "image": "{{ block.settings.image | img_url: '800x800' }}",
+            "hasImage": {% if block.settings.image != blank %}true{% else %}false{% endif %},
+            "button_text": "{{ block.settings.button_text | escape }}",
+            "button_link": "{{ block.settings.button_link }}",
+            "button_style": "{{ block.settings.button_style | default: 'link' }}"
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      };
+      
+      // Function to update content
+      function updateContent(yearHandle, targetElement) {
+        const data = collaborationData[yearHandle];
+        if (!data) return;
+        
+        let imageElement = document.getElementById(`collab-image-${sectionId}`);
+
+        // Start fade-out
+        contentContainer.classList.add('content-fading');
+        if (imageElement) imageElement.style.opacity = '0';
+        
+        // Update active state - FIXED: Only clicked year gets active class
+        timelineYears.forEach(yearEl => yearEl.classList.remove('active'));
+        if (targetElement) targetElement.classList.add('active');
+
+        setTimeout(() => {
+          // Update image
+          const currentElementIsPlaceholder = imageElement && imageElement.classList.contains('collab-placeholder');
+          const currentElementIsImage = imageElement && imageElement.tagName === 'IMG';
+          
+          if (data.hasImage && data.image) {
+            if (currentElementIsImage) {
+              imageElement.src = data.image;
+              imageElement.alt = data.title;
+            } else {
+              const newImg = document.createElement('img');
+              newImg.id = `collab-image-${sectionId}`;
+              newImg.src = data.image;
+              newImg.alt = data.title;
+              newImg.loading = 'lazy';
+              newImg.style.opacity = '0';
+              imageWrapper.innerHTML = '';
+              imageWrapper.appendChild(newImg);
+            }
+          } else {
+            if (!currentElementIsPlaceholder) {
+              const placeholder = document.createElement('div');
+              placeholder.id = `collab-image-${sectionId}`;
+              placeholder.className = 'collab-placeholder';
+              placeholder.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>`;
+              placeholder.style.opacity = '0';
+              imageWrapper.innerHTML = '';
+              imageWrapper.appendChild(placeholder);
+            }
+          }
+          
+          // Update text content
+          if (tagElement) tagElement.textContent = data.tag;
+          if (titleElement) titleElement.textContent = data.title;
+          if (bodyElement) bodyElement.innerHTML = data.body;
+          
+          // Update button
+          let buttonAnchor = document.getElementById(`collab-button-${sectionId}`);
+          if (data.button_text && data.button_link) {
+            if (!buttonAnchor) {
+              buttonAnchor = document.createElement('a');
+              buttonAnchor.id = `collab-button-${sectionId}`;
+              buttonAnchor.classList.add('collab-button', 'button');
+              contentContainer.appendChild(buttonAnchor);
+            }
+            buttonAnchor.href = data.button_link;
+            buttonAnchor.textContent = data.button_text;
+            buttonAnchor.className = `collab-button button button--${data.button_style || 'link'}`;
+            buttonAnchor.style.display = 'inline-block';
+          } else if (buttonAnchor) {
+            buttonAnchor.style.display = 'none';
+          }
+
+          // Start fade-in
+          const currentImageElement = document.getElementById(`collab-image-${sectionId}`);
+          setTimeout(() => {
+            contentContainer.classList.remove('content-fading');
+            if (currentImageElement) currentImageElement.style.opacity = '1';
+          }, 50);
+
+        }, 400);
+      }
+
+      // Event listeners
+      timelineYears.forEach(yearEl => {
+        yearEl.addEventListener('click', function(e) {
+          e.preventDefault();
+          const yearHandle = this.getAttribute('data-year');
+          updateContent(yearHandle, this);
+        });
+      });
+
+      // Initialize
+      let imageElement = document.getElementById(`collab-image-${sectionId}`);
+      if (imageElement) imageElement.style.opacity = '1';
+    });
+  })();
+</script>
+
+{% schema %}
+  {
+    "name": "Timeline Milestones",
+    "tag": "section",
+    "class": "section-timeline-milestones",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Section Colors"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text Color",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "grid_background",
+        "label": "Grid Background",
+        "default": "#f8f8f8"
+      }, {
+        "type": "color",
+        "id": "grid_text_color",
+        "label": "Grid Text Color",
+        "default": "#111111"
+      }, {
+        "type": "checkbox",
+        "id": "separator",
+        "label": "Separate section with border",
+        "default": false
+      }
+    ],
+    "blocks": [
+      {
+        "type": "item",
+        "name": "Milestone",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Navigation & Image"
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image (Left Side)",
+            "info": "800 x 800px recommended"
+          },
+          {
+            "type": "text",
+            "id": "navigation_label",
+            "label": "Navigation Label",
+            "info": "E.g., 2013 or FIRST COLLAB",
+            "default": "2024"
+          },
+          {
+            "type": "header",
+            "content": "Content (Right Side)"
+          }, {
+            "type": "text",
+            "id": "heading",
+            "label": "Heading",
+            "default": "Project Milestone"
+          }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>This is the description for the latest milestone. Click a year below to explore previous steps in the journey.</p>"
+          }, {
+            "type": "header",
+            "content": "Button"
+          }, {
+            "type": "text",
+            "id": "button_text",
+            "label": "Button Text"
+          }, {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button Link"
+          }, {
+            "type": "select",
+            "id": "button_style",
+            "label": "Button Style",
+            "options": [
+              {
+                "value": "link",
+                "label": "Link"
+              }, {
+                "value": "solid",
+                "label": "Solid Button"
+              }, {
+                "value": "outline",
+                "label": "Outline Button"
+              }
+            ],
+            "default": "solid"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Timeline Milestones",
+        "category": "Image",
+        "blocks": [
+          {
+            "type": "item",
+            "settings": {
+              "navigation_label": "2013",
+              "heading": "The Beginning",
+              "content": "<p>Our journey started in 2013 with a simple idea and a lot of passion. We began working on our first project in a small garage.</p>"
+            }
+          }, {
+            "type": "item",
+            "settings": {
+              "navigation_label": "2014",
+              "heading": "First Breakthrough",
+              "content": "<p>In 2014, we achieved our first major breakthrough. Our product gained traction and we expanded our team.</p>",
+              "button_text": "Read More",
+              "button_link": "#"
+            }
+          }, {
+            "type": "item",
+            "settings": {
+              "navigation_label": "2015",
+              "heading": "Expansion Phase",
+              "content": "<p>2015 marked our expansion into international markets. We opened offices in two new countries.</p>",
+              "button_text": "Case Study",
+              "button_link": "#"
+            }
+          }, {
+            "type": "item",
+            "settings": {
+              "navigation_label": "2017",
+              "heading": "Industry Recognition",
+              "content": "<p>By 2017, we had established ourselves as industry leaders, winning multiple awards.</p>",
+              "button_text": "View Awards",
+              "button_link": "#"
+            }
+          }
+        ]
+      }
+    ],
+    "max_blocks": 10
+  }
+{% endschema %}

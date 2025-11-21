@@ -1,0 +1,204 @@
+{% comment %}
+  ============================================================================
+  SECTION: Minimal Contact Form
+  - Designed to be used with the custom page.contact-minimal template.
+  - Ensures a full-screen, focused, and responsive contact form.
+  ============================================================================
+{% endcomment %}
+
+{% assign heading_text = section.settings.heading | default: "CONTACT" %}
+{% assign bg_color = section.settings.color_scheme | default: "#f8f8f8" %}
+
+<style>
+  /* --- Contact Form Styles --- */
+  .contact-section-minimal {
+    /* Apply selected background color */
+    background-color: {{ bg_color }};
+    padding: 100px 20px;
+    min-height: 100vh;
+    /* Ensure it takes full viewport height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .contact-form-wrapper {
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .contact-heading {
+    font-size: 2.5rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    color: #333;
+    font-family: sans-serif;
+  }
+
+  /* --- Form Inputs --- */
+  .contact-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .input-field {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.2s;
+    /* Use a fixed height for consistency */
+    height: 50px;
+    border-radius: 0;
+    /* Remove rounded corners */
+  }
+
+  .input-field:focus {
+    border-color: #333;
+    outline: none;
+  }
+
+  /* Name and Email take half width */
+  .input-group-half {
+    flex: 1 1 calc(50% - 7.5px);
+    /* Allows two fields side-by-side with gap */
+  }
+
+  /* Message box takes full width and is multi-line */
+  .input-group-full {
+    flex: 1 1 100%;
+  }
+
+  textarea.input-field {
+    min-height: 150px;
+    resize: none;
+    padding: 15px;
+    height: auto;
+    /* Override fixed height for textarea */
+  }
+
+  /* --- Submit Button --- */
+  .submit-button {
+    flex: 1 1 100%;
+    background: #222222;
+    /* Dark background from image */
+    color: #ffffff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    height: 60px;
+  }
+
+  .submit-button:hover {
+    background: #000000;
+  }
+
+  /* --- Responsive Adjustments --- */
+  @media (max-width: 600px) {
+    .contact-heading {
+      font-size: 2rem;
+      margin-bottom: 30px;
+    }
+
+    /* On mobile, name and email stack vertically */
+    .input-group-half {
+      flex: 1 1 100%;
+    }
+
+    .contact-section-minimal {
+      padding: 60px 20px;
+    }
+  }
+</style>
+
+<section class="contact-section-minimal">
+  <div class="contact-form-wrapper">
+    <h1 class="contact-heading">{{ heading_text }}</h1>
+
+    {% form 'contact' %}
+
+      {% if form.posted_successfully? %}
+        <p class="form-success">Thank you for contacting us! We will get back to you as soon as possible.</p>
+      {% elsif form.errors %}
+        <div class="form-errors">
+          {% for field in form.errors %}
+            <p>{{ form.errors.messages[field] }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="contact-form">
+
+        <input
+          type="text"
+          id="ContactFormName"
+          class="input-field input-group-half"
+          name="contact[{{ 'contact.form.name' | t | default: 'Name' }}]"
+          placeholder="Name"
+          value="{% if form.name %}{{ form.name }}{% endif %}"
+          required>
+
+        <input
+          type="email"
+          id="ContactFormEmail"
+          class="input-field input-group-half"
+          name="contact[email]"
+          placeholder="E-mail"
+          required
+          spellcheck="false"
+          autocapitalize="off"
+          value="{% if form.email %}{{ form.email }}{% endif %}">
+
+        <textarea
+          rows="10"
+          id="ContactFormMessage"
+          class="input-field input-group-full"
+          name="contact[{{ 'contact.form.message' | t | default: 'Message' }}]"
+          placeholder="Message"
+          required>
+          {% if form.body %}
+            {{ form.body }}{% endif %}
+        </textarea>
+
+        <button type="submit" class="submit-button">SEND MESSAGE</button>
+      </div>
+
+    {% endform %}
+  </div>
+</section>
+
+{% schema %}
+  {
+    "name": "Minimal Contact Form",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content Settings"
+      }, {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "CONTACT"
+      }, {
+        "type": "header",
+        "content": "Style Settings"
+      }, {
+        "type": "color",
+        "id": "color_scheme",
+        "label": "Background Color",
+        "default": "#f8f8f8"
+      }
+    ]
+  }
+{% endschema %}

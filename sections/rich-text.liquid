@@ -1,0 +1,341 @@
+{% comment %}
+  This section generates a rich text block with dynamic content and settings,
+  designed to match the provided image (large centered heading with links below).
+  It uses Tailwind-like classes for responsiveness and styling.
+  NOW WITH LOCALIZATION SUPPORT
+{% endcomment %}
+
+{% comment %}theme-check-disable UndefinedObject{% endcomment %}
+
+<style>
+  .responsive-title {
+    width: 396px;
+    font-size: xx-large;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 640px) {
+    .responsive-title {
+      font-size: 20px !important;
+      width: auto;
+      /* optional */
+    }
+  }
+</style>
+
+{%- liquid
+  assign content_width_class = 'max-w-4xl'
+  case section.settings.content_width
+    when 'x-small'
+      assign content_width_class = 'max-w-xl'
+    when 'small'
+      assign content_width_class = 'max-w-2xl'
+    when 'medium'
+      assign content_width_class = 'max-w-4xl'
+    when 'large'
+      assign content_width_class = 'max-w-6xl'
+  endcase
+
+  assign text_alignment_class = 'text-center'
+  assign justify_alignment_class = 'justify-center'
+  case section.settings.content_position
+    when 'left'
+      assign text_alignment_class = 'text-left'
+      assign justify_alignment_class = 'justify-start'
+    when 'right'
+      assign text_alignment_class = 'text-right'
+      assign justify_alignment_class = 'justify-end'
+    when 'center'
+      assign text_alignment_class = 'text-center'
+      assign justify_alignment_class = 'justify-center'
+  endcase
+
+  assign heading_size_class = 'text-5xl lg:text-6xl tracking-tight'
+  case section.settings.heading_style
+    when 'h1'
+      assign heading_size_class = 'text-5xl md:text-6xl lg:text-7xl tracking-tighter'
+    when 'h2'
+      assign heading_size_class = 'text-4xl md:text-5xl lg:text-6xl tracking-tight'
+    when 'h3'
+      assign heading_size_class = 'text-3xl md:text-4xl lg:text-5xl tracking-normal'
+    when 'h4'
+      assign heading_size_class = 'text-2xl md:text-3xl lg:text-4xl'
+    when 'h5'
+      assign heading_size_class = 'text-xl md:text-2xl lg:text-3xl'
+    when 'h6'
+      assign heading_size_class = 'text-lg md:text-xl lg:text-2xl'
+  endcase
+
+  assign section_padding_y = 'py-16 md:py-24'
+  if section.settings.remove_vertical_spacing
+    assign section_padding_y = 'py-0'
+  endif
+
+  assign color_classes = 'bg-white text-gray-900'
+  if section.settings.color_scheme == 'scheme-1'
+    assign color_classes = 'bg-gray-100 text-gray-800'
+  endif
+-%}
+
+<div class="color-scheme-{{ section.settings.color_scheme }} {{ color_classes }} {{ section_padding_y }} {{ section.settings.custom_css_class }}">
+
+  {% if section.settings.separate_section_with_border %}
+    <div class="border-t border-gray-300"></div>
+  {% endif %}
+
+  <div class="flex {{ justify_alignment_class }} px-4 sm:px-6 lg:px-8" style="text-align:center; padding-top:30px; padding-bottom:30px; background-color: #F7F7F7">
+    <div class="w-full {{ content_width_class }} {{ text_alignment_class }} mx-auto">
+
+      {% comment %} Main Heading: Dynamic with localization support {% endcomment %}
+      {% if section.settings.heading != blank or section.settings.heading_translation_key != blank %}
+        <div class="mb-20 md:mb-24">
+          <div class="{{ heading_size_class }} font-normal uppercase leading-tight tracking-normal responsive-title">
+            {% comment %} Use translation key if provided and exists, otherwise use custom text {% endcomment %}
+            {% assign heading_text = section.settings.heading %}
+            {% if section.settings.heading_translation_key != blank %}
+              {% assign translated_heading = section.settings.heading_translation_key | t | strip %}
+              {% if translated_heading != section.settings.heading_translation_key %}
+                {% assign heading_text = translated_heading %}
+              {% endif %}
+            {% endif %}
+            {{ heading_text }}
+          </div>
+        </div>
+      {% endif %}
+
+      {% comment %} Subheading: Dynamic with localization support {% endcomment %}
+      {% if section.settings.subheading != blank or section.settings.subheading_translation_key != blank %}
+        <div class="text-xs uppercase tracking-widest text-gray-500 mt-20 mb-6 md:mt-24 md:mb-8" style="margin-top:10px">
+          {% comment %} Use translation key if provided and exists, otherwise use custom text {% endcomment %}
+          {% assign subheading_text = section.settings.subheading %}
+          {% if section.settings.subheading_translation_key != blank %}
+            {% assign translated_subheading = section.settings.subheading_translation_key | t | strip %}
+            {% if translated_subheading != section.settings.subheading_translation_key %}
+              {% assign subheading_text = translated_subheading %}
+            {% endif %}
+          {% endif %}
+          {{ subheading_text }}
+        </div>
+      {% endif %}
+
+      {% comment %} Links Block: Dynamic with localization support {% endcomment %}
+      {% if section.blocks.size > 0 %}
+        <div class="flex flex-wrap text-base justify-center space-x-6" style="display:flex; justify-content:center">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'link_item' %}
+                <a
+                  href="{{ block.settings.link_url }}"
+                  class="text-sm uppercase tracking-wider px-0 py-1 transition hover:opacity-75 relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-px after:bg-current text-gray-900 after:transition-all after:duration-300 {% if block.settings.show_underline %}after:h-[1px] after:bg-gray-900{% else %}after:opacity-0 hover:after:opacity-50{% endif %}"
+                  style="border-bottom-width: 0;"
+                  {{ block.shopify_attributes }}>
+
+                  {% comment %} Use translation key if provided and exists, otherwise use custom text {% endcomment %}
+                  {% assign link_text = block.settings.link_text %}
+                  {% if block.settings.link_translation_key != blank %}
+                    {% assign translated_link = block.settings.link_translation_key | t | strip %}
+                    {% if translated_link != block.settings.link_translation_key %}
+                      {% assign link_text = translated_link %}
+                    {% endif %}
+                  {% endif %}
+                  {{ link_text }}
+                </a>
+            {% endcase %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Rich text (Custom)",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content & Style"
+      },
+      {
+        "type": "richtext",
+        "id": "heading",
+        "label": "Heading Text",
+        "default": "<p>OUR AIM: OFFER ELEGANT, TIMELESS & FUNCTIONAL PRODUCTS</p>",
+        "info": "Custom heading text (will be used if translation key is empty)"
+      },
+      {
+        "type": "text",
+        "id": "heading_translation_key",
+        "label": "Heading Translation Key",
+        "default": "sections.rich_text.our_aim",
+        "info": "Use translation key from locales file (e.g., 'sections.rich_text.our_aim')"
+      },
+      {
+        "type": "richtext",
+        "id": "subheading",
+        "label": "Subheading Text",
+        "default": "SUBHEADING",
+        "info": "Custom subheading text (will be used if translation key is empty)"
+      }, {
+        "type": "text",
+        "id": "subheading_translation_key",
+        "label": "Subheading Translation Key",
+        "default": "sections.rich_text.subheading",
+        "info": "Use translation key from locales file (e.g., 'sections.rich_text.subheading')"
+      }, {
+        "type": "select",
+        "id": "heading_style",
+        "label": "Heading Style",
+        "default": "h1",
+        "options": [
+          {
+            "value": "h1",
+            "label": "H1 (Largest)"
+          },
+          {
+            "value": "h2",
+            "label": "H2"
+          },
+          {
+            "value": "h3",
+            "label": "H3"
+          },
+          {
+            "value": "h4",
+            "label": "H4"
+          }, {
+            "value": "h5",
+            "label": "H5"
+          }, {
+            "value": "h6",
+            "label": "H6 (Smallest)"
+          }
+        ]
+      }, {
+        "type": "select",
+        "id": "content_position",
+        "label": "Content Position",
+        "default": "center",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      }, {
+        "type": "select",
+        "id": "content_width",
+        "label": "Content Width",
+        "default": "medium",
+        "options": [
+          {
+            "value": "x-small",
+            "label": "X-Small"
+          }, {
+            "value": "small",
+            "label": "Small"
+          }, {
+            "value": "medium",
+            "label": "Medium"
+          }, {
+            "value": "large",
+            "label": "Large"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "remove_vertical_spacing",
+        "default": false,
+        "label": "Remove vertical spacing"
+      }, {
+        "type": "header",
+        "content": "Color & Layout"
+      }, {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1",
+        "options": [
+          {
+            "value": "scheme-1",
+            "label": "Scheme 1 (Light Gray - matches image)"
+          }, {
+            "value": "scheme-2",
+            "label": "Scheme 2 (White)"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "separate_section_with_border",
+        "default": false,
+        "label": "Separate section with border"
+      }, {
+        "type": "text",
+        "id": "custom_css_class",
+        "label": "Custom CSS Class",
+        "info": "Add a custom class to the section wrapper for unique styling."
+      }
+    ],
+    "blocks": [
+      {
+        "type": "link_item",
+        "name": "Link Item",
+        "settings": [
+          {
+            "type": "text",
+            "id": "link_text",
+            "label": "Link Text",
+            "default": "Our story",
+            "info": "Custom link text (will be used if translation key is empty)"
+          }, {
+            "type": "text",
+            "id": "link_translation_key",
+            "label": "Link Translation Key",
+            "default": "sections.rich_text.our_story",
+            "info": "Use translation key from locales file (e.g., 'sections.rich_text.our_story')"
+          }, {
+            "type": "url",
+            "id": "link_url",
+            "label": "Link URL"
+          }, {
+            "type": "checkbox",
+            "id": "show_underline",
+            "label": "Show underline (Active Link)",
+            "default": false
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Rich Text with Links",
+        "settings": {
+          "heading_translation_key": "sections.rich_text.our_aim",
+          "subheading_translation_key": "sections.rich_text.subheading"
+        },
+        "blocks": [
+          {
+            "type": "link_item",
+            "settings": {
+              "link_translation_key": "sections.rich_text.our_story",
+              "show_underline": true
+            }
+          }, {
+            "type": "link_item",
+            "settings": {
+              "link_translation_key": "sections.rich_text.commitments",
+              "show_underline": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

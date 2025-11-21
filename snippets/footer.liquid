@@ -1,0 +1,490 @@
+<style>
+
+
+  /*
+   -------------------------------------
+   BASE STYLES & UTILITY CLASSES
+   -------------------------------------
+*/
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.3s;
+  }
+  a:hover {
+    color: #000;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 1: IMAGE GALLERY & SERVICE ICONS
+   -------------------------------------
+*/
+  .gallery-section {
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .gallery-header {
+    margin-bottom: 40px;
+  }
+
+  .gallery-tag {
+    font-size: 0.75em;
+    letter-spacing: 1.5px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .gallery-title {
+    font-size: 1.8em;
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: 1px;
+  }
+
+  .image-grid {
+    display: flex;
+
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 60px;
+  }
+
+  .image-item {
+    /* 5 items, each taking 20% */
+    max-width: 20%;
+    height: 250px;
+    /* Fixed height for uniform display */
+    overflow: hidden;
+  }
+
+  .image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease
+    , opacity 0.4s ease;
+  }
+  .image-item img:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+    cursor: pointer;
+  }
+
+  /* Service Icons / Trust Badges */
+  .service-bar {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-top: 40px;
+    border-top: 1px solid #eee;
+  }
+
+  .service-item {
+    flex: 1 1 25%;
+    padding: 0 10px;
+  }
+
+
+  .service-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto 10px;
+    /* Basic circle for icon placeholder */
+    background: #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 1em;
+    font-weight: bold;
+  }
+
+  .service-title {
+    font-size: 0.85em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 5px;
+  }
+
+  .service-body {
+    font-size: 0.8em;
+    color: #666;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+
+  /*
+   -------------------------------------
+   SECTION 2: FOOTER
+   -------------------------------------
+*/
+  .main-footer {
+    padding: 60px 0;
+    background-color: #f7f7f7;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .footer-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    padding-bottom: 30px;
+  }
+
+  .footer-column {
+    flex: 1 1 25%;
+    max-width: 25%;
+  }
+
+  .footer-column-large {
+    flex: 1 1 30%;
+    /* Give the last column slightly more space */
+    max-width: 30%;
+  }
+
+  .column-title {
+    font-size: 0.95em;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: 0 0 15px;
+    letter-spacing: 0.5px;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: 8px;
+    font-size: 0.85em;
+  }
+
+  .footer-description {
+    font-size: 0.85em;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* Footer Newsletter (Left Column) */
+  .footer-newsletter-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 0.85em;
+    margin-bottom: 15px;
+  }
+
+  .footer-subscribe-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .footer-subscribe-button:hover {
+    background-color: #000;
+  }
+
+
+  /* Social Media Icons */
+  .social-icons {
+    display: flex;
+    gap: 15px;
+    font-size: 1.2em;
+  }
+  .social-icons a {
+    color: #666;
+  }
+  .social-icons a:hover {
+    color: #333;
+  }
+
+
+  /*
+   -------------------------------------
+   RESPONSIVENESS (BREAKPOINTS) -------------------------------------
+*/
+
+  @media (max-width: 992px) {
+    /* Image Grid: Stack 3 images on one row, 2 on the next */
+    .image-grid {
+      flex-wrap: wrap;
+    }
+    .image-item {
+      flex: 1 1 33.333%;
+      max-width: 33.333%;
+    }
+    .image-item:nth-child(4),
+    .image-item:nth-child(5) {
+      flex: 1 1 50%;
+      max-width: 50%;
+    }
+
+    /* Footer: Stack on two rows */
+    .footer-grid {
+      flex-wrap: wrap;
+    }
+    .footer-column,
+    .footer-column-large {
+      flex: 1 1 45%;
+      /* Two columns per row */
+      max-width: 45%;
+      margin-bottom: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    /* Service Bar: Stack two items per row */
+    .service-bar {
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .service-item {
+      flex: 1 1 calc(50% - 10px);
+    }
+  }
+
+  @media (max-width: 576px) {
+    /* Image Grid: Stack all images vertically (or 2-3 per row if space permits) */
+    .image-grid {
+      flex-direction: column;
+    }
+    .image-item {
+      flex: 1 1 100%;
+      max-width: 100%;
+      height: 300px;
+      /* Taller on mobile */
+    }
+    .image-item:nth-child(4),
+    .image-item:nth-child(5) {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+
+    /* Footer: Stack all columns vertically */
+    .footer-grid {
+      flex-direction: column;
+      gap: 40px;
+    }
+    .footer-column,
+    .footer-column-large {
+      flex: 1 1 100%;
+      max-width: 100%;
+      text-align: center;
+    }
+    .social-icons {
+      justify-content: center;
+    }
+    .footer-links {
+      text-align: center;
+    }
+
+    /* Service Bar: Single column stack */
+    .service-item {
+      flex: 1 1 100%;
+    }
+  }
+</style>
+
+<!-- ====================================================================
+  SECTION 1: IMAGE GALLERY & SERVICE ICONS (@LEOETVIOLETTE)
+  ==================================================================== -->
+<section class="gallery-section">
+  <div class="container">
+
+    <!-- Header -->
+    <header class="gallery-header">
+      <p class="gallery-tag">JOIN US</p>
+      <h2 class="gallery-title">@LEOETVIOLETTE</h2>
+    </header>
+
+    <!-- Image Grid (5 Columns) -->
+    <div class="image-grid">
+      <!-- Note: In Liquid, you would loop through product images or Instagram feed data here -->
+      <div class="image-item">
+        <img
+          src="{{ 'leo.png' | asset_url }}"
+          alt="Black handbag on display"
+          width=""
+          height="" />
+      </div>
+      <div class="image-item">
+        <img
+          src="{{ 'leo-one.png' | asset_url }}"
+          alt="Woman holding a brown suede bag"
+          height=""
+          width="" />
+      </div>
+      <div class="image-item">
+        <img
+          src="{{ 'leo-two.png' | asset_url }}"
+          alt="Black cross-body bag on green background"
+          width=""
+          height="" />
+      </div>
+      <div class="image-item">
+        <img
+          src="{{ 'leo-three.png' | asset_url }}"
+          alt="Woman holding a brown leather clutch"
+          width=""
+          height="" />
+      </div>
+      <div class="image-item">
+        <img
+          src="{{ 'leo-four.png' | asset_url }}"
+          alt="Woman standing on a balcony with a black bag"
+          width=""
+          height="" />
+      </div>
+    </div>
+
+    <!-- Service Bar (Trust Badges) -->
+    <div class="service-bar">
+
+      <div class="service-item">
+        <!-- Icon Placeholder (use SVG/FontAwesome in Liquid) -->
+        <div class="service-icon">D</div>
+        <h3 class="service-title">EXPRESS DELIVERY</h3>
+        <p class="service-body">DHL express delivery worldwide</p>
+      </div>
+
+      <div class="service-item">
+        <!-- Icon Placeholder -->
+        <div class="service-icon">R</div>
+        <h3 class="service-title">FREE RETURNS</h3>
+        <p class="service-body">Free return for 30 days for any order delivered in France</p>
+      </div>
+
+      <div class="service-item">
+        <!-- Icon Placeholder -->
+        <div class="service-icon">C</div>
+        <h3 class="service-title">AVAILABLE CUSTOMER SERVICE</h3>
+        <p class="service-body">Available via Whatsapp on +33123456789</p>
+      </div>
+
+      <div class="service-item">
+        <!-- Icon Placeholder -->
+        <div class="service-icon">$</div>
+        <h3 class="service-title">PAYMENT IN 3X</h3>
+        <p class="service-body">Take advantage of a payment in 3X without fees from $100 of purchase</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ====================================================================
+  SECTION 2: FOOTER - Image 2
+  ==================================================================== -->
+<footer class="main-footer">
+
+  <div class="container">
+    <div class="footer-grid">
+
+      <!-- Column 1: Newsletter -->
+      <div class="footer-column">
+        <h4 class="column-title">NEWSLETTER</h4>
+        <p class="footer-description">
+          Subscribe to receive updates, access to exclusive deals, and more.
+        </p>
+        <!-- Newsletter Form (Placeholder for Liquid form) -->
+        <form onsubmit="event.preventDefault(); alert('Newsletter subscribed!')">
+          <input
+            type="email"
+            class="footer-newsletter-input"
+            placeholder="E-mail"
+            required>
+          <button type="submit" class="footer-subscribe-button">SUBSCRIBE</button>
+        </form>
+      </div>
+
+      <!-- Column 2: Shop -->
+      <div class="footer-column">
+        <h4 class="column-title">SHOP</h4>
+        <ul class="footer-links">
+          <li>
+            <a href="#">Women</a>
+          </li>
+          <li>
+            <a href="#">Men</a>
+          </li>
+          <li>
+            <a href="#">Small Leather Goods</a>
+          </li>
+          <li>
+            <a href="#">Collaboration</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Information -->
+      <div class="footer-column">
+        <h4 class="column-title">INFORMATION</h4>
+        <ul class="footer-links">
+          <li>
+            <a href="#">Theme Features</a>
+          </li>
+          <li>
+            <a href="#">About us</a>
+          </li>
+          <li>
+            <a href="#">Contact us</a>
+          </li>
+          <li>
+            <a href="#">FAQ</a>
+          </li>
+          <li>
+            <a href="#">Maintenance Tips</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 4: About The Shop (Large Column) -->
+      <div class="footer-column-large">
+        <h4 class="column-title">ABOUT THE SHOP</h4>
+        <p class="footer-description">
+          The story of Leo and Violette, it’s ours. We are Léo Dominguez & Violette Polchi. Two Parisian lovers sharing our lives for more than 8 years. Since the early days of our meeting, we always had the dream to develop a project together. Here it is!                                         
+                    Thanks to Léo et Violette for allowing us to use their products in this demo store.
+        </p>
+
+        <!-- Social Media Icons (Placeholder for simple characters) -->
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook">f</a>
+          <a href="#" aria-label="X/Twitter">x</a>
+          <a href="#" aria-label="Instagram">o</a>
+          <a href="#" aria-label="Vimeo">v</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</footer>

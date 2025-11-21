@@ -1,0 +1,71 @@
+{
+  "404": {
+    "title": "Page introuvable",
+    "not_found": "La page que vous recherchez est introuvable.",
+    "back_to_shopping": "Retour aux achats"
+  },
+  "blog": {
+    "article_comments": "Commentaires",
+    "article_metadata_html": "Publié par {{ author }} le {{ date }}",
+    "comment_form_body": "Votre commentaire",
+    "comment_form_email": "Adresse e-mail",
+    "comment_form_name": "Nom",
+    "comment_form_submit": "Publier",
+    "comment_form_title": "Laisser un commentaire"
+  },
+  "cart": {
+    "checkout": "Passer à la caisse",
+    "title": "Panier",
+    "update": "Mettre à jour",
+    "remove": "Supprimer"
+  },
+  "customers": {
+    "login": {
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "title": "Connexion"
+    }
+  },
+  "collections": {
+    "title": "Collections"
+  },
+  "gift_card": {
+    "add_to_apple_wallet": "Ajouter à Apple Wallet",
+    "card": "Carte-cadeau",
+    "expired": "Expiré",
+    "expires_on": "Expire le {{ expiry_date }}",
+    "use_at_checkout": "Utiliser lors du paiement"
+  },
+  "password": {
+    "title": "Mot de passe du magasin",
+    "password": "Mot de passe",
+    "enter": "Entrez le mot de passe pour accéder au magasin"
+  },
+  "search": {
+    "title": "Recherche",
+    "placeholder": "Rechercher des produits, articles, etc.",
+    "submit": "Rechercher",
+    "no_results_html": "Aucun résultat trouvé pour « {{ terms }} »",
+    "results_for_html": "Résultats pour « {{ terms }} »"
+  },
+  "sections": {
+    "countdown": {
+      "day": "Jour",
+      "hrs": "Heures",
+      "min": "Minutes",
+      "sec": "Secondes"
+    },
+    "rich_text": {
+      "our_aim": "NOTRE OBJECTIF : PROPOSER DES PRODUITS ÉLÉGANTS, INTEMPORELS ET FONCTIONNELS",
+      "subheading": "SOUS-TITRE",
+      "our_story": "Notre histoire",
+      "commitments": "Engagements",
+      "sustainability": "Durabilité",
+      "craftsmanship": "Savoir-faire",
+      "quality": "Qualité",
+      "heritage": "Héritage",
+      "innovation": "Innovation"
+    }
+  }
+}

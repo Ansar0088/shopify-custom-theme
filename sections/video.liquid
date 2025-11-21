@@ -1,0 +1,300 @@
+<div class='video-section'>
+
+ 
+
+  {% for block in section.blocks %}
+    {% case block.type %}
+      {% when 'video-stored' %}
+        <div class="stored-video" {{ block.shopify_attributes }}>
+          {{ block.settings.video | media_tag }}
+        </div>
+
+      {% when 'external-video' %}
+        {%- assign video_url = block.settings.video_url -%}
+        {%- assign video_id = video_url.id -%}
+        {%- assign aspect_ratio = section.settings.aspect_ratio | replace: '_', 'x' -%}
+
+        <div class="external-video video-player-container aspect-ratio-{{ aspect_ratio }}"
+             {{ block.shopify_attributes }}
+             data-video-platform="{{ video_url.type }}"
+             data-video-id="{{ video_id }}">
+
+          <div class="video-ratio-box">
+
+            <div class="video-cover-overlay">
+              
+              {%- if block.settings.poster_image != blank -%}
+                <img class="video-cover-image"
+                     src="{{ block.settings.poster_image | image_url: width: 1920 }}"
+                     srcset="{{ block.settings.poster_image | image_url: width: 960 }} 960w, {{ block.settings.poster_image | image_url: width: 1920 }} 1920w"
+                     alt="{{ block.settings.description | escape }}"
+                     loading="lazy"
+                     height=""
+                     width=""
+                     >
+              {%- else -%}
+                <div class="video-cover-placeholder"></div>
+              {%- endif -%}
+
+              <button class="video-play-button" aria-label="Play video: {{ block.settings.description | escape }}">
+                <svg viewBox="0 0 100 100" class="play-icon">
+                  <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <polygon points="40,35 70,50 40,65" fill="currentColor"/>
+                </svg>
+                {% comment %} REMOVED: <div class="play-text">VIDEO</div> {% endcomment %}
+              </button>
+            </div>
+
+            <div class="video-iframe-wrapper is-hidden">
+              <iframe data-video-id="{{ video_id }}"
+                      src="about:blank"
+                      class="{{ video_url.type }} video-iframe"
+                      title="{{ block.settings.description | escape }}"
+                      frameborder="0"
+                      allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen>
+              </iframe>
+            </div>
+            
+          </div>
+        </div>
+    {% endcase %}
+  {% endfor %}
+</div>
+
+<style>
+  /* --- FULL WIDTH MODIFICATIONS (Final Scrollbar Fix) --- */
+  
+  .video-section {
+    padding: 0;
+    /* FIX: Use calc() and margin-left to safely stretch to full viewport width (100vw) 
+       without causing horizontal scrollbar issues. */
+    width: 100%; 
+    position: relative;
+    /* This centers the 100vw element perfectly, ignoring parent padding/margins */
+    margin-left: calc(50% - 50vw); 
+  }
+  
+  /* Reset max-width on player container */
+  .video-player-container {
+      max-width: none;
+      width: 100%;
+      margin: 0;
+      position: relative;
+  }
+
+  /* --- BASE VIDEO STYLES --- */
+  
+  .video-section-heading {
+    /* To keep the heading text readable and not touching the screen edge, 
+       we apply margins and padding here while keeping the video full-width */
+    max-width: 1200px;
+    padding: 20px 20px 0;
+    margin: 0 auto;
+    width: auto;
+    position: relative;
+  }
+
+  .video-ratio-box {
+      position: relative;
+      width: 100%;
+      height: 0; 
+  }
+
+  .aspect-ratio-16x9 .video-ratio-box { padding-bottom: 56.25%; }
+  .aspect-ratio-4x3 .video-ratio-box { padding-bottom: 75%; }
+  .aspect-ratio-1x1 .video-ratio-box { padding-bottom: 100%; }
+  .aspect-ratio-21x9 .video-ratio-box { padding-bottom: 42.85%; }
+
+  .video-cover-overlay,
+  .video-iframe-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+  }
+
+  .video-iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+  }
+
+  .video-cover-overlay {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background-color: #f7f7f7;
+      transition: opacity 0.3s ease;
+  }
+  
+  .video-cover-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.2;
+      transition: opacity 0.3s ease;
+  }
+
+  .video-cover-placeholder {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff; 
+  }
+
+  .video-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #999999;
+      cursor: pointer;
+      font-family: sans-serif;
+      transition: color 0.2s ease;
+  }
+  
+  .video-play-button:hover {
+      color: #555555;
+  }
+
+  .play-icon {
+      /* Adjusted size to look more like the image */
+      width: 60px; 
+      height: 60px;
+  }
+
+  /* REMOVED: .play-text styles */
+
+  .video-iframe-wrapper.is-hidden {
+      display: none;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const videoContainers = document.querySelectorAll('.video-player-container');
+
+    videoContainers.forEach(container => {
+      const playButton = container.querySelector('.video-play-button');
+      const overlay = container.querySelector('.video-cover-overlay');
+      const iframeWrapper = container.querySelector('.video-iframe-wrapper');
+      const iframe = container.querySelector('.video-iframe');
+      
+      if (!playButton || !iframe) return; 
+
+      const videoId = container.dataset.videoId;
+      const platform = container.dataset.videoPlatform;
+      let url = '';
+
+      if (platform === 'youtube') {
+          // Changed URL to use rel=0 to prevent related videos when it ends
+          url = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0&showinfo=0&controls=1`;
+      } else if (platform === 'vimeo') {
+          url = `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=0&title=0&byline=0&portrait=0`;
+      }
+
+      playButton.addEventListener('click', () => {
+          // 1. Load the video
+          iframe.src = url;
+
+          // 2. Transition from poster to player
+          if (overlay) overlay.style.display = 'none';
+          if (iframeWrapper) iframeWrapper.classList.remove('is-hidden');
+      });
+    });
+  });
+</script>
+
+
+{% schema %}
+{
+  "name": "Videos",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Custom content heading",
+      "default": "Watch Our Latest Video"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Video size",
+      "default": "16_9",
+      "options": [
+        { "value": "21_9", "label": "21:9" },
+        { "value": "16_9", "label": "16:9 (Widescreen)" },
+        { "value": "4_3", "label": "4:3" },
+        { "value": "1_1", "label": "1:1 (Square)" }
+      ],
+      "info": "Choose 'Original video ratio' to avoid video cropping."
+    }
+  ],
+  "max_blocks": 1,
+  "blocks": [
+    {
+      "name": "Shopify Hosted Video",
+      "type": "video-stored",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "A Shopify-hosted video"
+        }
+      ]
+    },
+    {
+      "name": "External Video",
+      "type": "external-video",
+      "settings": [
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "accept": [
+            "youtube",
+            "vimeo"
+          ],
+          "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+          "label": "URL",
+          "info": "Video plays in the page."
+        },
+        {
+          "type": "image_picker",
+          "id": "poster_image",
+          "label": "Poster image",
+          "info": "Image shown before the video starts. This creates the light, monochrome look."
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Video alt text",
+          "info": "Describe the video for customers using screen readers."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Videos",
+      "blocks": [
+        {
+          "type": "external-video",
+          "settings": {
+            "description": "Default YouTube Video",
+            "video_url": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

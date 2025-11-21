@@ -1,0 +1,304 @@
+<style>
+
+
+  /* * BASE STYLES & UTILITY CLASSES 
+ * Using a clean sans-serif for the blog and a serif for commitments body text.
+ */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .ui-section {
+    padding: 60px 0;
+    font-family: 'Helvetica Neue'
+    , Arial
+    , sans-serif;
+    color: #333;
+    line-height: 1.6;
+  }
+  .ui-subtitle {
+    text-align: center;
+    font-size: 0.8em;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    color: #666;
+    text-transform: uppercase;
+  }
+  .ui-title {
+    text-align: center;
+    font-size: 2em;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+  h3 {
+    font-weight: 500;
+    font-size: 1.1em;
+    margin: 15px 0 10px;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    width: 100%;
+  }
+
+
+  /*
+   -------------------------------------
+   BLOG SECTION STYLES
+   -------------------------------------
+*/
+
+  .blog-section {
+    background-color: #f7f7f7;
+    text-align: center;
+  }
+  .blog-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto 50px;
+  }
+  .blog-post-card {
+    text-align: left;
+  }
+  .post-image-container {
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+  .post-category {
+    font-size: 0.7em;
+    letter-spacing: 1.5px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .read-more {
+    display: inline-block;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid currentColor;
+    margin-top: 10px;
+    transition: opacity 0.3s;
+  }
+  .read-more:hover {
+    opacity: 0.7;
+  }
+  .discover-button {
+    background-color: #333;
+    color: #fff;
+    padding: 15px 30px;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 2px;
+    display: inline-block;
+    transition: background-color 0.3s;
+  }
+  .discover-button:hover {
+    background-color: transparent;
+  }
+
+
+  .commitments-section {
+    padding: 0;
+    color: #fff;
+    font-family: Arial
+    , sans-serif;
+    background-color: #5d6e73;
+  }
+  /* This wrapper handles the 50/50 split */
+  .commitments-content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 500px;
+    max-width: 100%;
+    /* Ensure it spans full width */
+  }
+  /* The image column must have a fixed ratio/flex property */
+  .commitments-image {
+    flex: 1 1 50%;
+    position: relative;
+    overflow: hidden;
+    /* The image itself is styled to cover the container */
+  }
+  .commitments-image img {
+    height: 100%;
+    object-fit: cover;
+  }
+  /* The text column handles its own background/overlay and centering */
+  .commitments-text {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Center content vertically */
+    align-items: center;
+    /* Center content horizontally for the text block */
+    padding: 80px 100px;
+    box-sizing: border-box;
+    text-align: center;
+    /* Center text lines */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4))
+    , url('{{ 'nw.png' | asset_url }}');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .commitments-number {
+    font-size: 0.8em;
+    letter-spacing: 2px;
+    color: #ccc;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .commitments-text .ui-title {
+    text-align: center;
+    /* Keep text centered in this column */
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 2.2em;
+    font-weight: 500;
+  }
+  .commitments-body {
+    font-size: 1em;
+    margin-bottom: 30px;
+    line-height: 1.7;
+    font-family: Georgia
+    , serif;
+    max-width: 450px;
+    /* Constrain text width for better readability */
+  }
+  .learn-more {
+    font-size: 1em;
+    text-transform: capitalize;
+    padding-bottom: 2px;
+    border-bottom: 1px solid currentColor;
+    /* Align self is removed as align-items: center in parent handles centering */
+    transition: opacity 0.3s;
+  }
+
+
+  /*
+   -------------------------------------
+   RESPONSIVENESS (BREAKPOINTS) -------------------------------------
+*/
+
+  @media (max-width: 768px) {
+    /* BLOG SECTION: Stack cards */
+    .blog-posts-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    /* COMMITMENTS SECTION: Stack image and text */
+    .commitments-content-wrapper {
+      flex-direction: column;
+      min-height: auto;
+    }
+    .commitments-image {
+      flex: none;
+      height: 300px;
+      /* Give the image a fixed height on mobile */
+    }
+    .commitments-text {
+      flex: none;
+      padding: 50px 30px;
+    }
+    .commitments-body {
+      max-width: 100%;
+      /* Remove max-width on mobile */
+    }
+  }
+</style>
+
+
+<section class="ui-section commitments-section">
+  <div class="commitments-content-wrapper">
+
+    <div class="commitments-image">
+      <img
+        src="{{ 'sctn.png' | asset_url }}"
+        alt="Woman in light coat holding a black bag"
+        width=""
+        height="" />
+    </div>
+
+    <div class="commitments-text">
+      <p class="commitments-number">#2</p>
+      <h2 class="ui-title">OUR COMMITMENTS</h2>
+      <p class="commitments-body">
+        At Léo et Violette, from day one we have made responsibility part of our values. Towards you, and also towards the environment through the way we produce our collections. From design to distribution, we take the greatest care with our products, which reflect our values: timeless, quality, at the right price.
+      </p>
+      <a href="#" class="learn-more">Learn more</a>
+    </div>
+
+  </div>
+</section>
+
+
+<section class="ui-section blog-section">
+  <div class="container">
+    <p class="ui-subtitle">NEWS</p>
+    <h2 class="ui-title">FROM THE BLOG</h2>
+
+    <div class="blog-posts-grid">
+
+      <div class="blog-post-card">
+        <div class="post-image-container">
+          <img
+            src="{{ 'begs.png' | asset_url }}"
+            width=""
+            height=""
+            alt="Person wearing a dark blue business bag backpack" />
+        </div>
+        <p class="post-category">PRODUCT</p>
+        <h3 class="post-title">HOW TO CHOOSE YOUR BUSINESS BAG</h3>
+        <a href="#" class="read-more">Read more</a>
+      </div>
+
+      <div class="blog-post-card">
+        <div class="post-image-container">
+          <img
+            src="{{ 'bigs.png' | asset_url }}"
+            alt="Woman standing by a white cliff face in Etretat"
+            height=""
+            width="" />
+        </div>
+        <p class="post-category">STORY</p>
+        <h3 class="post-title">A SHOOTING DAY IN ETRETAT</h3>
+        <a href="#" class="read-more">Read more</a>
+      </div>
+
+      <div class="blog-post-card">
+        <div class="post-image-container">
+          <img
+            src="{{ 'blog.png' | asset_url }}"
+            alt="Black handbag, Le Gianni, on a light background"
+            height=""
+            width="" />
+        </div>
+        <p class="post-category">PRODUCT</p>
+        <h3 class="post-title">FOCUS ON YOUR NEW FAVORITE: LE GIANNI</h3>
+        <a href="...myshopify.com/blogs/news/focus-on-your-new-favorite-le-gianni..." class="read-more">Read more</a>
+      </div>
+
+    </div>
+
+    <div class="blog-footer">
+      <a href="#" class="discover-button">DISCOVER ALL OUR STORIES</a>
+    </div>
+  </div>
+</section>
+
+{% render 'add-to-cart' %}

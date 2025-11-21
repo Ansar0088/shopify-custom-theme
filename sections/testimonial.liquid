@@ -1,0 +1,442 @@
+{% comment %}
+  ============================================================================
+  SECTION: TESTIMONIAL/QUOTE SLIDER
+  - Displays testimonials/quotes in a centered, dark-themed slider.
+  - Features smooth dot-based navigation and an enhanced two-stage fade animation.
+  ============================================================================
+{% endcomment %}
+
+{% assign current_scheme = section.settings.color_scheme %}
+{% assign blocks_count = section.blocks.size %}
+
+{% assign has_blocks = false %}
+{% if blocks_count > 0 %}
+  {% assign has_blocks = true %}
+{% endif %}
+
+{% assign border_style = '' %}
+{% if section.settings.separator %}
+  {% comment %} Assuming a light border is desired on the dark background {% endcomment %}
+  {% assign border_style = 'border-top: 1px solid rgba(255, 255, 255, 0.1);' %}
+{% endif %}
+
+<style>
+  /* Load Inter font (Best practice is to load this globally in theme.liquid) */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&display=swap');
+
+  /* --- General Section Styles --- */
+  .section-{{ section.id }} {
+    font-family: 'Inter'
+    , sans-serif;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    padding: 100px 20px;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    
+  {{ border_style }}
+  }
+
+  /* --- Content/Slider Container --- */
+  .slider-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    /* Smooth height adjustment for different text lengths */
+    transition: height 0.5s ease-in-out;
+  }
+
+  /* --- Individual Slides (Absolute Positioning for Fade Effect) --- */
+  .testimonial-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    /* Default hidden state */
+    opacity: 0;
+    visibility: hidden;
+    /* Smooth transition for fade effect */
+    transition: opacity 0.5s ease-in-out
+    , visibility 0.5s ease-in-out;
+    pointer-events: none;
+
+    /* Ensure non-active slides don't contribute height or position */
+    z-index: 1;
+  }
+
+  /* Active slide state */
+  .testimonial-slide.active {
+    opacity: 1;
+    visibility: visible;
+    /* Only the active slide uses relative positioning to set container height */
+    position: relative;
+    pointer-events: auto;
+    z-index: 2;
+    /* Ensure the active slide is on top */
+  }
+
+  /* --- Content Text Styles --- */
+
+  .testimonial-subheading {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: #a0a0a0;
+    font-weight: 500;
+  }
+
+  .testimonial-heading {
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    color: #ffffff;
+  }
+
+  .testimonial-content {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+    color: #d0d0d0;
+  }
+
+  /* --- Dot Navigation --- */
+  .slider-dots {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #555555;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s
+    , transform 0.3s;
+  }
+
+  .dot.active {
+    background-color: #ffffff;
+    transform: scale(1.1);
+  }
+
+  /* --- Responsive Adjustments --- */
+  @media (max-width: 768px) {
+    .section-{{ section.id }} {
+      padding: 60px 20px;
+    }
+    .testimonial-heading {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+    .testimonial-content {
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+  }
+</style>
+
+<section
+  id="testimonial-slider-{{ section.id }}"
+  class="section-{{ section.id }}"
+  data-auto-rotate="{{ section.settings.auto_rotate }}">
+
+  <div class="slider-container" id="slider-container-{{ section.id }}">
+
+    {% for block in section.blocks %}
+      {% assign is_first = forloop.first %}
+      <div
+        class="testimonial-slide {% if is_first %}active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        data-active="{{ is_first }}">
+
+        {% if block.settings.subheading != blank %}
+          <p class="testimonial-subheading">{{ block.settings.subheading | escape }}</p>
+        {% endif %}
+
+        <h2 class="testimonial-heading">
+          {{ block.settings.heading | escape }}
+        </h2>
+
+        <div class="testimonial-content">
+          {% if block.settings.content != blank %}
+            {{ block.settings.content }}
+          {% else %}
+            <p>SLIDE {{ forloop.index }}: Please add content to this testimonial block in the Theme Editor.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      {% comment %} Default Content/Empty State Fallback - Shows the general placeholder {% endcomment %}
+      <div
+        class="testimonial-slide active"
+        data-index="0"
+        data-active="true">
+        <p class="testimonial-subheading">CUSTOMER FEEDBACK</p>
+        <h2 class="testimonial-heading">OUR HAPPY CLIENTS</h2>
+        <div class="testimonial-content">
+          <p>Share what your customers are saying about your products, customer service or shipping rates.</p>
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+
+  {% if blocks_count > 0 %}
+    <div class="slider-dots" id="dots-container-{{ section.id }}">
+      {% for i in (1..blocks_count) %}
+        {% assign dot_index = i | minus: 1 %}
+        <span
+          class="dot {% if forloop.first %}active{% endif %}"
+          data-index="{{ dot_index }}"
+          title="Go to slide {{ i }}"></span>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% comment %} Placeholder dots for the default empty state {% endcomment %}
+    <div class="slider-dots" id="dots-container-{{ section.id }}">
+      <span
+        class="dot active"
+        data-index="0"
+        title="Placeholder slide 1"></span>
+      <span
+        class="dot"
+        data-index="1"
+        title="Placeholder slide 2"></span>
+      <span
+        class="dot"
+        data-index="2"
+        title="Placeholder slide 3"></span>
+      <span
+        class="dot"
+        data-index="3"
+        title="Placeholder slide 4"></span>
+    </div>
+  {% endif %}
+
+</section>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sectionId = '{{ section.id }}';
+        const sliderContainer = document.getElementById(`slider-container-${sectionId}`);
+        const dotsContainer = document.getElementById(`dots-container-${sectionId}`);
+        const slides = sliderContainer.querySelectorAll('.testimonial-slide');
+        const dots = dotsContainer.querySelectorAll('.dot');
+        const sliderElement = document.getElementById(`testimonial-slider-${sectionId}`);
+        
+        if (!sliderElement || slides.length === 0) return;
+
+        const autoRotate = parseInt(sliderElement.dataset.autoRotate);
+
+        let currentIndex = 0;
+        
+        // Find the initially active index
+        slides.forEach((slide, index) => {
+            if (slide.classList.contains('active')) {
+                currentIndex = index;
+            }
+        });
+
+        let interval;
+        // The duration of the CSS opacity transition (in milliseconds)
+        const FADE_DURATION = 500; 
+        
+        function updateSlider(newIndex) {
+            if (newIndex < 0) {
+                newIndex = slides.length - 1;
+            } else if (newIndex >= slides.length) {
+                newIndex = 0;
+            }
+            
+            const currentSlide = slides[currentIndex];
+            const nextSlide = slides[newIndex];
+
+            if (currentSlide === nextSlide) return;
+            
+            // --- Step 1: Fade Out Current Slide & Set New Height ---
+            
+            // 1. Deactivate current slide (initiates the fade-out)
+            currentSlide.classList.remove('active');
+            
+            // 2. Set the container height to the NEW slide's height. This starts the height transition smoothly.
+            sliderContainer.style.height = `${nextSlide.offsetHeight}px`; 
+            
+            // 3. Deactivate current dot
+            dots[currentIndex].classList.remove('active');
+
+
+            // --- Step 2: Fade In Next Slide (After a short delay for cross-fade) ---
+            
+            setTimeout(() => {
+                // 4. Activate the new slide and dot (initiates the fade-in)
+                nextSlide.classList.add('active');
+                dots[newIndex].classList.add('active');
+            }, FADE_DURATION - 50);
+
+            currentIndex = newIndex;
+        }
+
+        function startAutoRotate() {
+            if (autoRotate > 0) {
+                clearInterval(interval);
+                interval = setInterval(() => {
+                    updateSlider(currentIndex + 1);
+                }, autoRotate * 1000); 
+            }
+        }
+
+        function stopAutoRotate() {
+            clearInterval(interval);
+        }
+
+        // --- Initialization ---
+        
+        window.addEventListener('load', () => {
+             updateSlider(currentIndex); 
+             startAutoRotate();
+        });
+        
+        window.addEventListener('resize', () => {
+             sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
+        });
+        
+        if (slides[currentIndex]) {
+             sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
+        }
+
+        // --- Event Listeners ---
+        
+        dots.forEach(dot => {
+            dot.addEventListener('click', function() {
+                stopAutoRotate();
+                const index = parseInt(this.dataset.index);
+                updateSlider(index);
+                startAutoRotate(); 
+            });
+        });
+        
+        sliderContainer.addEventListener('mouseenter', stopAutoRotate);
+        sliderContainer.addEventListener('mouseleave', startAutoRotate);
+    });
+</script>
+
+{% schema %}
+  {
+    "name": "Quote/Testimonial Slider",
+    "tag": "section",
+    "class": "section-quote-slider",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Slider Settings"
+      }, {
+        "type": "range",
+        "id": "auto_rotate",
+        "min": 0,
+        "max": 15,
+        "step": 1,
+        "unit": "s",
+        "label": "Auto rotate between slides",
+        "info": "Set to 0 to disable auto-rotation.",
+        "default": 8
+      }, {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-3",
+        "options": [
+          {
+            "value": "scheme-1",
+            "label": "Scheme 1"
+          }, {
+            "value": "scheme-2",
+            "label": "scheme-2"
+          }, {
+            "value": "scheme-3",
+            "label": "Scheme 3"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "separator",
+        "label": "Separate section with border",
+        "default": false
+      }
+    ],
+    "blocks": [
+      {
+        "type": "testimonial",
+        "name": "Testimonial/Quote",
+        "settings": [
+          {
+            "type": "header",
+            "content": "Content"
+          }, {
+            "type": "text",
+            "id": "subheading",
+            "label": "Subheading",
+            "default": "Customer Feedback"
+          }, {
+            "type": "text",
+            "id": "heading",
+            "label": "Heading",
+            "default": "Our Happy Clients"
+          }, {
+            "type": "richtext",
+            "id": "content",
+            "label": "Content",
+            "default": "<p>Sleek and compact, this piece keeps everything organized with just the right balance of structure and softness.</p>"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Quote/Testimonial Slider",
+        "category": "Text",
+        "blocks": [
+          {
+            "type": "testimonial",
+            "settings": {
+              "subheading": "DESIGN & FUNCTION",
+              "heading": "Minimalist Mastery",
+              "content": "<p>Minimalist design meets everyday function — perfect for keeping your essentials secure and stylish on the go.</p>"
+            }
+          }, {
+            "type": "testimonial",
+            "settings": {
+              "subheading": "QUALITY & FEEL",
+              "heading": "Premium Comfort",
+              "content": "<p>Sleek and compact, this piece keeps everything organized with just the right balance of structure and softness.</p>"
+            }
+          }, {
+            "type": "testimonial",
+            "settings": {
+              "subheading": "A REFINED CHOICE",
+              "heading": "Standout Style",
+              "content": "<p>Whether in classic black or a bold tone, it stands out for its smart compartments and refined leather finish.</p>"
+            }
+          }, {
+            "type": "testimonial",
+            "settings": {
+              "subheading": "CUSTOMER SUPPORT",
+              "heading": "Helpful Team",
+              "content": "<p>The customer service team answered all my questions promptly and kindly. It's rare to find such dedicated support. Five stars!</p>"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,338 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+<body>
+  <!-- Product Section -->
+  <section class="section">
+    <div class="container" style="font-family: sans-serif;">
+      <h2 class="section-title" style="font-weight: 300; font-size: larger;">Our best sellers</h2>
+
+      <!-- Category Tabs -->
+      <div class="category-tabs">
+        <div
+          class="category-tab active"
+          style="font-size: x-large;"
+          data-category="women">WOMEN</div>
+        <div
+          class="category-tab"
+          data-category="men"
+          style="font-size: x-large;">MEN</div>
+      </div>
+
+      <!-- Women's Products Slider -->
+      <div class="product-slider active" id="women-slider">
+        <div class="slider-container">
+          <div class="slider-track" id="women-track">
+            <!-- Product 1 -->
+
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'beg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <div style="display:flex; flex-direction: column; justify-content: center;">
+                <h3 class="product-title">LE PORTFOLIO NAVY</h3>
+
+                <div class="product-price">w461,000</div>
+              </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'beg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">LE NOUVEAU CARTABLE BUFFALO</h3>
+
+              <div class="product-price">w613,000</div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">LE COMPACT WEEKENDER BLACK</h3>
+
+              <div class="product-price">w666,000</div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">LE NOUVEAU BACKPACK BLACK</h3>
+              <div class="product-price">w613,000</div>
+            </div>
+            <!-- Product 5 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">LE NOUVEAU BACKPACK BLACK</h3>
+              <div class="product-price">w613,000</div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <button class="slider-nav prev" id="women-prev">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="slider-nav next" id="women-next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Men's Products Slider -->
+      <div class="product-slider" id="men-slider">
+        <div class="slider-container">
+          <div class="slider-track" id="men-track">
+            <!-- Product 1 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'mn-bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">MEN'S LEATHER BAG</h3>
+
+              <div class="product-price">w521,000</div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'mn-bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">EXECUTIVE BRIEFCASE</h3>
+
+              <div class="product-price">w589,000</div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'men-bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">URBAN BACKPACK</h3>
+
+              <div class="product-price">w478,000</div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'men-bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">TRAVEL DUFFLE</h3>
+
+              <div class="product-price">w635,000</div>
+            </div>
+            <!-- Product 4 -->
+
+            <div class="product-card">
+              <div class="product-image">
+                <img
+                  src="{{ 'men-bg.png' | asset_url }}"
+                  width=""
+                  height="" />
+              </div>
+              <h3 class="product-title">TRAVEL DUFFLE</h3>
+
+              <div class="product-price">w635,000</div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div>
+            <button class="slider-nav prev" id="men-prev">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-nav next" id="men-next">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dots Indicator -->
+        <div class="slider-dots" id="men-dots">
+          <span class="slider-dot active"></span>
+          <span class="slider-dot"></span>
+          <span class="slider-dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background-image: url('{{ 'big.png' | asset_url }}'); background-size: cover; background-position: center; height: 500px; margin-top: 15px; display: flex; flex-direction: column; justify-content: end; padding-bottom: 20px;">
+      <div class="container mx-auto flex items-center px-6 md:px-12">
+        <div class="text-white w-full">
+          <h1 class="text-md  font-bold mb-4" style="font-family: sans-serif;">New product</h1>
+          <p class="text-4xl mb-6">Le Backpack</p>
+          <a href="#" class="inline-block bg-white text-black font-medium py-3 px-8 rounded-sm hover:bg-gray-100 transition">SHOP</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% render 'our-aim' %}
+
+
+  <script>
+        // Category Tab Functionality
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const productSliders = document.querySelectorAll('.product-slider');
+        
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and sliders
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                productSliders.forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding slider
+                tab.classList.add('active');
+                const category = tab.getAttribute('data-category');
+                document.getElementById(`${category}-slider`).classList.add('active');
+                
+                // Reset sliders to first slide when switching categories
+                resetSlider(`${category}-track`, `${category}-dots`);
+            });
+        });
+        
+        // Initialize Sliders
+        function initSlider(trackId, prevBtnId, nextBtnId, dotsId) {
+            const track = document.getElementById(trackId);
+            const prevBtn = document.getElementById(prevBtnId);
+            const nextBtn = document.getElementById(nextBtnId);
+            const dots = document.querySelectorAll(`#${dotsId} .slider-dot`);
+            const slides = track.querySelectorAll('.product-card');
+            
+            let currentIndex = 0;
+            const slidesPerView = getSlidesPerView();
+            
+            function getSlidesPerView() {
+                if (window.innerWidth < 480) return 1;
+                if (window.innerWidth < 768) return 2;
+                if (window.innerWidth < 1024) return 3;
+                return 4;
+            }
+            
+            function updateSlider() {
+                const slideWidth = slides[0].offsetWidth + 24; // width + gap
+                track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+                updateDots();
+            }
+            
+            function updateDots() {
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentIndex);
+                });
+            }
+            
+            function nextSlide() {
+                const maxIndex = slides.length - slidesPerView;
+                if (currentIndex < maxIndex) {
+                    currentIndex++;
+                    updateSlider();
+                }
+            }
+            
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlider();
+                }
+            }
+            
+            function resetSlider() {
+                currentIndex = 0;
+                updateSlider();
+            }
+            
+            // Event Listeners
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+            
+            // Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentIndex = index;
+                    updateSlider();
+                });
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const newSlidesPerView = getSlidesPerView();
+                if (currentIndex > slides.length - newSlidesPerView) {
+                    currentIndex = Math.max(0, slides.length - newSlidesPerView);
+                }
+                updateSlider();
+            });
+            
+            // Initialize
+            updateSlider();
+            
+            return {
+                nextSlide,
+                prevSlide,
+                resetSlider
+            };
+        }
+        
+        // Initialize both sliders
+        const womenSlider = initSlider('women-track', 'women-prev', 'women-next', 'women-dots');
+        const menSlider = initSlider('men-track', 'men-prev', 'men-next', 'men-dots');
+        
+        // Reset slider function for category switching
+        function resetSlider(trackId, dotsId) {
+            if (trackId === 'women-track') {
+                womenSlider.resetSlider();
+            } else {
+                menSlider.resetSlider();
+            }
+        }
+        
+        // Color option selection
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentElement;
+                const siblings = parent.querySelectorAll('.color-option');
+                
+                siblings.forEach(sibling => {
+                    sibling.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+            });
+        });
+
+        // one-time call required by theme development guidelines
+        console.log('learn_shopify_api');
+  </script>
+</body>

@@ -1,0 +1,734 @@
+{% comment %}
+  ============================================================================
+  SECTION: Featured Product (Product of the Week)
+  ============================================================================
+{% endcomment %}
+
+{% assign current_product = section.settings.product %}
+{% assign section_width = section.settings.section_width %}
+{% assign product_info_width = section.settings.product_info_width | default: 50 %}
+
+{% assign background_color = section.settings.scheme_background | default: '#f7f7f7' %}
+{% assign text_color = section.settings.scheme_text | default: '#333333' %}
+{% assign button_bg = section.settings.scheme_button_bg | default: '#333333' %}{% assign button_text = section.settings.scheme_button_text | default: '#ffffff' %}
+
+{% comment %} Apply section width based on setting {% endcomment %}
+{% assign max_width_style = 'max-width: 1200px;' %}
+{% if section_width == 'large' %}
+  {% assign max_width_style = 'max-width: 1400px;' %}
+{% elsif section_width == 'x-large' %}
+  {% assign max_width_style = 'max-width: 1600px;' %}
+{% elsif section_width == 'full' %}
+  {% assign max_width_style = 'max-width: 100%;' %}
+{% endif %}
+
+<style>
+  /* --- SECTION STYLING --- */
+  .featured-product-section-{{ section.id }} {
+    background: {{ background_color }};
+    color: {{ text_color }};
+    padding: 60px 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    /* Separate section with border */
+  }
+
+  .featured-product-container {
+    margin: 0 auto;
+    padding: 0 20px;
+
+    
+  {{ max_width_style }}
+  }
+
+  /* --- HEADER STYLES --- */
+  .featured-product__subheading {
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 300;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+
+  .featured-product__heading {
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+    text-align: center;
+  }
+
+  /* --- PRODUCT LAYOUT (Desktop) --- */
+  .featured-product__content {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    /* Align product details to the top */
+  }
+
+  .featured-product__media-wrapper {
+    flex-grow: 1;
+    display: flex;
+    /* Use flex to center image within its wrapper */
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding-bottom: 50px;
+    /* Space for dots */
+    min-height: 300px;
+    /* Ensure a minimum height even for small images */
+  }
+
+  .featured-product__info-wrapper {
+    width: {{ product_info_width }}%;
+    padding-top: 20px;
+    /* Align with media top */
+  }
+
+  /* --- PRODUCT INFO STYLES --- */
+  .product-details__title {
+    font-size: 24px;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .product-details__price {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    /* Line under price */
+  }
+
+  .product-details__description {
+    font-size: 14px;
+    margin-bottom: 25px;
+    line-height: 1.6;
+    color: {{ text_color }};
+  }
+
+  /* --- QUANTITY SELECTOR --- */
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    width: fit-content;
+    /* Make it fit its content */
+  }
+
+  .quantity-button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 10px 15px;
+    color: {{ text_color }};
+    transition: background 0.2s;
+  }
+  .quantity-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .quantity-input {
+    width: 40px;
+    text-align: center;
+    border: none;
+    -moz-appearance: textfield;
+    /* Firefox hides arrows */
+    font-size: 16px;
+    color: {{ text_color }};
+    padding: 10px 0;
+  }
+  .quantity-input::-webkit-outer-spin-button,
+  .quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    /* Chrome, Safari hide arrows */
+    margin: 0;
+  }
+
+
+  /* --- ADD TO CART BUTTON --- */
+  .product-details__buy-button {
+    background: {{ button_bg }};
+    color: {{ button_text }};
+    border: 1px solid{{ button_bg }};
+    padding: 15px 30px;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.3s;
+  }
+  .product-details__buy-button:hover {
+    opacity: 0.8;
+  }
+
+  /* --- MEDIA CAROUSEL STYLES (The Dots) --- */
+  .media-slides {
+    position: relative;
+    max-width: 500px;
+    /* Constrain max width of the media viewer */
+    margin: 0 auto;
+    /* Center the media viewer */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* Use flex to manage slides */
+    justify-content: center;
+    align-items: center;
+  }
+
+  .media-slide {
+    display: none;
+    position: absolute;
+    /* Stack slides */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    line-height: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    /* Smooth fade transition */
+    text-align: center;
+    display: flex;
+    /* Use flex for image centering */
+    justify-content: center;
+    align-items: center;
+  }
+
+  .media-slide.active {
+    display: flex;
+    /* Keep flex for active slide */
+    opacity: 1;
+    position: relative;
+    /* Bring active slide to front in normal flow */
+  }
+
+  .media-slide img {
+    max-width: 90%;
+    /* Keep image within bounds of its container */
+    max-height: 400px;
+    /* Control max height for large images */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    /* Ensure image scales correctly without cropping */
+    display: block;
+    /* Remove extra space below image */
+  }
+  .media-video-wrapper video {
+    max-width: 90%;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .media-dots {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    z-index: 10;
+  }
+
+  .media-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .media-dot.active {
+    background: {{ text_color }};
+  }
+
+  /* --- MOBILE RESPONSIVENESS --- */
+  @media (max-width: 990px) {
+    .featured-product-container {
+      padding: 0 10px;
+    }
+
+    .featured-product__content {
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .featured-product__media-wrapper {
+      width: 100%;
+      padding-bottom: 30px;
+      min-height: 250px;
+      /* Adjust min-height for mobile */
+    }
+
+    .media-slide img,
+    .media-video-wrapper video {
+      max-width: 100%;
+      max-height: 300px;
+    }
+
+    .featured-product__info-wrapper {
+      width: 100%;
+      padding-top: 0;
+      /* Center basic info on mobile based on schema setting */
+      {% if section.settings.center_mobile_info %}
+        text-align: center;
+      {% endif %}
+    }
+
+    .product-details__title,
+    .product-details__description,
+    .product-details__price {
+      {% if section.settings.center_mobile_info %}
+        text-align: center;
+      {% endif %}
+    }
+
+    .quantity-selector {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .product-details__buy-button {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .featured-product__heading {
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
+    .product-details__title {
+      font-size: 20px;
+    }
+  }
+</style>
+
+<section class="featured-product-section-{{ section.id }}">
+  <div class="featured-product-container">
+
+    {%- comment -%} Section Header {%- endcomment -%}
+    <p class="featured-product__subheading">{{ section.settings.subheading | default: 'OUR SELECTION' }}</p>
+    <h2 class="featured-product__heading">{{ section.settings.heading | default: 'PRODUCT OF THE WEEK' }}</h2>
+
+    {% if current_product == blank %}
+      {%- comment -%} Placeholder content for when no product is selected {%- endcomment -%}
+      <div class="featured-product__content">
+        <div class="featured-product__media-wrapper">
+          <div class="media-slides" id="media-slides-{{ section.id }}">
+            <div class="media-slide active">
+              <div style="max-width: 400px; margin: 0 auto; padding: 20px;">
+                {% comment %} Placeholder SVG matching the glasses image style {% endcomment %}
+                <svg
+                  viewBox="0 0 500 200"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style="fill:none; stroke:{{ text_color }}; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; width:100%; height:auto;">
+                  <rect
+                    x="100"
+                    y="50"
+                    width="150"
+                    height="80"
+                    rx="10"
+                    ry="10" />
+                  <rect
+                    x="250"
+                    y="50"
+                    width="150"
+                    height="80"
+                    rx="10"
+                    ry="10" />
+                  <path d="M100 90 L0 80 M400 90 L500 80" />
+                  <circle
+                    cx="250"
+                    cy="90"
+                    r="10" />
+                </svg>
+              </div>
+            </div>
+            {% comment %} Add a few more slides for the dots to work (adjust `max-width` for consistency) {% endcomment %}
+            <div class="media-slide">
+              <div style="width: 100%; height: 200px; max-width: 400px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.2);">NO IMAGE 2</div>
+            </div>
+          </div>
+          <div class="media-dots" id="media-dots-{{ section.id }}">
+            <div class="media-dot active" data-index="0"></div>
+            <div class="media-dot" data-index="1"></div>
+            <div class="media-dot" data-index="2"></div>
+          </div>
+        </div>
+
+        <div class="featured-product__info-wrapper">
+          <p class="product-details__title">PRODUCT</p>
+          <div class="product-details__description">Write text about your product.</div>
+          <p class="product-details__price">£99.99</p>
+
+          <div class="quantity-selector">
+            <button
+              type="button"
+              class="quantity-button"
+              name="minus"
+              aria-label="Decrease quantity">-</button>
+            <input
+              type="number"
+              name="quantity"
+              id="quantity-{{ section.id }}"
+              value="1"
+              min="1"
+              class="quantity-input"
+              form="product-form-{{ section.id }}">
+            <button
+              type="button"
+              class="quantity-button"
+              name="plus"
+              aria-label="Increase quantity">+</button>
+          </div>
+
+          <button class="product-details__buy-button">Add to Cart</button>
+        </div>
+      </div>
+
+    {% else %}
+      {%- comment -%} Live Product Content {%- endcomment -%}
+      {% assign product_form_id = 'product-form-' | append: section.id %}
+
+      <div class="featured-product__content">
+
+        <div class="featured-product__media-wrapper">
+          <div class="media-slides" id="media-slides-{{ section.id }}">
+            {% for media in current_product.media limit: 4 %}
+              <div class="media-slide {% if forloop.first %}active{% endif %}" data-media-id="{{ media.id }}">
+                {% case media.media_type %}
+                  {% when 'image' %}
+                    {{ media | image_url: width: 800 | image_tag: loading: 'lazy', sizes: '(max-width: 990px) 100vw, 50vw', alt: media.alt }}
+                  {% when 'video'
+                    , 'external_video' %}
+                    <div class="media-video-wrapper">
+                      {{ media | video_tag: controls: true, loop: section.settings.enable_video_looping, class: 'product-video', image_size: '800x' }}
+                    </div>
+                  {% else %}
+                    {% comment %} Fallback for unhandled media types {% endcomment %}
+                    {{ media | image_url: width: 800 | image_tag: loading: 'lazy', sizes: '(max-width: 990px) 100vw, 50vw', alt: media.alt }}
+                {% endcase %}
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if current_product.media.size > 1 %}
+            <div class="media-dots" id="media-dots-{{ section.id }}">
+              {% for media in current_product.media limit: 4 %}
+                <div class="media-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}"></div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="featured-product__info-wrapper">
+          <p class="product-details__title">{{ current_product.title }}</p>
+
+          {% comment %} <div class="product-details__description">
+                        {{ current_product.description | strip_html | truncatewords: 40 }}
+                        <a href="{{ current_product.url }}" style="color: {{ text_color }}; text-decoration: underline; display: block; margin-top: 10px;">Read more</a>
+                    </div> {% endcomment %}
+
+          <p class="product-details__price">{{ current_product.price | money }}</p>
+
+          {% form 'product'
+            , current_product
+            , id: product_form_id
+            , class: 'product-form' %}
+            <input
+              type="hidden"
+              name="id"
+              value="{{ current_product.variants.first.id }}">
+
+            <div class="quantity-selector">
+              <button
+                type="button"
+                class="quantity-button"
+                name="minus"
+                aria-label="Decrease quantity">-</button>
+              <input
+                type="number"
+                name="quantity"
+                id="quantity-{{ section.id }}"
+                value="1"
+                min="1"
+                class="quantity-input">
+              <button
+                type="button"
+                class="quantity-button"
+                name="plus"
+                aria-label="Increase quantity">+</button>
+            </div>
+
+            <button
+              type="submit"
+              name="add"
+              class="product-details__buy-button"
+              {% if current_product.variants.first.available == false %}
+              disabled
+              {% endif %}>
+              {% if current_product.variants.first.available %}
+                ADD TO CART
+              {% else %}
+                SOLD OUT
+              {% endif %}
+            </button>
+          {% endform %}
+
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<script>
+  // Dynamic Product Media Slider (Carousel) Logic
+  const slidesContainer_{{ section.id }} = document.getElementById('media-slides-{{ section.id }}');
+  const dotsContainer_{{ section.id }} = document.getElementById('media-dots-{{ section.id }}');
+  
+  if (slidesContainer_{{ section.id }} && dotsContainer_{{ section.id }}) {
+    const slides_{{ section.id }} = slidesContainer_{{ section.id }}.querySelectorAll('.media-slide');
+    const dots_{{ section.id }} = dotsContainer_{{ section.id }}.querySelectorAll('.media-dot');
+    let currentIndex_{{ section.id }} = 0;
+
+    function showSlide_{{ section.id }}(index) {
+      // Deactivate all
+      slides_{{ section.id }}.forEach(slide => slide.classList.remove('active'));
+      dots_{{ section.id }}.forEach(dot => dot.classList.remove('active'));
+
+      // Activate the current index
+      if (slides_{{ section.id }}[index]) {
+        slides_{{ section.id }}[index].classList.add('active');
+      }
+      if (dots_{{ section.id }}[index]) {
+        dots_{{ section.id }}[index].classList.add('active');
+      }
+      currentIndex_{{ section.id }} = index;
+    }
+
+    // Attach click listeners to dots
+    dots_{{ section.id }}.forEach(dot => {
+      dot.addEventListener('click', function() {
+        const index = parseInt(this.getAttribute('data-index'));
+        showSlide_{{ section.id }}(index);
+      });
+    });
+
+    // Optional: Auto-play functionality
+    {% if section.settings.enable_media_autoplay %}
+      let autoplayInterval_{{ section.id }};
+      
+      function startAutoplay_{{ section.id }}() {
+        clearInterval(autoplayInterval_{{ section.id }}); 
+        autoplayInterval_{{ section.id }} = setInterval(() => {
+          let nextIndex = (currentIndex_{{ section.id }} + 1) % slides_{{ section.id }}.length;
+          showSlide_{{ section.id }}(nextIndex);
+        }, 5000); // Change slide every 5 seconds
+      }
+      
+      startAutoplay_{{ section.id }}();
+      
+      // Pause autoplay on hover/interaction
+      slidesContainer_{{ section.id }}.addEventListener('mouseenter', () => clearInterval(autoplayInterval_{{ section.id }}));
+      slidesContainer_{{ section.id }}.addEventListener('mouseleave', startAutoplay_{{ section.id }});
+      dotsContainer_{{ section.id }}.addEventListener('click', () => {
+        clearInterval(autoplayInterval_{{ section.id }});
+        startAutoplay_{{ section.id }}();
+      });
+    {% endif %}
+
+    // Initialize the first slide
+    showSlide_{{ section.id }}(0);
+  }
+
+  // Quantity Selector Logic
+  document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantity-{{ section.id }}');
+    const minusButton = quantityInput ? quantityInput.previousElementSibling : null;
+    const plusButton = quantityInput ? quantityInput.nextElementSibling : null;
+
+    if (quantityInput && minusButton && plusButton) {
+      minusButton.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        if (currentValue > parseInt(quantityInput.min)) {
+          quantityInput.value = currentValue - 1;
+        }
+      });
+
+      plusButton.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value);
+        quantityInput.value = currentValue + 1;
+      });
+
+      // Prevent non-numeric input for quantity
+      quantityInput.addEventListener('change', () => {
+        let value = parseInt(quantityInput.value);
+        if (isNaN(value) || value < parseInt(quantityInput.min)) {
+          quantityInput.value = parseInt(quantityInput.min);
+        }
+      });
+    }
+  });
+</script>
+
+{% schema %}
+  {
+    "name": "Featured Product",
+    "tag": "section",
+    "class": "section-featured-product",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Product Selection"
+      },
+      {
+        "type": "product",
+        "id": "product",
+        "label": "Product",
+        "info": "Select a product to feature."
+      },
+      {
+        "type": "header",
+        "content": "Section Header"
+      },
+      {
+        "type": "text",
+        "id": "subheading",
+        "label": "Subheading",
+        "default": "OUR SELECTION"
+      }, {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "PRODUCT OF THE WEEK"
+      }, {
+        "type": "header",
+        "content": "Color Scheme"
+      }, {
+        "type": "color",
+        "id": "scheme_background",
+        "label": "Background color",
+        "default": "#f7f7f7"
+      }, {
+        "type": "color",
+        "id": "scheme_text",
+        "label": "Text color",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "scheme_button_bg",
+        "label": "Button background",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "scheme_button_text",
+        "label": "Button text",
+        "default": "#ffffff"
+      }, {
+        "type": "header",
+        "content": "Layout Settings"
+      }, {
+        "type": "select",
+        "id": "section_width",
+        "label": "Section width",
+        "default": "large",
+        "options": [
+          {
+            "value": "large",
+            "label": "Large"
+          }, {
+            "value": "x-large",
+            "label": "X-Large"
+          }, {
+            "value": "full",
+            "label": "Full width"
+          }
+        ]
+      }, {
+        "type": "range",
+        "id": "product_info_width",
+        "min": 30,
+        "max": 70,
+        "step": 5,
+        "unit": "%",
+        "label": "Product info width (desktop)",
+        "default": 50,
+        "info": "Product media will fill the remaining space."
+      }, {
+        "type": "checkbox",
+        "id": "center_mobile_info",
+        "label": "Center basic info on mobile",
+        "default": true,
+        "info": "Includes title, vendor, price, and rating (if available)."
+      }, {
+        "type": "header",
+        "content": "Media Display"
+      }, {
+        "type": "select",
+        "id": "desktop_media_layout",
+        "label": "Desktop media layout",
+        "default": "dots",
+        "options": [
+          {
+            "value": "dots",
+            "label": "Dots (carousel)"
+          }
+        ],
+        "info": "This setting is for display purposes only. The carousel uses Dots."
+      }, {
+        "type": "select",
+        "id": "mobile_controls",
+        "label": "Mobile controls",
+        "default": "dots",
+        "options": [
+          {
+            "value": "dots",
+            "label": "Dots"
+          }, {
+            "value": "thumbnails",
+            "label": "Thumbnails"
+          }, {
+            "value": "free_scroll",
+            "label": "Free scroll"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "enable_media_autoplay",
+        "label": "Enable media autoplay",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "enable_video_looping",
+        "label": "Enable video looping",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured Product (Product of the Week)",
+        "category": "Product"
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,272 @@
+{% comment %}
+  Responsive Marquee Section (Two Marquees: RTL and LTR)
+
+  This section always renders two separate scrolling banners moving in opposite
+  directions. All styling (color, speed, font size) is controlled by the Liquid schema.
+{% endcomment %}
+
+{% assign section_id = section.id %}{% assign settings = section.settings %}
+
+{% comment %} --- Dynamic Settings Assignment --- {% endcomment %}
+{% assign scroll_text = settings.text_content %}
+{% assign speed = settings.scroll_speed | append: 's' %}
+{% assign bg_color = settings.background_color %}
+{% assign text_color = settings.text_color %}{% assign border_color = settings.border_color %}
+
+{% comment %}
+  --- Prepare Content for Seamless Loop ---
+  We split the text by space and loop through it twice in the HTML output.
+{% endcomment %}
+{% assign words = scroll_text | split: ' ' %}
+
+  <div class="marquee-section-container" data-section-id="{{ section_id }}" style="background-color: #EFEFEF">
+  <style>
+    /* Define CSS Variables based on Schema Settings */
+    .marquee-section-container[data-section-id="{{ section_id }}"] {
+      /* Colors */
+      --marquee-bg: {{ bg_color }};
+      --marquee-text-color: {{ text_color }};
+      --marquee-border-color: {{ border_color }};
+
+      /* Typography (Font size and spacing remain fluid using clamp) */
+      --font-size-mobile: {{ settings.font_size_mobile }}px;
+      --font-size-desktop: {{ settings.font_size_desktop }}px;
+      --text-size: clamp(var(--font-size-mobile), 8vw, var(--font-size-desktop));
+
+      /* Spacing/Gap */
+      --gap-mobile: {{ settings.gap_mobile }}px;
+      --gap-desktop: {{ settings.gap_desktop }}px;
+      --content-gap: clamp(var(--gap-mobile), 6vw, var(--gap-desktop));
+
+      /* Section Padding */
+      --padding-y-mobile: {{ settings.padding_y_mobile }}px;
+      --padding-y-desktop: {{ settings.padding_y_desktop }}px;
+      --section-padding-y: clamp(var(--padding-y-mobile), 5vw, var(--padding-y_desktop));
+
+      /* Animation Speed */
+      --scroll-speed: {{ speed }};
+    }
+
+    /* --- Core Marquee Structure and Styling --- */
+    .marquee-wrap-{{ section_id }} {
+      background-color: var(--marquee-bg);
+      padding: var(--section-padding-y) 0;
+      overflow: hidden;
+      border-top: 1px solid var(--marquee-border-color);
+      border-bottom: 1px solid var(--marquee-border-color);
+      margin-bottom: 15px;
+      /* Add slight separation between the two marquees */
+      font-family: 'Inter'
+      , sans-serif;
+    }
+
+    /* Remove border on the last marquee in the group */
+    .marquee-section-container .marquee-wrap-{{ section_id }}:last-of-type {
+      margin-bottom: 0;
+    }
+
+
+    /* Pause on hover implementation */
+    .marquee-wrap-{{ section_id }}:hover .marquee-content {
+      animation-play-state: paused;
+    }
+
+    .marquee {
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .marquee-content {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--content-gap);
+      animation: scroll var(--scroll-speed) linear infinite;
+    }
+
+    .marquee-content span {
+      font-size: var(--text-size);
+      letter-spacing: clamp(4px, 1vw, 10px);
+      color: var(--marquee-text-color);
+      font-weight: 300;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+
+    /* Scroll Direction Logic: RTL is default (normal animation direction) */
+    .ltr-marquee .marquee-content {
+      animation-direction: reverse;
+      /* Scrolls Left to Right */
+    }
+
+    /* Keyframes for the scrolling effect */
+    @keyframes scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+
+  {% comment %} --- MARQUEE 1: RIGHT TO LEFT (Default Direction) --- {% endcomment %}
+  <section class="marquee-wrap-{{ section_id }} rtl-marquee">
+    <div class="marquee">
+      <div class="marquee-content">
+        {% comment %} Loop through the content twice for seamless animation {% endcomment %}
+        {% for word in words %}
+          <span>{{ word }}</span>
+        {% endfor %}
+        {% for word in words %}
+          <span>{{ word }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {% comment %} --- MARQUEE 2: LEFT TO RIGHT (Reverse Direction) --- {% endcomment %}
+  <section class="marquee-wrap-{{ section_id }} ltr-marquee">
+    <div class="marquee">
+      <div class="marquee-content">
+        {% comment %} Loop through the content twice for seamless animation {% endcomment %}
+        {% for word in words %}
+          <span>{{ word }}</span>
+        {% endfor %}
+        {% for word in words %}
+          <span>{{ word }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+
+{% comment %}
+  --- SCHEMA BLOCK FOR DYNAMIC SETTINGS ---
+  Note: The scroll_direction setting is now effectively ignored since we render both.
+{% endcomment %}
+{% schema %}
+  {
+    "name": "Scrolling Text Marquee",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content & Speed"
+      },
+      {
+        "type": "text",
+        "id": "text_content",
+        "label": "Scrolling Text Content (Separated by space)",
+        "default": "New: Our Bag This is my Scrolling content Liquid Section File APPLY SETTINGS",
+        "info": "The content will be split by spaces and scrolled."
+      },
+      {
+        "type": "range",
+        "id": "scroll_speed",
+        "min": 5,
+        "max": 60,
+        "step": 1,
+        "unit": "s",
+        "label": "Scrolling Speed",
+        "default": 28
+      },
+      {
+        "type": "select",
+        "id": "scroll_direction",
+        "label": "Scroll Direction (Ignored: Both directions are shown)",
+        "options": [
+          {
+            "value": "rtl",
+            "label": "Right to Left"
+          }, {
+            "value": "ltr",
+            "label": "Left to Right"
+          }
+        ],
+        "default": "rtl",
+        "info": "This setting is present for compatibility but the section displays two marquees moving in opposite directions automatically."
+      }, {
+        "type": "header",
+        "content": "Colors"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#EFEFEF"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text Color",
+        "default": "#B3B3B3"
+      }, {
+        "type": "color",
+        "id": "border_color",
+        "label": "Border Color",
+        "default": "#dddddd"
+      }, {
+        "type": "header",
+        "content": "Typography & Spacing (Responsive)"
+      }, {
+        "type": "range",
+        "id": "font_size_mobile",
+        "min": 10,
+        "max": 40,
+        "step": 1,
+        "unit": "px",
+        "label": "Font Size (Mobile)",
+        "default": 22
+      }, {
+        "type": "range",
+        "id": "font_size_desktop",
+        "min": 40,
+        "max": 120,
+        "step": 1,
+        "unit": "px",
+        "label": "Font Size (Desktop)",
+        "default": 80
+      }, {
+        "type": "range",
+        "id": "gap_mobile",
+        "min": 10,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "label": "Gap between content (Mobile)",
+        "default": 20
+      }, {
+        "type": "range",
+        "id": "gap_desktop",
+        "min": 40,
+        "max": 100,
+        "step": 1,
+        "unit": "px",
+        "label": "Gap between content (Desktop)",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_y_mobile",
+        "min": 10,
+        "max": 50,
+        "step": 1,
+        "unit": "px",
+        "label": "Section Vertical Spacing (Mobile)",
+        "default": 20
+      }, {
+        "type": "range",
+        "id": "padding_y_desktop",
+        "min": 20,
+        "max": 80,
+        "step": 1,
+        "unit": "px",
+        "label": "Section Vertical Spacing (Desktop)",
+        "default": 40
+      }
+    ],
+    "presets": [
+      {
+        "name": "Scrolling Text Marquee (Dual)",
+        "category": "Text"
+      }
+    ]
+  }
+{% endschema %}

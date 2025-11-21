@@ -1,0 +1,73 @@
+{% comment %}
+  ============================================================================
+  SNIPPET: Localization Form (Language Selector ONLY)
+  - MODIFIED to display ONLY the language selector.
+  - All Country/Region/Currency logic has been removed.
+  ============================================================================
+{% endcomment %}
+
+{% if localization.available_languages.size > 1 %}
+  <localization-form>
+    {% form 'localization'
+      , class: 'localization-form localization-form--language' %}
+      <div class="localization-selector localization-selector--language" data-disclosure-menu>
+
+        <button
+          type="button"
+          class="localization-selector__button"
+          aria-expanded="false"
+          aria-controls="localization-list-language-{{ section.id }}"
+          data-disclosure-toggle>
+
+          {% comment %} Icon and Current Language Name {% endcomment %}
+          <span class="localization-flag" role="img">🌐</span>
+          <span class="localization-language">{{ localization.language.endonym_name | capitalize }}</span>
+
+          <span class="icon-chevron-down">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </span>
+        </button>
+
+        <ul
+          id="localization-list-language-{{ section.id }}"
+          class="localization-selector__list"
+          data-disclosure-list
+          hidden>
+
+          {% comment %} List all available languages {% endcomment %}
+          {% for language in localization.available_languages %}
+            <li class="localization-group localization-group--languages">
+              <a
+                href="#"
+                class="localization-list__item {% if language.iso_code == localization.language.iso_code %}active{% endif %}"
+                data-input-name="language_code"
+                data-value="{{ language.iso_code }}">
+                {{ language.endonym_name | capitalize }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% comment %} Hidden inputs required for the form submission {% endcomment %}
+        <input
+          type="hidden"
+          name="language_code"
+          value="{{ localization.language.iso_code }}" />
+        <input
+          type="hidden"
+          name="country_code"
+          value="{{ localization.country.iso_code }}" />
+
+      </div>
+    {% endform %}
+  </localization-form>
+{% endif %}

@@ -1,0 +1,446 @@
+{% comment %}
+  ============================================================================
+  SECTION: Countdown Timer Bar (CORRECTED VERSION)
+  - Fixed timer calculation
+  - Improved mobile responsiveness
+  - Better default values
+  ============================================================================
+{% endcomment %}
+
+{% style %}
+  /* --- SECTION SETTINGS VARIABLES --- */
+  .countdown-section-{{ section.id }} {
+    /* Background and Text Colors */
+    --color-text: {{ section.settings.text_color | default: '#FFFFFF' }};
+    --color-background: {{ section.settings.background_color | default: '#222222' }};
+    --color-accent: {{ section.settings.accent_color | default: '#FFFFFF' }};
+
+    background-color: var(--color-background);
+    color: var(--color-text);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    /* Default desktop spacing */
+    justify-content: {{ section.settings.content_justification | default: 'space-between' }};
+    font-size: 12px;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    sans-serif;
+  }
+
+  /* --- CONTENT STYLES (Left Side: Text and Link) --- */
+  .countdown-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-transform: uppercase;
+    flex-shrink: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .countdown-content .announcement-text {
+    /* Allow text to wrap naturally */
+    white-space: normal;
+    line-height: 1.2;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .countdown-content a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-text);
+    padding-bottom: 2px;
+    white-space: nowrap;
+    /* Keep SHOP NOW on one line */
+    transition: opacity 0.3s ease;
+  }
+
+  .countdown-content a:hover {
+    opacity: 0.8;
+  }
+
+  /* --- TIMER STYLES (Right Side) --- */
+  .countdown-timer {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-weight: normal;
+    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 2rem;
+  }
+
+  .countdown-unit {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 40px;
+  }
+
+  .countdowns {
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+    margin-bottom: 2px;
+  }
+
+  .countdown-label {
+    font-size: 15px;
+    opacity: 0.9;
+  }
+
+  .separator {
+    font-size: 15px;
+    position: relative;
+    top: 0.15em;
+    line-height: 1;
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+
+  /* --- MOBILE RESPONSIVENESS --- */
+  @media (max-width: 768px) {
+    .countdown-section-{{ section.id }} {
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+      gap: 0.75rem;
+      text-align: center;
+    }
+
+    .countdown-content {
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0;
+      font-size: 0.8rem;
+      width: 100%;
+    }
+
+    .countdown-content .announcement-text {
+      text-align: center;
+      white-space: normal;
+      max-width: 100%;
+      font-size: 0.85rem;
+    }
+
+    .countdown-timer {
+      gap: 0.75rem;
+      margin-left: 0;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .countdowns {
+      font-size: 1.1rem;
+    }
+
+    .countdown-unit {
+      min-width: 35px;
+    }
+
+    /* Conditional hiding on mobile */
+    {% if section.settings.hide_content_on_mobile %}
+      .countdown-content {
+        display: none;
+      }
+    {% endif %}
+  }
+
+  /* Very small screens */
+  @media (max-width: 480px) {
+    .countdown-section-{{ section.id }} {
+      padding: 0.8rem 0.5rem;
+    }
+
+    .countdown-timer {
+      gap: 0.5rem;
+    }
+
+    .countdowns {
+      font-size: 1rem;
+    }
+
+    .countdown-unit {
+      min-width: 30px;
+    }
+
+    .separator {
+      font-size: 1rem;
+    }
+  }
+{% endstyle %}
+
+<section
+  class="countdown-section-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-expires-on="{{ section.settings.expiration_date | default: '2024-12-31 23:59' }}"
+  data-expiry-action="{{ section.settings.expiry_action }}">
+
+  <div class="countdown-content">
+    {% if section.settings.announcement_text != blank %}
+      <span class="announcement-text">
+        {{ section.settings.announcement_text | escape }}
+      </span>
+    {% endif %}
+
+    {% if section.settings.link_text != blank and section.settings.link_url != blank %}
+      <a href="{{ section.settings.link_url }}" class="shop-now-link">
+        {{ section.settings.link_text | escape }}
+      </a>
+    {% elsif section.settings.link_text != blank %}
+      <span class="shop-now-link" style="border-bottom: 1px solid var(--color-text); padding-bottom: 2px;">
+        {{ section.settings.link_text | escape }}
+      </span>
+    {% endif %}
+  </div>
+
+  {% comment %} --- Timer Display --- {% endcomment %}
+  <div class="countdown-timer" data-timer-container>
+
+    {% comment %} DAYS {% endcomment %}
+    <div class="countdown-unit">
+      <span class="countdowns" data-timer-days>00</span>
+      <span class="countdown-label">{{ 'sections.countdown.day' | t | default: 'DAY' }}</span>
+    </div>
+
+    {% comment %} Separator Dots {% endcomment %}
+    <span class="separator">:</span>
+
+    {% comment %} HOURS {% endcomment %}
+    <div class="countdown-unit">
+      <span class="countdowns" data-timer-hrs>00</span>
+      <span class="countdown-label">{{ 'sections.countdown.hrs' | t | default: 'HRS' }}</span>
+    </div>
+
+    <span class="separator">:</span>
+
+    {% comment %} MINUTES {% endcomment %}
+    <div class="countdown-unit">
+      <span class="countdowns" data-timer-min>00</span>
+      <span class="countdown-label">{{ 'sections.countdown.min' | t | default: 'MIN' }}</span>
+    </div>
+
+    <span class="separator">:</span>
+
+    {% comment %} SECONDS {% endcomment %}
+    <div class="countdown-unit">
+      <span class="countdowns" data-timer-sec>00</span>
+      <span class="countdown-label">{{ 'sections.countdown.sec' | t | default: 'SEC' }}</span>
+    </div>
+
+  </div>
+{% comment %} --- End Timer Display --- {% endcomment %}
+
+</section>
+
+{% comment %} 
+                        --- JavaScript for Countdown Logic (FIXED VERSION) --- 
+{% endcomment %}
+<script>
+  (function() {
+    const section = document.querySelector('.countdown-section-{{ section.id }}');
+    if (!section) return;
+
+    const expirationDateString = section.dataset.expiresOn;
+    const expiryAction = section.dataset.expiryAction;
+    const timerContainer = section.querySelector('[data-timer-container]');
+
+    if (!expirationDateString || !timerContainer) {
+        console.error("Missing expiration date or timer container");
+        return;
+    }
+
+    // Parse the expiration date - FIXED VERSION
+    function parseExpirationDate(dateString) {
+      // Try multiple date formats for better compatibility
+      let endTime;
+      
+      // Format: YYYY-MM-DD HH:MM
+      const dateParts = dateString.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+      if (dateParts) {
+          endTime = new Date(
+              parseInt(dateParts[1]), 
+              parseInt(dateParts[2]) - 1, 
+              parseInt(dateParts[3]), 
+              parseInt(dateParts[4]), 
+              parseInt(dateParts[5]), 
+              0 
+          ).getTime();
+      } else {
+          // Try other formats or use default
+          endTime = new Date(dateString).getTime();
+          if (isNaN(endTime)) {
+              // Fallback: 24 hours from now
+              endTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+              console.warn("Invalid date format, using 24-hour countdown");
+          }
+      }
+      
+      return endTime;
+    }
+
+    const endTime = parseExpirationDate(expirationDateString);
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const distance = endTime - now;
+
+      // If timer has expired
+      if (distance < 0) {
+        clearInterval(timerInterval);
+        
+        if (expiryAction === 'hide') {
+          section.style.display = 'none';
+          return;
+        } else {
+          // Set all values to 00 and stop
+          timerContainer.querySelector('[data-timer-days]').textContent = '00';
+          timerContainer.querySelector('[data-timer-hrs]').textContent = '00';
+          timerContainer.querySelector('[data-timer-min]').textContent = '00';
+          timerContainer.querySelector('[data-timer-sec]').textContent = '00';
+          return;
+        }
+      }
+
+      // Calculate time units
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // Update display
+      timerContainer.querySelector('[data-timer-days]').textContent = String(days).padStart(2, '0');
+      timerContainer.querySelector('[data-timer-hrs]').textContent = String(hours).padStart(2, '0');
+      timerContainer.querySelector('[data-timer-min]').textContent = String(minutes).padStart(2, '0');
+      timerContainer.querySelector('[data-timer-sec]').textContent = String(seconds).padStart(2, '0');
+    }
+
+    // Initialize timer
+    let timerInterval;
+    
+    function initializeTimer() {
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    // Start the timer
+    initializeTimer();
+
+  })();
+</script>
+
+{% schema %}
+  {
+    "name": "Countdown Timer Bar",
+    "tag": "section",
+    "class": "section-countdown-timer",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Content & Timer"
+      },
+      {
+        "type": "text",
+        "id": "announcement_text",
+        "label": "Announcement Text",
+        "default": "SUPER SALE UP TO 40% OFF"
+      },
+      {
+        "type": "text",
+        "id": "link_text",
+        "label": "Link Text (e.g., SHOP NOW)",
+        "default": "SHOP NOW"
+      },
+      {
+        "type": "url",
+        "id": "link_url",
+        "label": "Link URL",
+        "default": "/collections/all"
+      }, {
+        "type": "checkbox",
+        "id": "hide_content_on_mobile",
+        "label": "Hide text content on mobile",
+        "default": false,
+        "info": "Only the timer will be visible on small screens"
+      }, {
+        "type": "select",
+        "id": "content_justification",
+        "label": "Content justification (desktop)",
+        "default": "space-between",
+        "options": [
+          {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "space-between",
+            "label": "Space between"
+          }, {
+            "value": "space-evenly",
+            "label": "Space evenly"
+          }
+        ]
+      }, {
+        "type": "header",
+        "content": "Timer Settings"
+      }, {
+        "type": "text",
+        "id": "expiration_date",
+        "label": "Expiration date (YYYY-MM-DD HH:MM)",
+        "default": "2024-12-31 23:59",
+        "info": "Example: 2024-12-31 23:59"
+      }, {
+        "type": "select",
+        "id": "expiry_action",
+        "label": "When timer expires...",
+        "default": "zero",
+        "options": [
+          {
+            "value": "hide",
+            "label": "Hide section"
+          }, {
+            "value": "zero",
+            "label": "Leave timer at zero"
+          }
+        ]
+      }, {
+        "type": "header",
+        "content": "Color Scheme"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "#222222"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text/Link Color",
+        "default": "#FFFFFF"
+      }, {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Timer Numbers Color",
+        "default": "#FF0000"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Countdown Timer Bar",
+        "category": "Promotional",
+        "settings": {
+          "announcement_text": "SUPER SALE UP TO 40% OFF",
+          "link_text": "SHOP NOW",
+          "link_url": "/collections/all",
+          "expiration_date": "2024-12-31 23:59"
+        }
+      }
+    ]
+  }
+{% endschema %}

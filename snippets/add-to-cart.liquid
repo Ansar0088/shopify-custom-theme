@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product of the Week</title>
+    <style>
+      /* Base Styling */
+      body {
+        font-family: 'Helvetica Neue'
+        , Arial
+        , sans-serif;
+        margin: 0;
+        background-color: #f5f5f5;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      /* Section Container */
+      .product-section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 80px 20px;
+        text-align: center;
+      }
+
+      /* Global Typography */
+      h1 {
+        font-size: 1.5em;
+        font-weight: 400;
+        letter-spacing: 2px;
+        margin-bottom: 50px;
+        text-transform: uppercase;
+      }
+      h2 {
+        font-size: 1.8em;
+        font-weight: 300;
+        margin: 0 0 10px;
+        text-transform: uppercase;
+      }
+      .price {
+        font-size: 1.2em;
+        font-weight: 500;
+        margin-bottom: 30px;
+      }
+      .detail-text {
+        font-size: 0.9em;
+        line-height: 1.5;
+        color: #555;
+        margin: 0 auto;
+      }
+
+      /* Two-Column Layout (Desktop) */
+      .product-grid {
+        display: flex;
+        gap: 50px;
+        align-items: flex-start;
+        text-align: left;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .product-image-col,
+      .product-details-col {
+        flex: 1;
+        padding: 0 20px;
+      }
+
+      /* Image Gallery */
+      .main-image-container {
+        width: 100%;
+        height: 500px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .main-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: opacity 0.3s ease;
+      }
+      .image-pagination {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        gap: 10px;
+      }
+      .pagination-dot {
+        width: 12px;
+        height: 12px;
+        background-color: #ccc;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .pagination-dot.active {
+        background-color: #333;
+        transform: scale(1.2);
+      }
+
+      /* Product Details */
+      .detail-header {
+        margin-bottom: 30px;
+      }
+      .tag-new {
+        font-size: 0.7em;
+        color: #666;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      /* Color Selector */
+      .color-selector {
+        margin: 30px 0;
+      }
+      .color-label {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+        display: block;
+      }
+      .color-swatch {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+        display: inline-block;
+        margin-right: 10px;
+      }
+      .color-swatch[data-color="camel"] {
+        background-color: #a06e46;
+      }
+      .color-swatch[data-color="black"] {
+        background-color: #333;
+      }
+      .color-swatch.selected {
+        border: 2px solid #333;
+      }
+
+      /* Quantity and Button */
+      .action-area {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 40px;
+      }
+      .quantity-control {
+        display: flex;
+        width: 120px;
+        border: 1px solid #ccc;
+        border-radius: 0;
+      }
+      .qty-button {
+        background: #fff;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #333;
+        transition: background-color 0.3s;
+      }
+      .qty-button:hover {
+        background-color: #f5f5f5;
+      }
+      .qty-input {
+        width: 40px;
+        text-align: center;
+        border: none;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        outline: none;
+        background-color: transparent;
+        font-size: 1em;
+        -moz-appearance: textfield;
+      }
+      .qty-input::-webkit-outer-spin-button,
+      .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .add-to-cart-button {
+        background-color: #333;
+        color: #ffffff;
+        padding: 15px 30px;
+        border: none;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+      .add-to-cart-button:hover {
+        background-color: transparent;
+        color: #000000;
+        border: 1px solid #ccc;
+      }
+
+      /* Mobile Responsiveness */
+      @media (max-width: 768px) {
+        .product-grid {
+          flex-direction: column;
+          gap: 30px;
+        }
+        .product-image-col {
+          order: 1;
+          padding: 0;
+        }
+        .product-details-col {
+          order: 2;
+          padding: 0 20px;
+          text-align: center;
+        }
+        .detail-header {
+          text-align: center;
+        }
+        .detail-text,
+        .color-selector {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .action-area {
+          align-items: center;
+        }
+        .quantity-control {
+          margin: 0 auto;
+        }
+        .main-image-container {
+          height: 400px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .product-section {
+          padding: 40px 15px;
+        }
+        .main-image-container {
+          height: 300px;
+        }
+        h1 {
+          font-size: 1.2em;
+          margin-bottom: 30px;
+        }
+        h2 {
+          font-size: 1.4em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <section class="product-section">
+      <p style="font-family: sans-serif; font-size: small; font-weight: 400;">Our selection</p>
+      <h1>PRODUCT OF THE WEEK</h1>
+      <div class="product-grid">
+
+        <!-- Column 1: Image Gallery -->
+        <div class="product-image-col">
+          <div class="main-image-container">
+            <img
+              src="https://prestige-theme-allure.myshopify.com/cdn/shop/products/Le-Continental-Sienne-03_e5720073-449c-413b-8d91-d3efe015b622.jpg?v=1676887549&width=800"
+              alt="LE CONTINENTAL CAMEL LIÉGÉ"
+              id="main-product-image">
+          </div>
+
+          <div class="image-pagination">
+            <div class="pagination-dot active" data-image="https://prestige-theme-allure.myshopify.com/cdn/shop/products/Le-Continental-Sienne-03_e5720073-449c-413b-8d91-d3efe015b622.jpg?v=1676887549&width=800"></div>
+            <div class="pagination-dot" data-image="https://prestige-theme-allure.myshopify.com/cdn/shop/products/CROPFICHEPRODUIT_e0904a12-0fa0-4a9b-997a-22b8f5728191.jpg?v=1676887549&width=800"></div>
+            <div class="pagination-dot" data-image="https://prestige-theme-allure.myshopify.com/cdn/shop/products/CROPFICHEPRODUIT2_0b1fed55-cf21-4831-ae13-5c49cc621391.jpg?v=1676887549&width=800"></div>
+            <div class="pagination-dot" data-image="https://prestige-theme-allure.myshopify.com/cdn/shop/products/Le-Continental-Sienne-02_22af43f0-bf6f-4310-8542-5b1036527fe4.jpg?v=1676887549&width=800"></div>
+          </div>
+        </div>
+
+        <!-- Column 2: Product Details and Actions -->
+        <div class="product-details-col">
+          <div class="detail-header">
+            <span class="tag-new">NEW</span>
+            <h2>LE CONTINENTAL CAMEL LIÉGÉ</h2>
+            <div class="price">₩285,000</div>
+          </div>
+
+          <p class="detail-text">Continental wallet in calfskin. Inside zip pocket for coins, 2 flat pockets for checks or bills. Leather lining. Heat embossed logo.</p>
+
+          <!-- Color Selector -->
+          <div class="color-selector">
+            <span class="color-label">Color:
+              <span id="selected-color-name">Camel Liégé</span>
+            </span>
+            <div class="color-options">
+              <span
+                class="color-swatch selected"
+                data-color="camel"
+                style="cursor: default;"></span>
+            </div>
+          </div>
+
+          <div class="action-area">
+            <!-- Quantity Control -->
+            <div class="quantity-control">
+              <button class="qty-button" onclick="updateQuantity(-1)">-</button>
+              <input
+                type="number"
+                id="product-quantity"
+                class="qty-input"
+                value="1"
+                min="1"
+                max="100">
+              <button class="qty-button" onclick="updateQuantity(1)">+</button>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button class="add-to-cart-button">ADD TO CART</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    {% render 'materials' %}
+
+    <script>
+      // Image Gallery Functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const mainImage = document.getElementById('main-product-image');
+        const dots = document.querySelectorAll('.pagination-dot');
+
+        // Add click event to each dot
+        dots.forEach(dot => {
+          dot.addEventListener('click', function() {
+            // Get the image URL from data attribute
+            const newImageSrc = this.getAttribute('data-image');
+            
+            // Update the main image
+            mainImage.src = newImageSrc;
+            
+            // Update active dot
+            dots.forEach(d => d.classList.remove('active'));
+            this.classList.add('active');
+          });
+        });
+      });
+
+      // Quantity Control Function
+      function updateQuantity(change) {
+        const input = document.getElementById('product-quantity');
+        let currentQty = parseInt(input.value);
+        let newQty = currentQty + change;
+
+        // Ensure quantity stays within bounds
+        if (newQty < 1) newQty = 1;
+        if (newQty > 100) newQty = 100;
+        
+        input.value = newQty;
+      }
+
+      // Add to Cart Functionality (placeholder)
+      document.querySelector('.add-to-cart-button').addEventListener('click', function() {
+        const quantity = document.getElementById('product-quantity').value;
+        alert(`Added ${quantity} item(s) to cart!`);
+        // In a real implementation, this would make an API call to add to cart
+      });
+    </script>
+
+  </body>
+</html>

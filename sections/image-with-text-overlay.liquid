@@ -1,0 +1,483 @@
+{% comment %}
+  ============================================================================
+  SECTION: Image with Text Overlay
+  Handles a full-width banner image with customizable text positioning and overlay.
+  ============================================================================
+{% endcomment %}
+
+{% assign section_id = section.id %}
+{% assign image = section.settings.image %}
+{% assign mobile_image = section.settings.mobile_image %}
+{% assign height_size = section.settings.image_size %}
+
+{% comment %}
+  Determine the height of the container based on user setting
+  Default is 500px, but map settings to practical CSS values
+{% endcomment %}
+{% case height_size %}
+  {% when 'original' %}
+    {% assign height_class = 'h-auto' %}
+    {% assign min_height = '300px' %}
+    {% assign max_height = '800px' %}
+  {% when 'x-small' %}
+    {% assign height_class = 'h-[300px]' %}
+  {% when 'small' %}
+    {% assign height_class = 'h-[400px]' %}
+  {% when 'medium' %}
+    {% assign height_class = 'h-[550px]' %}
+  {% when 'large' %}
+    {% assign height_class = 'h-[700px]' %}
+  {% when 'fit_screen' %}
+    {% assign height_class = 'h-screen' %}
+{% endcase %}
+
+  {% comment %}
+    Determine content width
+  {% endcomment %}
+  {% assign content_width = section.settings.content_width | default: 'medium' %}
+  {% case content_width %}
+    {% when 'x-small' %}
+      {% assign max_width_class = 'max-w-xs' %}
+    {% when 'small' %}
+      {% assign max_width_class = 'max-w-sm' %}
+    {% when 'medium' %}
+      {% assign max_width_class = 'max-w-lg' %}
+    {% when 'large' %}
+      {% assign max_width_class = 'max-w-3xl' %}
+    {% when 'x-large' %}
+      {% assign max_width_class = 'max-w-6xl' %}
+  {% endcase %}
+
+  {% assign desktop_pos = section.settings.desktop_content_position | default: 'bottom_left' %}
+  {% assign mobile_pos = section.settings.mobile_content_position | default: 'middle_center' %}
+
+  <style>
+    /* Base Styles */
+    .banner-{{ section_id }} {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-family: sans-serif;
+
+      /* Apply height setting */
+      min-height: 400px;
+      {% if height_size == 'x-small' %} min-height: 300px;
+    {% endif %}
+    {% if height_size == 'small' %} min-height: 400px;
+  {% endif %}
+  {% if height_size == 'medium' %} min-height: 550px;
+{% endif %}
+{% if height_size == 'large' %} min-height: 700px;
+{% endif %}
+{% if height_size == 'fit_screen' %} min-height: 100vh;
+{% endif %}
+}
+
+/* Image Container */
+.banner-image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  {% if section.settings.reveal_image_on_scroll %}
+    opacity: 0;
+    transition: opacity 1s;
+  {% endif %}
+}
+{% if section.settings.reveal_image_on_scroll %}
+  .banner-{{ section_id }}
+  .revealed .banner-image {
+    opacity: 1;
+  }
+{% endif %}
+
+/* Overlay */
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: {{ section.settings.overlay_color | default: '#000000' }};
+  opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+}
+
+/* ----------------------------------------------------------- */
+/* --- CONTENT POSITIONING: FORCED BOTTOM-LEFT ALIGNMENT --- */
+/* ----------------------------------------------------------- */.banner-content-container {
+  /* Positioned absolutely to cover the whole section area */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  padding: 2rem;
+
+  /* Use Flexbox to explicitly pin content to the bottom-left on all screens */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* Vertically align to bottom */
+  align-items: flex-start;
+  /* Horizontally align to left */
+  text-align: left;
+  /* Ensure text alignment is left inside the box */
+}
+
+/* The inner container ensures max width and horizontal padding */
+/* We remove mx-auto here to prevent horizontal centering */.banner-content-inner {
+  width: 100%;
+  max-width: 1400px;
+  /* Use a global max width for content consistency */
+}
+
+/* --- TEXT STYLES (Reverting to previous suggested sizes) --- */
+
+/* Heading size */.banner-content-inner h2 {
+  font-size: 15px;
+  /* ~36px, Tailwind's text-4xl default */
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+@media (min-width: 768px) {
+  .banner-content-inner h2 {
+    font-size: 2rem;
+    /* ~48px, slightly larger for desktop */
+  }
+}
+/* Subheading size */
+.banner-content-inner p {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.875rem;
+  /* Standard text-sm */
+  font-weight: 700;
+}
+
+/* Button Styling */
+.banner-button {
+  display: inline-block;
+  background-color: #fff;
+  color: #000;
+  font-weight: 500;
+  padding: 0.75rem 2rem;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+.banner-button:hover {
+  background-color: #f0f0f0;
+}
+  </style>
+
+  <section
+    class="section banner-{{ section_id }}"
+    data-section-id="{{ section_id }}"
+    {% unless section.settings.remove_vertical_spacing %}
+    style="padding: 0;"
+    {% endunless %}>
+
+    <div class="banner-image-wrapper">
+      {% if image != blank %}
+        {% assign img_url = image | image_url: width: 2500 %}
+        <picture>
+          {% if mobile_image != blank %}
+            {% comment %} Use mobile image on small screens {% endcomment %}
+            {% assign mobile_img_url = mobile_image | image_url: width: 1100 %}
+            <source media="(max-width: 767px)" srcset="{{ mobile_img_url }}">
+          {% endif %}
+          <img
+            src="{{ img_url }}"
+            alt="{{ image.alt | default: section.settings.heading }}"
+            class="banner-image"
+            loading="lazy"
+            height="1"
+            width="1">
+        </picture>
+      {% else %}
+        {% comment %} Placeholder image (using your original asset reference) {% endcomment %}
+        <img
+          src="{{ 'big.png' | asset_url }}"
+          alt="Le Backpack"
+          class="banner-image"
+          style="object-position: center;"
+          height="1"
+          width="1" />
+      {% endif %}
+    </div>
+
+    <div class="banner-overlay"></div>
+
+    <div class="banner-content-container">
+      {% comment %} 
+                                                        Removed 'mx-auto' from the class list here to prevent centering the content block itself. 
+                                                        Only keeping 'container', padding, and max width from settings.
+                                        {% endcomment %}
+      <div class="banner-content-inner container px-6 md:px-12 {{ max_width_class }}">
+        <div class="text-white">
+          {% if section.settings.subheading != blank %}
+            <p class="mb-2" style="font-family: sans-serif;">{{ section.settings.subheading | escape }}</p>
+          {% endif %}
+          {% if section.settings.heading != blank %}
+            <h2 class="mb-0">{{ section.settings.heading | escape }}</h2>
+          {% endif %}
+          {% if section.settings.button_label != blank %}
+            <a href="{{ section.settings.button_link }}" class="banner-button">
+              {{ section.settings.button_label | escape }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if section.settings.reveal_image_on_scroll %}
+    <script>
+      // Simple intersection observer to add the 'revealed' class for animation
+      document.addEventListener('DOMContentLoaded', function() {
+          const sectionElement = document.querySelector('.banner-{{ section_id }}');
+          if ('IntersectionObserver' in window && sectionElement) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      observer.observe(sectionElement);
+          } else if (sectionElement) {
+       sectionElement.classList.add('revealed'); // Fallback if no observer
+          }
+      });
+    </script>
+  {% endif %}
+
+
+  {% schema %}
+    {
+      "name": "Image with Text Overlay",
+      "tag": "section",
+      "class": "section-image-text-overlay",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Image & Design"
+        },
+
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Desktop image",
+          "info": "2500 x 900px .jpg recommended"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image (Optional)",
+          "info": "1100 x 1500px .jpg recommended. Default to desktop image."
+        },
+        {
+          "type": "select",
+          "id": "image_size",
+          "label": "Image height",
+          "options": [
+            {
+              "value": "original",
+              "label": "Original image ratio"
+            },
+            {
+              "value": "x-small",
+              "label": "X-Small"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            }, {
+              "value": "large",
+              "label": "Large"
+            }, {
+              "value": "fit_screen",
+              "label": "Fit screen"
+            }
+          ],
+          "default": "medium",
+          "info": "Choose 'Original image ratio' to avoid image cropping."
+        }, {
+          "type": "checkbox",
+          "id": "reveal_image_on_scroll",
+          "label": "Reveal image on scroll",
+          "default": false
+        }, {
+          "type": "checkbox",
+          "id": "remove_vertical_spacing",
+          "label": "Remove vertical spacing",
+          "default": false
+        }, {
+          "type": "header",
+          "content": "Text & Content"
+        }, {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "New product"
+        }, {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Le Backpack"
+        }, {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button text",
+          "default": "SHOP"
+        }, {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }, {
+          "type": "select",
+          "id": "content_width",
+          "label": "Content width",
+          "options": [
+            {
+              "value": "x-small",
+              "label": "X-Small"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }, {
+              "value": "x-large",
+              "label": "X-Large"
+            }
+          ],
+          "default": "medium"
+        }, {
+          "type": "select",
+          "id": "mobile_content_position",
+          "label": "Mobile content position",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "Top left"
+            },
+            {
+              "value": "top_center",
+              "label": "Top center"
+            },
+            {
+              "value": "top_right",
+              "label": "Top right"
+            },
+            {
+              "value": "middle_left",
+              "label": "Middle left"
+            }, {
+              "value": "middle_center",
+              "label": "Middle center"
+            }, {
+              "value": "middle_right",
+              "label": "Middle right"
+            }, {
+              "value": "bottom_left",
+              "label": "Bottom left"
+            }, {
+              "value": "bottom_center",
+              "label": "Bottom center"
+            }, {
+              "value": "bottom_right",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "bottom_left"
+        }, {
+          "type": "select",
+          "id": "desktop_content_position",
+          "label": "Desktop content position",
+          "options": [
+            {
+              "value": "top_left",
+              "label": "Top left"
+            },
+            {
+              "value": "top_center",
+              "label": "Top center"
+            },
+            {
+              "value": "top_right",
+              "label": "Top right"
+            },
+            {
+              "value": "middle_left",
+              "label": "Middle left"
+            }, {
+              "value": "middle_center",
+              "label": "Middle center"
+            }, {
+              "value": "middle_right",
+              "label": "Middle right"
+            }, {
+              "value": "bottom_left",
+              "label": "Bottom left"
+            }, {
+              "value": "bottom_center",
+              "label": "Bottom center"
+            }, {
+              "value": "bottom_right",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "bottom_left"
+        }, {
+          "type": "header",
+          "content": "Colors"
+        }, {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "#000000"
+        }, {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "Overlay opacity",
+          "default": 30
+        }
+      ],
+      "presets": [
+        {
+          "name": "Image with Text Overlay",
+          "category": "Image"
+        }
+      ]
+    }
+  {% endschema %}

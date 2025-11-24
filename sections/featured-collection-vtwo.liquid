@@ -1,16 +1,26 @@
 {% comment %}
   ============================================================================
-  SECTION: Featured Collections Slider with Category Tabs
-  Handles WOMEN/MEN tabs, product display, and responsive sliding navigation.
+  SECTION: Featured Product Slider
+  Displays a single collection in a responsive, navigable slider grid.
+  This version uses descriptive placeholder content when no collection is
+  selected to ensure a strong default preview appearance.
   ============================================================================
 {% endcomment %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 {% assign section_id = section.id %}
-{% assign featured_title = section.settings.title | default: 'OUR BEST SELLERS' %}
-{% assign women_collection = section.settings.women_collection %}
-{% assign men_collection = section.settings.men_collection %}
+{% assign featured_title = section.settings.title | default: 'Collection' %}
+{% assign collection_handle = section.settings.featured_collection %}
 {% assign hide_info = section.settings.hide_product_information %}
+
+{% assign collection = collections[collection_handle] %}
+{% assign use_placeholders = false %}
+
+{% unless collection and collection.products.size > 0 %}
+  {% assign use_placeholders = true %}
+
+  {% assign placeholder_products = "THE EXPLORER BACKPACK|$521,THE EXECUTIVE BRIEFCASE|$589,THE URBAN DUFFLE|$478,THE WEEKENDER TOTE|$635,THE MODERN MESSENGER|$599,THE CLASSIC PORTFOLIO|$542,THE SPORT SLING|$487,THE LUXURY CLUTCH|$689" | split: ',' %}
+{% endunless %}
 
 <style>
   /* Define CSS Variables for Colors and Spacing Factors */
@@ -19,9 +29,9 @@
     --color-text: {{ section.settings.color_text | default: '#000000' }};
     --color-background: {{ section.settings.color_background | default: '#EFEFEF' }};
     --color-primary: {{ section.settings.color_primary | default: '#000000' }};
-    /* Active tab/dot/arrow color */
+    /* Active dot/arrow color */
     --color-secondary: {{ section.settings.color_secondary | default: '#666666' }};
-    /* Inactive tab/dot/price color */
+    /* Inactive dot/price color */
     --color-accent: {{ section.settings.color_accent | default: '#8B4513' }};
     /* This variable is now unused, but kept for schema compatibility */
 
@@ -33,7 +43,7 @@
 
     /* Calculate actual gap values */
     --gap-h: calc(var(--base-gap) * var(--horizontal-gap-factor));
-    --gap-v: calc(var(--base-gap) * var(--vertical-spacing-factor));
+    --gap-v: calc(var(--base-gap) * var(--vertical-spacing_factor));
 
 
     padding: 4rem 0;
@@ -57,49 +67,11 @@
     text-transform: uppercase;
   }
 
-  .category-tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 3rem;
-  }
-
-  .category-tab {
-    padding: 0.75rem 2rem 0.5rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--color-secondary);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: color 0.3s
-    , border-bottom 0.3s;
-    border-bottom: 1.5px solid transparent;
-    margin: 0 0.5rem;
-    position: relative;
-    top: 1px;
-    border: none;
-  }
-
-  .category-tabs .category-tab:not(.active) {
-    color: var(--color-secondary);
-    border-bottom-color: transparent;
-  }
-
-  .category-tab.active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
-  }
-
   /* Slider Structure */
   .product-slider {
-    display: none;
     overflow: hidden;
     position: relative;
     padding: 0;
-  }
-
-  .product-slider.active {
-    display: block;
   }
 
   .slider-container {
@@ -193,10 +165,11 @@
     letter-spacing: 0.05em;
   }
 
-  /* Rating Styles to match image */
+  /* Rating Styles */
   .product-rating {
     margin-top: 0.2rem;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
+    /* DECREASED STAR SIZE */
     color: var(--color-primary);
     display: flex;
     justify-content: center;
@@ -205,7 +178,8 @@
 
   .product-rating span {
     color: var(--color-secondary);
-    font-size: 0.75rem;
+    font-size: 0.65rem;
+    /* DECREASED RATING TEXT SIZE */
     margin-left: 5px;
     font-weight: 400;
   }
@@ -239,7 +213,7 @@
   }
 
   /* KEY: Hover over the active slider container to reveal the arrows */
-  .product-slider.active:hover .slider-nav:not(:disabled) {
+  .product-slider:hover .slider-nav:not(:disabled) {
     opacity: 1;
     pointer-events: auto;
   }
@@ -254,11 +228,6 @@
     cursor: not-allowed;
     opacity: 0 !important;
   }
-  .button-wrapper {
-    text-align: center;
-    margin-top: 3rem;
-  }
-
 
   /* Arrow Positioning on Desktop */
   @media (min-width: 768px) {
@@ -346,13 +315,50 @@
   }
 
   /* View All Button */
-  .view-all-button {
+  .button-wrapper {
     text-align: center;
     margin-top: 3rem;
   }
 
+  .view-all-button {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 1;
+    padding: 10px 25px;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: transparent;
+    border: 2px solid #333;
+    transition: color 0.3s ease
+    , border-color 0.3s ease;
+  }
 
-  /* Link hover state */
+  .view-all-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+    z-index: -1;
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform 0.4s ease-in-out;
+  }
+
+  .view-all-button:hover::before {
+    transform: scaleX(0);
+  }
+
+  .view-all-button:hover {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+  }
+
 
 </style>
 
@@ -360,221 +366,17 @@
   <div class="container mx-auto px-4 md:px-8">
     <h2 class="section-title">{{ featured_title }}</h2>
 
-    <div class="category-tabs">
-      <div class="category-tab active" data-category="women">WOMEN</div>
-      <div class="category-tab" data-category="men">MEN</div>
-    </div>
-
-    {% comment %} WOMEN'S SLIDER {% endcomment %}
-    <div class="product-slider active" id="women-slider">
+    {% comment %} SINGLE FEATURED SLIDER {% endcomment %}
+    <div class="product-slider active" id="featured-slider">
       <div class="slider-container">
-        <div class="slider-track" id="women-track">
-          {% if women_collection != blank %}
-            {% assign collection = collections[women_collection] %}
-            {% if collection and collection.products %}
-              {% for product in collection.products limit: 8 %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="{{ product.url }}">
-                      {% if product.featured_image %}
-                        <img
-                          src="{{ product.featured_image | img_url: '400x500', crop: 'center' }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% else %}
-                        <img
-                          src="https://placehold.co/400x500/f5f5f5/666666?text=Product+{{ forloop.index }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% endif %}
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ product.title }}</h3>
-                    <div class="product-price">{{ product.price | money }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% else %}
-              {% comment %} Fallback placeholder products if collection is empty {% endcomment %}
-              {% assign women_products = "PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99" | split: ',' %}
-              {% for item in women_products %}
-                {% assign data = item | split: '|' %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="#">
-                      <img
-                        src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                        alt="{{ data[0] }}"
-                        loading="lazy"
-                        width="400"
-                        height="500" />
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ data[0] }}</h3>
-                    <div class="product-price">{{ data[1] }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% endif %}
-          {% else %}
-            {% comment %} Placeholder Products for Women when no collection selected (Matching Image Icons) {% endcomment %}
-            {% assign women_products = "BACKPACK|$49.99,SNEAKER|$49.99,SUNGLASSES|$49.99,CAP|$49.99,TOTE BAG|$49.99,WALLET|$49.99,HEELS|$49.99,DRESS|$49.99" | split: ',' %}
-            {% for item in women_products %}
+        <div class="slider-track" id="featured-track">
+
+          {% if use_placeholders %}
+            {% comment %} Render rich placeholder content for instant preview {% endcomment %}
+            {% for item in placeholder_products %}
               {% assign data = item | split: '|' %}
               <div class="product-card">
                 <div class="product-image">
-                  {% comment %} BADGE HTML REMOVED {% endcomment %}
-                  <a href="#">
-                    <img
-                      src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                      alt="{{ data[0] }}"
-                      loading="lazy"
-                      width="400"
-                      height="500" />
-                  </a>
-                </div>
-                {% unless hide_info %}
-                  <h3 class="product-title">PRODUCT</h3>
-                  <div class="product-price">£49.99</div>
-                  <div class="product-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <span>(4.5)</span>
-                  </div>
-                {% endunless %}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-
-        <button class="slider-nav prev" id="women-prev">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="slider-nav next" id="women-next">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-
-      <div class="slider-dots" id="women-dots"></div>
-      <div class="button-wrapper">
-        <div class="view-all-button">
-          <a href="{% if women_collection != blank %}{{ collections[women_collection].url }}{% else %}#{% endif %}">
-            ALL WOMEN'S BAGS
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {% comment %} MEN'S SLIDER {% endcomment %}
-    <div class="product-slider" id="men-slider">
-      <div class="slider-container">
-        <div class="slider-track" id="men-track">
-          {% if men_collection != blank %}
-            {% assign collection = collections[men_collection] %}
-            {% if collection and collection.products %}
-              {% for product in collection.products limit: 8 %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="{{ product.url }}">
-                      {% if product.featured_image %}
-                        <img
-                          src="{{ product.featured_image | img_url: '400x500', crop: 'center' }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% else %}
-                        <img
-                          src="https://placehold.co/400x500/f5f5f5/666666?text=Product+{{ forloop.index }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% endif %}
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ product.title }}</h3>
-                    <div class="product-price">{{ product.price | money }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% else %}
-              {% comment %} Fallback placeholder products if collection is empty {% endcomment %}
-              {% assign men_products = "MEN'S LEATHER BAG|$521,EXECUTIVE BRIEFCASE|$589,URBAN BACKPACK|$478,TRAVEL DUFFLE|$635,MODERN MESSENGER|$599,CLASSIC PORTFOLIO|$542,SPORT BACKPACK|$487,LUXURY BRIEFCASE|$689" | split: ',' %}
-              {% for item in men_products %}
-                {% assign data = item | split: '|' %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="#">
-                      <img
-                        src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                        alt="{{ data[0] }}"
-                        loading="lazy"
-                        width="400"
-                        height="500" />
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ data[0] }}</h3>
-                    <div class="product-price">{{ data[1] }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% endif %}
-          {% else %}
-            {% comment %} Placeholder Products for Men when no collection selected {% endcomment %}
-            {% assign men_products = "MEN'S LEATHER BAG|$521,EXECUTIVE BRIEFCASE|$589,URBAN BACKPACK|$478,TRAVEL DUFFLE|$635,MODERN MESSENGER|$599,CLASSIC PORTFOLIO|$542,SPORT BACKPACK|$487,LUXURY BRIEFCASE|$689" | split: ',' %}
-            {% for item in men_products %}
-              {% assign data = item | split: '|' %}
-              <div class="product-card">
-                <div class="product-image">
-                  {% comment %} BADGE HTML REMOVED {% endcomment %}
                   <a href="#">
                     <img
                       src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
@@ -598,22 +400,68 @@
                 {% endunless %}
               </div>
             {% endfor %}
+
+          {% else %}
+            {% comment %} Render actual collection products {% endcomment %}
+            {% for product in collection.products limit: 8 %}
+              <div class="product-card">
+                <div class="product-image">
+                  <a href="{{ product.url }}">
+                    {% if product.featured_image %}
+                      <img
+                        src="{{ product.featured_image | img_url: '400x500', crop: 'center' }}"
+                        alt="{{ product.title }}"
+                        loading="lazy"
+                        width="400"
+                        height="500" />
+                    {% else %}
+                      <img
+                        src="https://placehold.co/400x500/f5f5f5/666666?text=Product+{{ forloop.index }}"
+                        alt="{{ product.title }}"
+                        loading="lazy"
+                        width="400"
+                        height="500" />
+                    {% endif %}
+                  </a>
+                </div>
+                {% unless hide_info %}
+                  <h3 class="product-title">{{ product.title }}</h3>
+                  <div class="product-price">{{ product.price | money }}</div>
+                  <div class="product-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <span>(4.5)</span>
+                  </div>
+                {% endunless %}
+              </div>
+            {% endfor %}
           {% endif %}
         </div>
 
-        <button class="slider-nav prev" id="men-prev">
+        <button class="slider-nav prev" id="featured-prev">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <button class="slider-nav next" id="men-next">
+        <button class="slider-nav next" id="featured-next">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
 
-      <div class="slider-dots" id="men-dots"></div>
+      <div class="slider-dots" id="featured-dots"></div>
       <div class="button-wrapper">
-        <div class="view-all-button">
-          <a href="{% if men_collection != blank %}{{ collections[men_collection].url }}{% else %}#{% endif %}">
-            ALL MEN'S BAGS
+        <div class="view-all-button" style="mar">
+          {% assign view_all_text = 'VIEW ALL PRODUCTS' %}
+          {% assign view_all_url = '#' %}
+
+          {% if collection and collection.url %}
+            {% assign view_all_text = 'VIEW ALL ' | append: collection.title | upcase %}
+            {% assign view_all_url = collection.url %}
+          {% endif %}
+
+          <a href="{{ view_all_url }}" class="view-all-link">
+            {{ view_all_text }}
           </a>
         </div>
       </div>
@@ -623,7 +471,7 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-  console.log('Collections Slider Tabs - Initializing...');
+  console.log('Featured Product Slider - Initializing...');
   
   const sectionId = '{{ section_id }}';
   const sectionContainer = document.querySelector('.section-' + sectionId);
@@ -631,44 +479,9 @@
     console.error('Section container not found');
     return;
   }
-
-  const categoryTabs = sectionContainer.querySelectorAll('.category-tab');
-  const productSliders = sectionContainer.querySelectorAll('.product-slider');
   
   // Storage for slider instances
   const sliderInstances = {};
-
-  // --- Category Tab Functionality ---
-  categoryTabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-      console.log('Tab clicked:', this.getAttribute('data-category'));
-      
-      // Remove active class from all tabs and sliders
-      categoryTabs.forEach(t => t.classList.remove('active'));
-      productSliders.forEach(s => s.classList.remove('active'));
-      
-      // Add active class to clicked tab and corresponding slider
-      this.classList.add('active');
-      const category = this.getAttribute('data-category');
-      const activeSlider = document.getElementById(`${category}-slider`);
-      if (activeSlider) {
-        activeSlider.classList.add('active');
-        console.log('Active slider:', activeSlider.id);
-      }
-      
-      // Re-initialize the active slider (and reset its position)
-      const sliderKey = `${category}-track`;
-      if (sliderInstances[sliderKey] && sliderInstances[sliderKey].resetSlider) {
-        sliderInstances[sliderKey].resetSlider();
-      }
-      
-      // Update the View All Button Text/Style
-      const viewAllLink = activeSlider.querySelector('.view-all-link');
-      if (viewAllLink) {
-         viewAllLink.textContent = `ALL ${category.toUpperCase()}'S BAGS`;
-      }
-    });
-  });
   
   // --- Slider Core Logic ---
   function initSlider(trackId, prevBtnId, nextBtnId, dotsContainerId) {
@@ -817,8 +630,8 @@
         dots = renderDots();
       }
       
-      // Ensure position is valid after a tab switch (or first load)
-      currentIndex = 0; 
+      // Ensure position is valid on screen size change
+      currentIndex = Math.min(currentIndex, dotCount - 1);
       updateSlider();
       updateDots();
     }
@@ -838,9 +651,8 @@
         // Check if breakpoint changed or if the number of dots changed
         if (slidesPerView !== newSlidesPerView) {
           slidesPerView = newSlidesPerView;
-          dots = renderDots();
-          // Keep the current dot index if possible, but adjust if new dot count is smaller
-          currentIndex = Math.min(currentIndex, dotCount - 1);
+          // Re-rendering dots is important when the number of dots changes
+          dots = renderDots(); 
         }
         updateSlider();
         rAF = null;
@@ -853,11 +665,10 @@
     return { resetSlider };
   }
   
-  // Initialize both sliders and store their references
+  // Initialize only the featured slider
   setTimeout(() => {
-    sliderInstances['women-track'] = initSlider('women-track', 'women-prev', 'women-next', 'women-dots');
-    sliderInstances['men-track'] = initSlider('men-track', 'men-prev', 'men-next', 'men-dots');
-    console.log('Sliders initialized:', sliderInstances);
+    sliderInstances['featured-track'] = initSlider('featured-track', 'featured-prev', 'featured-next', 'featured-dots');
+    console.log('Featured Slider initialized:', sliderInstances);
   }, 100);
   });
 
@@ -867,40 +678,37 @@
 
 {% schema %}
   {
-    "name": "Collections Slider Tabs",
+    "name": "featured collections",
     "tag": "section",
-    "class": "section-featured-collections-slider",
+    "class": "section-featured-product-slider",
     "settings": [
       {
         "type": "header",
-        "content": "Collections & Header"
+        "content": "Collection & Header"
       },
       {
         "type": "text",
         "id": "title",
         "label": "Heading",
-        "default": "OUR BEST SELLERS"
+        "default": "Collection"
+      },
+      {
+        "type": "collection",
+        "id": "featured_collection",
+        "label": "Select Collection to Feature",
+        "info": "If no collection is selected, placeholder products will be shown for preview."
       },
       {
         "type": "checkbox",
         "id": "separate_section_with_border",
         "label": "Separate section with border",
         "default": false
-      },
-      {
+      }, {
         "type": "checkbox",
         "id": "hide_product_information",
         "label": "Hide product information",
         "info": "Create an immersive image-first experience by hiding product title and price.",
         "default": false
-      }, {
-        "type": "collection",
-        "id": "women_collection",
-        "label": "Women's Collection (WOMEN tab)"
-      }, {
-        "type": "collection",
-        "id": "men_collection",
-        "label": "Men's Collection (MEN tab)"
       }, {
         "type": "header",
         "content": "Color Settings"
@@ -954,7 +762,7 @@
     ],
     "presets": [
       {
-        "name": "Collections Slider Tabs",
+        "name": "featured collections",
         "category": "Product Grid"
       }
     ]

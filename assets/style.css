@@ -1,5 +1,3 @@
-
-
 /*============================================= product section  start====================================*/
 
 * {
@@ -333,3 +331,43 @@ body {
 }
 
 /*============================================= MArquee section  end====================================*/
+
+
+.shopify-payment-button__button--unbranded {
+  --initial-gradient: linear-gradient(
+    rgb(var(--button-background)),
+    rgb(var(--button-background))
+  );
+  --hover-gradient: linear-gradient(transparent, transparent);
+  --initial-background-position: var(--transform-origin-end);
+  --hover-background-position: var(--transform-origin-start);
+  -webkit-appearance: none;
+  appearance: none;
+  text-transform: var(--button-text-transform);
+  font: var(--button-font);
+  letter-spacing: var(--button-letter-spacing);
+  text-shadow: none;
+  text-align: center;
+  cursor: pointer;
+  color: rgb(var(--button-text-color));
+  border: 1px solid rgb(var(--button-outline-color, var(--button-background)));
+  border-radius: var(--button-border-radius);
+  background-color: #0000;
+  background-image: var(--initial-gradient), var(--hover-gradient);
+  background-size:
+    101% 101%,
+    0 101%;
+  background-position: var(--initial-background-position);
+  background-repeat: no-repeat;
+  justify-content: center;
+  align-items: center;
+  column-gap: 1.125rem;
+  padding: 0.65rem 1.75rem;
+  transition:
+    background-size 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86),
+    background-position 0.45s step-end,
+    color 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86),
+    border 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  display: inline-flex;
+  position: relative;
+}

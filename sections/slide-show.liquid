@@ -1,31 +1,14 @@
 {% comment %}
-  Shopify Hero Slideshow Section
-  -------------------------------
-  - **NEW:** Added Left/Right navigation arrows (buttons).
-  - **NEW:** Added 'Show Navigation Arrows' toggle to schema.
-  - FIXED Autoplay functionality in JS.
-  - FIXED Indicator dot styling to match the user's image (outlined inactive, pill-shaped active).
-  - Supports multiple slides as blocks with per-slide style and alignment settings
-  - All content, timing, and colors are dynamic via schema settings
-  - Implements smooth fade/scale animations for transitions
+  Shopify Hero Slideshow Section - Exact Match to Reference Image
+  ----------------------------------------------------------------
 {% endcomment %}
-
-{% comment %} Add Font Awesome for Icons {% endcomment %}
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  integrity="sha512-..."
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer" />
 
 {% style %}
   /* --- BASE STYLES & RESET --- */
   .hero-slideshow-{{ section.id }} {
     height: 60vh;
-    /* Shorter, impactful hero height */
     width: 100%;
     min-height: 500px;
-    /* Ensures a minimum height */
     overflow: hidden;
     position: relative;
   }
@@ -43,7 +26,6 @@
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
-    /* Use flex to control alignment */
   }
 
   .slide-item.active {
@@ -51,7 +33,7 @@
     z-index: 5;
   }
 
-  /* --- IMAGE ZOOM EFFECT (Ken Burns Effect) --- */
+  /* --- IMAGE ZOOM EFFECT --- */
   .slide-bg-image {
     transform: scale(1.05);
     transition: transform 8s ease-out;
@@ -61,42 +43,36 @@
     transform: scale(1.0);
   }
 
-  /* --- CONTENT STYLING (CONDITIONAL) --- */
-
-  /* This wrapper handles the alignment (flex properties) */.slide-content-alignment-wrapper {
+  /* --- CONTENT STYLING --- */
+  .slide-content-alignment-wrapper {
     position: relative;
     z-index: 20;
     padding: 2rem 1.5rem;
-    /* Base padding */
     width: 100%;
     height: 100%;
     display: flex;
   }
 
-  /* This wrapper handles the text alignment and max-width */
   .slide-content-wrapper {
     max-width: 90%;
     width: 100%;
     margin: 0;
-    /* Margin is controlled by flex alignment */
   }
 
-  /* 1. Boxed Style (Border Removed, now just a padded overlay) */
+  /* Boxed Style - EXACT MATCH TO IMAGE */
   .content-box {
-    padding: 3.5rem 5rem;
-    backdrop-filter: blur(2px);
-    background-color: rgba(0, 0, 0, 0.08);
-    max-width: 800px;
-    /* Max width for the box */
+    padding: 3rem 4rem;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background-color: transparent;
   }
 
-  /* 2. Standard Style */
+  /* Standard Style */
   .slide-content-wrapper:not(.content-box) {
     max-width: 900px;
-    /* Standard content can be wider */
   }
 
-  /* Alignment classes (Apply to slide-content-alignment-wrapper) */
+  /* Alignment classes */
   .align-top-left {
     justify-content: flex-start;
     align-items: flex-start;
@@ -134,7 +110,7 @@
     align-items: flex-end;
   }
 
-  /* Text alignment classes (Apply to slide-content-wrapper) */
+  /* Text alignment classes */
   .text-pos-left {
     text-align: left;
     margin-left: 0;
@@ -149,6 +125,93 @@
     text-align: right;
     margin-left: auto;
     margin-right: 0;
+  }
+
+  /* --- TYPOGRAPHY - EXACT MATCH TO IMAGE --- */
+  .slide-content-wrapper .subheading {
+    {% if settings.type_header_family != blank %}
+      font-family: {{ settings.type_header_family.family }}, 
+      {{ settings.type_header_family.fallback_families }};
+    {% endif %}
+    font-size: var(--font-base-size);
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    opacity: 0.95;
+  }
+
+  .slide-content-wrapper .heading {
+    font-family: var(--font-heading-family);
+    font-size: var(--font-size-heading-large);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+  }
+
+  .slide-content-wrapper .text {
+    {% if settings.type_body_family != blank %}
+      font-family: {{ settings.type_body_family.family }}, 
+      {{ settings.type_body_family.fallback_families }};
+    {% endif %}
+    font-size: 16px;
+    font-weight: {{ settings.type_body_weight }};
+    line-height: {{ settings.type_body_line_height }};
+    margin-bottom: 30px;
+    display: none;
+  }
+
+  /* Button Styles - EXACT MATCH TO IMAGE */
+  .button-primary {
+    {% if settings.type_button_family != blank %}
+      font-family: {{ settings.type_button_family.family }}, 
+      {{ settings.type_button_family.fallback_families }};
+    {% endif %}
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-radius: 0;
+    padding: 16px 40px !important;
+    display: inline-block;
+    border: none;
+    background-color: #FFFFFF;
+    color: #1a1a1a;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  /* Button Hover Animation - Smooth Left to Right Effect */
+  .button-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.7s ease;
+    z-index: 1;
+  }
+
+  .button-primary:hover::before {
+    left: 100%;
+  }
+
+  .button-primary:hover {
+    background-color: #f8f8f8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .button-primary span {
+    position: relative;
+    z-index: 2;
   }
 
   /* --- SLIDE INDICATORS (DOTS) --- */
@@ -171,42 +234,29 @@
     cursor: pointer;
     transition: all 0.3s ease
     , width 0.3s ease;
-    /* Added width transition */
-
-    /* Inactive state is OUTLINED (White border, transparent center) */
     border: 2px solid{{ section.settings.indicator_color }};
     background-color: transparent;
-
-    /* Ensure all dots start at the same width */
     transform: scale(1.0);
   }
 
   .slide-indicator.active {
-    /* Active state is FILLED and WIDER (Pill shape) */
     background-color: {{ section.settings.indicator_color }};
     border-color: {{ section.settings.indicator_color }};
-
-    /* Make it wider to achieve the pill/squashed circle look */
     width: 28px;
     border-radius: 6px;
-    /* A slight rounding for the pill shape */
-
-    /* Reset scale if used elsewhere, focusing on width/border-radius change */
     transform: scale(1.0);
   }
 
   .slide-indicator:hover:not(.active) {
-    /* Subtle hover effect on inactive dots */
     background-color: {{ section.settings.indicator_color | color_modify: 'alpha', 0.2 }};
   }
 
-  /* --- NAVIGATION ARROWS (NEW CSS) --- */
+  /* --- NAVIGATION ARROWS --- */
   .slide-nav-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     z-index: 30;
-    /* Above content and overlay */
     background: transparent;
     border: none;
     cursor: pointer;
@@ -216,7 +266,6 @@
     padding: 1rem;
     transition: opacity 0.3s
     , color 0.3s;
-    /* Hide if setting is disabled */
     {% unless section.settings.show_navigation_arrows %}
       display: none;
     {% endunless %}
@@ -224,7 +273,6 @@
 
   .slide-nav-arrow:hover {
     opacity: 1;
-    /* Slightly increase size on hover */
     transform: translateY(-50%) scale(1.1);
   }
 
@@ -236,23 +284,53 @@
     right: 10px;
   }
 
+  /* --- ANIMATIONS --- */
+  @keyframes slideInText {
+    0% {
+      opacity: 0;
+      transform: translateY(15px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .slide-item.active .slide-content-wrapper {
+    animation: slideInText 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
+    opacity: 0;
+  }
+
   /* Mobile adjustments */
   @media (max-width: 768px) {
     .content-box {
       padding: 2rem 1.5rem;
-      max-width: 100%;
+      max-width: 90%;
     }
     .slide-content-alignment-wrapper {
       padding: 1.5rem;
-      /* On mobile, force center alignment for better readability */
       justify-content: center;
       align-items: center;
     }
     .slide-content-wrapper {
-      /* On mobile, force center text for better readability */
       text-align: center;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    .slide-content-wrapper .subheading {
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+
+    .slide-content-wrapper .heading {
+      font-size: clamp(22px, 5vw, 32px);
+      letter-spacing: 3px;
+    }
+
+    .button-primary {
+      font-size: 10px;
+      padding: 14px 32px !important;
     }
 
     .slide-indicators-container {
@@ -268,67 +346,14 @@
       height: 10px;
     }
 
-    /* Smaller arrows on mobile */
     .slide-nav-arrow {
       font-size: 1.8rem;
       padding: 0.5rem;
     }
   }
-
-  /* --- TYPOGRAPHY UPDATES --- */
-  .slide-content-wrapper .subheading {
-    font-size: 0.95rem;
-    letter-spacing: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-  .slide-content-wrapper .heading {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    /* Responsive font size */
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-  }
-  .slide-content-wrapper .text {
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-  }
-
-  /* --- ANIMATIONS (Text Fade/Scale) --- */
-  @keyframes slideInText {
-    0% {
-      opacity: 0;
-      transform: translateY(15px) scale(0.98);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .slide-item.active .slide-content-wrapper {
-    animation: slideInText 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s forwards;
-    /* Added 0.2s delay */
-    opacity: 0;
-    /* Start as hidden for animation */
-  }
-
-  /* Button Styles */
-  .button-primary {
-    transition: background-color 0.3s
-    , color 0.3s
-    , border-color 0.3s
-    , opacity 0.3s;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border-radius: 0;
-  }
 {% endstyle %}
 
-<section class="hero-slideshow-{{ section.id }} relative" style="font-family: {{ section.settings.font_family }};">
+<section class="hero-slideshow-{{ section.id }} relative">
   {% liquid
     assign indicator_count = section.blocks.size
   %}
@@ -340,7 +365,6 @@
       assign overlay_color = block.settings.overlay_color
       assign overlay_opacity = block.settings.overlay_opacity | times: 0.01
       assign text_color = block.settings.text_color
-
       assign content_style = block.settings.content_style
       assign content_position = block.settings.content_position
 
@@ -349,9 +373,6 @@
         assign content_style_class = 'content-box'
       endif
 
-      comment
-        Apply alignment classes based on the 'content_position' setting
-      endcomment
       assign alignment_class = 'align-' | append: content_position | replace: '_', '-'
 
       assign text_align_class = ''
@@ -372,9 +393,7 @@
       style="color: {{ text_color }};">
       <div class="absolute inset-0 z-10" style="background-color: {{ overlay_color | color_modify: 'alpha', overlay_opacity }};"></div>
 
-      <div class="slide-bg-image absolute inset-0 w-full h-full z-0 bg-cover bg-center" style="
-          background-image: url('{{ block_image | image_url: width: 1920 }}');
-        ">
+      <div class="slide-bg-image absolute inset-0 w-full h-full z-0 bg-cover bg-center" style="background-image: url('{{ block_image | image_url: width: 1920 }}');">
         {% if block_mobile_image != blank %}
           <style>
             @media (max-width: 768px) {
@@ -387,107 +406,33 @@
       </div>
 
       <div class="slide-content-alignment-wrapper {{ alignment_class }}">
-
         <div class="slide-content-wrapper {{ text_align_class }} {{ content_style_class }}">
-
           {% if block.settings.subheading != blank %}
-            <p class="subheading mb-2">
+            <p class="subheading">
               {{ block.settings.subheading | escape }}
             </p>
           {% endif %}
 
           {% if block.settings.heading != blank %}
-            <h2 class="heading font-extrabold mb-4">
+            <h2 class="heading">
               {{ block.settings.heading | escape }}
             </h2>
           {% endif %}
 
           {% if block.settings.text != blank %}
-            <div class="text mb-8">
+            <div class="text">
               {{ block.settings.text }}
             </div>
           {% endif %}
 
-          {% if block.settings.button_label_1 != blank or block.settings.button_label_2 != blank %}
-            <div class="mt-8 space-x-4">
-
-              {% liquid
-                assign button_label_1 = block.settings.button_label_1
-                assign button_link_1 = block.settings.button_link_1
-                assign button_style_setting_1 = block.settings.button_style
-                assign button_text_color_1 = text_color
-                assign button_bg_color_1 = block.settings.button_background_1
-
-                assign style_attr_1 = ''
-                assign button_class_1 = ''
-
-                case button_style_setting_1
-                  when 'outline'
-                    assign button_class_1 = 'bg-transparent border-2 hover:bg-white hover:text-black'
-                    capture style_attr_1
-                      echo 'border-color:' | append: button_text_color_1 | append: '; color:' | append: button_text_color_1
-                    endcapture
-                  when 'solid'
-                    assign button_class_1 = 'border-2 border-transparent text-black hover:opacity-80'
-                    capture style_attr_1
-                      echo 'background-color:' | append: button_bg_color_1 | append: '; color:' | append: button_text_color_1
-                    endcapture
-                  when 'link'
-                    assign button_class_1 = 'bg-transparent border-transparent underline hover:opacity-80'
-                    capture style_attr_1
-                      echo 'color:' | append: button_text_color_1
-                    endcapture
-                endcase
-              %}
-
-              {% if button_label_1 != blank and button_link_1 != blank %}
-                <a
-                  href="{{ button_link_1 }}"
-                  class="button-primary inline-block font-medium py-3 px-8 transition {{ button_class_1 }}"
-                  style="{{ style_attr_1 }}"
-                  role="button">
-                  {{ button_label_1 | escape }}
-                </a>
-              {% endif %}
-
-              {% liquid
-                assign button_label_2 = block.settings.button_label_2
-                assign button_link_2 = block.settings.button_link_2
-                assign button_style_setting_2 = block.settings.button_style_2
-                assign button_text_color_2 = block.settings.button_text_2
-                assign button_bg_color_2 = block.settings.button_background_2
-
-                assign style_attr_2 = ''
-                assign button_class_2 = ''
-
-                case button_style_setting_2
-                  when 'outline'
-                    assign button_class_2 = 'bg-transparent border-2 hover:bg-white hover:text-black'
-                    capture style_attr_2
-                      echo 'border-color:' | append: button_text_color_2 | append: '; color:' | append: button_text_color_2
-                    endcapture
-                  when 'solid'
-                    assign button_class_2 = 'border-2 border-transparent text-black hover:opacity-80'
-                    capture style_attr_2
-                      echo 'background-color:' | append: button_bg_color_2 | append: '; color:' | append: button_text_color_2
-                    endcapture
-                  when 'link'
-                    assign button_class_2 = 'bg-transparent border-transparent underline hover:opacity-80'
-                    capture style_attr_2
-                      echo 'color:' | append: button_text_color_2
-                    endcapture
-                endcase
-              %}
-
-              {% if button_label_2 != blank and button_link_2 != blank %}
-                <a
-                  href="{{ button_link_2 }}"
-                  class="button-primary inline-block font-medium py-3 px-8 transition {{ button_class_2 }}"
-                  style="{{ style_attr_2 }}"
-                  role="button">
-                  {{ button_label_2 | escape }}
-                </a>
-              {% endif %}
+          {% if block.settings.button_label_1 != blank %}
+            <div class="mt-8">
+              <a
+                href="{{ block.settings.button_link_1 }}"
+                class="button-primary"
+                role="button">
+                <span>{{ block.settings.button_label_1 | escape }}</span>
+              </a>
             </div>
           {% endif %}
         </div>
@@ -496,23 +441,45 @@
   {% endfor %}
 
   {% if indicator_count > 1 %}
-    {% comment %} NAVIGATION ARROWS {% endcomment %}
-    {% if section.settings.show_navigation_arrows and indicator_count > 1 %}
+    {% if section.settings.show_navigation_arrows %}
       <button
         class="slide-nav-arrow prev"
         aria-label="Previous slide"
         id="slide-prev-{{ section.id }}">
-        <i class="fas fa-chevron-left"></i>
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
       </button>
       <button
         class="slide-nav-arrow next"
         aria-label="Next slide"
         id="slide-next-{{ section.id }}">
-        <i class="fas fa-chevron-right"></i>
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M9 18L15 12L9 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
       </button>
     {% endif %}
 
-    {% comment %} INDICATOR DOTS {% endcomment %}
     <div class="slide-indicators-container">
       {% for block in section.blocks %}
         <span
@@ -537,8 +504,9 @@
     const prevButton = document.getElementById(`slide-prev-${sectionId}`);
     const nextButton = document.getElementById(`slide-next-${sectionId}`);
     
-    // Rotation speed is read from the schema setting in milliseconds
-    const rotationSpeed = parseInt('{{ section.settings.rotation_speed | times: 1000 }}', 10);
+    // FIXED: Correct rotation speed calculation
+    const rotationSpeedSetting = {{ section.settings.rotation_speed | default: 6 }};
+    const rotationSpeed = rotationSpeedSetting > 0 ? rotationSpeedSetting * 1000 : 0;
 
     let currentSlideIndex = 0;
     let slideInterval = null;
@@ -561,7 +529,6 @@
 
       const newSlide = slides[index];
       if (newSlide) {
-        // Set the active class
         newSlide.classList.add('active');
       }
 
@@ -577,65 +544,74 @@
       showSlide(currentSlideIndex - 1);
     }
 
-
-    // Function to start or restart the auto-rotation interval
     const startRotation = () => {
-        if (slideInterval) clearInterval(slideInterval);
-        if (rotationSpeed > 0) {
-            slideInterval = setInterval(nextSlide, rotationSpeed);
-        }
+      if (slideInterval) clearInterval(slideInterval);
+      if (rotationSpeed > 0) {
+        slideInterval = setInterval(nextSlide, rotationSpeed);
+      }
     };
 
-    // 1. Initialize the slideshow and start rotation
+    // Initialize
     showSlide(0);
-    startRotation(); // Start the rotation immediately if rotationSpeed > 0
+    startRotation();
 
-    // --- Arrow Button Functionality (NEW) ---
+    // Navigation events
     if (prevButton && nextButton) {
       prevButton.addEventListener('click', () => {
         prevSlide();
-        startRotation(); // Reset the interval on user interaction
+        startRotation();
       });
 
       nextButton.addEventListener('click', () => {
         nextSlide();
-        startRotation(); // Reset the interval on user interaction
+        startRotation();
       });
     }
 
-
-    // Add click events to indicators (and reset interval)
+    // Indicator events
     slideIndicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            if (index !== currentSlideIndex) {
-                showSlide(index);
-                startRotation(); // Reset the interval on user interaction
-            }
-        });
-        
-        // Add keyboard support for accessibility
-        indicator.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (index !== currentSlideIndex) {
-                    showSlide(index);
-                    startRotation();
-                }
-            }
-        });
+      indicator.addEventListener('click', () => {
+        if (index !== currentSlideIndex) {
+          showSlide(index);
+          startRotation();
+        }
+      });
+      
+      indicator.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (index !== currentSlideIndex) {
+            showSlide(index);
+            startRotation();
+          }
+        }
+      });
     });
 
-    // Pause auto-rotation on hover for better UX
+    // Pause on hover
     sectionElement.addEventListener('mouseenter', () => {
-        if (slideInterval) {
-            clearInterval(slideInterval);
-        }
+      if (slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+      }
     });
 
     sectionElement.addEventListener('mouseleave', () => {
-        // Only restart if the interval was running before (i.e., rotationSpeed > 0)
-        startRotation();
+      startRotation();
     });
+
+    // Ensure slideshow works even if page is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (slideInterval) {
+          clearInterval(slideInterval);
+          slideInterval = null;
+        }
+      } else {
+        startRotation();
+      }
+    });
+
   })();
 </script>
 
@@ -655,7 +631,7 @@
         "unit": "sec",
         "label": "Auto rotate between slides",
         "default": 6,
-        "info": "Set to 0 to disable auto rotation. Max time is 30 seconds."
+        "info": "Set to 0 to disable auto rotation."
       },
       {
         "type": "header",
@@ -671,25 +647,10 @@
         "type": "header",
         "content": "Visual Settings"
       }, {
-        "type": "select",
-        "id": "font_family",
-        "label": "Font Family",
-        "default": "sans-serif",
-        "options": [
-          {
-            "value": "serif",
-            "label": "Serif"
-          }, {
-            "value": "sans-serif",
-            "label": "Sans Serif"
-          }
-        ]
-      }, {
         "type": "color",
         "id": "indicator_color",
         "label": "Indicator/Arrow Color",
-        "default": "#FFFFFF",
-        "info": "Color for the active slide indicator dots and navigation arrows."
+        "default": "#FFFFFF"
       }
     ],
     "blocks": [
@@ -717,37 +678,35 @@
             "type": "select",
             "id": "content_style",
             "label": "Content Style",
-            "default": "default",
+            "default": "boxed",
             "options": [
               {
                 "value": "default",
-                "label": "Standard (Text Only)"
+                "label": "Standard (No Border)"
               }, {
                 "value": "boxed",
-                "label": "Boxed Content (No Border)"
+                "label": "Boxed (With Border)"
               }
             ]
           }, {
             "type": "text",
             "id": "subheading",
             "label": "Subheading",
-            "default": "Our latest collection"
+            "default": "OUR BAG"
           }, {
             "type": "text",
             "id": "heading",
             "label": "Heading",
-            "default": "Elegant & Timeless"
+            "default": "ELEGANT & TIMELESS"
           }, {
             "type": "richtext",
             "id": "text",
-            "label": "Text",
-            "default": "<p>Discover the finest handcrafted goods.</p>"
+            "label": "Text (Optional)"
           }, {
             "type": "select",
             "id": "content_position",
             "label": "Content position",
             "default": "middle_center",
-            "info": "Controls the alignment for both 'Standard' and 'Boxed' styles on desktop. (Mobile is always centered).",
             "options": [
               {
                 "value": "top_left",
@@ -802,94 +761,43 @@
             "step": 5,
             "unit": "%",
             "label": "Overlay Opacity",
-            "default": 30
+            "default": 20
           }, {
             "type": "header",
-            "content": "Button 1"
+            "content": "Button"
           }, {
             "type": "text",
             "id": "button_label_1",
-            "label": "Text",
-            "default": "Shop Now"
+            "label": "Button Text",
+            "default": "VIEW COLLECTION"
           }, {
             "type": "url",
             "id": "button_link_1",
-            "label": "Link"
-          }, {
-            "type": "select",
-            "id": "button_style",
-            "label": "Style",
-            "default": "outline",
-            "options": [
-              {
-                "value": "outline",
-                "label": "Outline"
-              }, {
-                "value": "solid",
-                "label": "Solid"
-              }, {
-                "value": "link",
-                "label": "Link"
-              }
-            ]
-          }, {
-            "type": "color",
-            "id": "button_background_1",
-            "label": "Solid Button Background",
-            "default": "#FFFFFF",
-            "info": "Only applies to Solid style."
-          }, {
-            "type": "header",
-            "content": "Button 2 (Optional)"
-          }, {
-            "type": "text",
-            "id": "button_label_2",
-            "label": "Text"
-          }, {
-            "type": "url",
-            "id": "button_link_2",
-            "label": "Link"
-          }, {
-            "type": "select",
-            "id": "button_style_2",
-            "label": "Style",
-            "default": "solid",
-            "options": [
-              {
-                "value": "outline",
-                "label": "Outline"
-              }, {
-                "value": "solid",
-                "label": "Solid"
-              }, {
-                "value": "link",
-                "label": "Link"
-              }
-            ]
-          }, {
-            "type": "color",
-            "id": "button_background_2",
-            "label": "Solid Button Background",
-            "default": "#1C1C1C",
-            "info": "Only applies to Solid style."
-          }, {
-            "type": "color",
-            "id": "button_text_2",
-            "label": "Solid Button Text Color",
-            "default": "#FFFFFF",
-            "info": "Only applies to Solid style."
+            "label": "Button Link"
           }
         ]
       }
     ],
     "presets": [
       {
-        "name": "Full-width Slideshow",
+        "name": "Hero Slideshow",
         "blocks": [
           {
-            "type": "slide"
+            "type": "slide",
+            "settings": {
+              "subheading": "OUR BAG",
+              "heading": "ELEGANT & TIMELESS",
+              "button_label_1": "VIEW COLLECTION",
+              "content_style": "boxed"
+            }
           }, {
-            "type": "slide"
+            "type": "slide",
+            "settings": {
+              "subheading": "OUR BAG",
+              "heading": "INSPIRED BY THE 90S",
+              "button_label_1": "SHOP NOW",
+              "content_style": "boxed"
+            }
           }
         ]
       }

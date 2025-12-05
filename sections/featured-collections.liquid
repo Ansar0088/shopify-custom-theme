@@ -1,59 +1,128 @@
 {% comment %}
   ============================================================================
   SECTION: Featured Collections Slider with Category Tabs
-  Handles WOMEN/MEN tabs, product display, and responsive sliding navigation.
+  FIXED: Mobile layout with 4px spacing and clean grid
   ============================================================================
 {% endcomment %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 {% assign section_id = section.id %}
 {% assign featured_title = section.settings.title | default: 'OUR BEST SELLERS' %}
-{% assign women_collection = section.settings.women_collection %}
-{% assign men_collection = section.settings.men_collection %}
-{% assign hide_info = section.settings.hide_product_information %}
+{% assign women_collection_handle = section.settings.women_collection %}
+{% assign men_collection_handle = section.settings.men_collection %}{% assign hide_info = section.settings.hide_product_information %}
+
+{% comment %} --- LOCAL SECTION SETTINGS --- {% endcomment %}
+{% assign reveal_one_by_one = section.settings.reveal_products_one_by_one %}
+{% assign show_secondary_image = section.settings.show_secondary_image_on_hover %}
+{% assign show_rating = section.settings.show_product_rating %}
+{% assign star_rating_color = section.settings.star_rating_color | default: '#000000' %}
+{% assign icon_thickness = section.settings.icon_thickness | default: '400' %}
+{% assign show_vendor = section.settings.show_vendor %}
+{% assign show_quick_buy = section.settings.show_quick_buy %}
+{% assign show_sold_out_badge = section.settings.show_sold_out_badge %}
+{% assign show_discount_badge = section.settings.show_discount_badge %}
+{% assign discount_type = section.settings.show_discount_as %}
+{% assign image_size_setting = section.settings.image_size | default: 'Tall - cover' %}
+{% assign image_aspect_ratio = image_size_setting | split: ' - ' | first %}
+{% assign image_crop_mode = image_size_setting | split: ' - ' | last %}{% assign title_max_lines = section.settings.title_maximum_lines | plus: 0 %}
+
+{% comment %} Products per row settings - EXACT AS SELECTED {% endcomment %}
+{% assign products_per_row_mobile = section.settings.products_per_row_mobile | plus: 0 %}
+{% assign products_per_row_desktop = section.settings.products_per_row_desktop | plus: 0 %}
+{% assign stack_products = section.settings.stack_products %}
+
+{% assign placeholder_vendor = 'Your Brand' %}
 
 <style>
-  /* Define CSS Variables for Colors and Spacing Factors */
-  .section-{{ section_id }} {
-    /* --- COLOR SCHEME VARIABLES (FALLBACK VALUES) --- */
-    --color-text: {{ section.settings.color_text | default: '#000000' }};
-    --color-background: {{ section.settings.color_background | default: '#EFEFEF' }};
-    --color-primary: {{ section.settings.color_primary | default: '#000000' }};
-    /* Active tab/dot/arrow color */
-    --color-secondary: {{ section.settings.color_secondary | default: '#666666' }};
-    /* Inactive tab/dot/price color */
-    --color-accent: {{ section.settings.color_accent | default: '#8B4513' }};
-    /* This variable is now unused, but kept for schema compatibility */
+  /* Define CSS Variables from Global Color Scheme */
+  .color-scheme-{{ section.settings.color_scheme.id }} {
+    /* --- GLOBAL COLOR SCHEME VARIABLES --- */
+    --background: {{ section.settings.color_scheme.settings.background }};
+    --primary-text: {{ section.settings.color_scheme.settings.primary_text }};
+    --secondary-text: {{ section.settings.color_scheme.settings.secondary_text }};
+    --header-text: {{ section.settings.color_scheme.settings.header_text }};
+    --link: {{ section.settings.color_scheme.settings.link }};
+    --button-filled: {{ section.settings.color_scheme.settings.button_filled }};
+    --button-filled-label: {{ section.settings.color_scheme.settings.button_filled_label }};
+    --button-outline-label: {{ section.settings.color_scheme.settings.button_outline_label }};
+    --border: {{ section.settings.color_scheme.settings.border }};
+    --tag: {{ section.settings.color_scheme.settings.tag }};
+    --tag-label: {{ section.settings.color_scheme.settings.tag_label }};
+    --rating-stars: {{ section.settings.color_scheme.settings.rating_stars }};
 
+    /* --- GLOBAL TYPOGRAPHY VARIABLES --- */
+    {%- assign heading_font = settings.font_heading -%}
+    {%- assign body_font = settings.font_body -%}
+    --font-heading: {{ heading_font.family }}, 
+    {{ heading_font.fallback_families }};
+    --font-body: {{ body_font.family }}, 
+    {{ body_font.fallback_families }};
+
+    /* Font weights from global settings */
+    --font-weight-normal: {{ settings.font_weight_normal }};
+    --font-weight-bold: {{ settings.font_weight_bold }};
+
+    /* Map to section-specific weight variables */
+    --font-weight-body: var(--font-weight-normal);
+    --font-weight-body-bold: var(--font-weight-bold);
+    --font-weight-heading: var(--font-weight-normal);
+    --font-weight-heading-bold: var(--font-weight-bold);
+
+    /* Font sizes from global settings */
+    --font-size-base: {{ settings.font_size_base }}px;
+    --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+    --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+
+    /* --- BUTTON VARIABLES --- */
+    --quick-add-bg: var(--button-filled);
+    --quick-add-text: var(--button-filled-label);
+    --quick-add-border: var(--button-filled);
+
+    --slider-nav-bg: var(--button-filled);
+    --slider-nav-text: var(--button-filled-label);
+    --slider-nav-border: var(--button-filled);
+
+    --view-all-bg: var(--button-filled);
+    --view-all-text: var(--button-filled-label);
+    --view-all-border: var(--button-filled);
+  }
+
+  .section-{{ section_id }} {
     /* --- LAYOUT VARIABLES --- */
     --horizontal-gap-factor: {{ section.settings.horizontal_spacing_factor | default: 1 }};
     --vertical-gap-factor: {{ section.settings.vertical_spacing_factor | default: 1 }};
     --base-gap: 24px;
-    /* Standard base unit for spacing */
-
-    /* Calculate actual gap values */
     --gap-h: calc(var(--base-gap) * var(--horizontal-gap-factor));
-    --gap-v: calc(var(--base-gap) * var(--vertical-spacing-factor));
+    --gap-v: calc(var(--base-gap) * var(--vertical-gap-factor));
 
+    /* --- MOBILE SPACING - 4px as in your image --- */
+    --mobile-gap: 4px;
+
+    /* --- PRODUCTS PER ROW VARIABLES --- */
+    --products-per-row-mobile: {{ products_per_row_mobile }};
+    --products-per-row-desktop: {{ products_per_row_desktop }};
 
     padding: 4rem 0;
-    font-family: 'sans-serif';
-    color: var(--color-text);
-    background-color: var(--color-background);
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-body);
+    font-size: var(--font-size-base);
+    background-color: var(--background);
+    color: var(--primary-text);
 
     {% if section.settings.separate_section_with_border %}
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid var(--border);
     {% endif %}
   }
 
   /* Base Styles for Section */
   .section-title {
-    font-weight: 300;
-    font-size: 1.8rem;
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-heading);
+    font-size: 12px;
     letter-spacing: 0.1em;
     text-align: center;
+    color: var(--header-text);
     margin-bottom: 2.5rem;
-    border-radius: 10px;
     text-transform: uppercase;
   }
 
@@ -65,10 +134,11 @@
 
   .category-tab {
     padding: 0.75rem 2rem 0.5rem;
-    font-size: 0.9rem;
+    font-size: 1.8rem;
     cursor: pointer;
-    font-weight: 500;
-    color: var(--color-secondary);
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-body-bold);
+    color: var(--secondary-text);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     transition: color 0.3s
@@ -78,16 +148,21 @@
     position: relative;
     top: 1px;
     border: none;
-  }
-
-  .category-tabs .category-tab:not(.active) {
-    color: var(--color-secondary);
-    border-bottom-color: transparent;
+    background: none;
   }
 
   .category-tab.active {
-    color: var(--color-primary);
-    border-bottom-color: var(--color-primary);
+    color: var(--primary-text);
+  }
+
+  .category-tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-text);
   }
 
   /* Slider Structure */
@@ -103,10 +178,22 @@
   }
 
   .slider-container {
-    padding: 0 6rem;
+    padding: 0 4rem;
+    margin: 0 20px;
     position: relative;
-    margin: 0 auto;
-    max-width: 1400px;
+  }
+
+  /* MOBILE: 4px left/right padding as in your image */
+  @media (max-width: 767px) {
+    .section-{{ section_id }} {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+
+    .slider-container {
+      padding: 0 4px;
+      margin: 0;
+    }
   }
 
   .slider-track {
@@ -125,744 +212,1022 @@
     position: relative;
   }
 
-  /* CRITICAL FIX: Responsive Card Widths */
-  /* Default: 1 per view (Mobile) */.product-card {
-    width: 100%;
+  /* SLIDER MODE - Products per row */
+  .product-card {
+    width: calc((100% -(var(--gap-h) *(var(--products-per-row-mobile) - 1))) / var(--products-per-row-mobile));
   }
 
-  /* 480px+: 2 per view */
-  @media (min-width: 480px) {
+  @media (min-width: 1150px) {
     .product-card {
-      width: calc((100% - var(--gap-h)) / 2);
+      width: calc((100% -(var(--gap-h) *(var(--products-per-row-desktop) - 1))) / var(--products-per-row-desktop));
     }
   }
 
-  /* 768px+: 3 per view */
-  @media (min-width: 768px) {
+  /* STACK MODE - Clean grid layout with 4px gap */
+  {% if stack_products %}
+    .slider-track {
+      display: grid !important;
+      grid-template-columns: repeat(var(--products-per-row-mobile), 1fr);
+      gap: var(--mobile-gap);
+      width: 100%;
+      transform: none !important;
+      padding-bottom: 0;
+    }
+
     .product-card {
-      width: calc((100% -(2 * var(--gap-h))) / 3);
+      width: 100% !important;
+      margin-bottom: var(--mobile-gap);
+    }
+
+    /* Remove any border radius from images in stack mode */
+    .product-image img {
+      border-radius: 0 !important;
+    }
+
+    /* Desktop grid layout */
+    @media (min-width: 1150px) {
+      .slider-track {
+        grid-template-columns: repeat(var(--products-per-row-desktop), 1fr) !important;
+        gap: var(--gap-h);
+      }
+
+      .product-card {
+        margin-bottom: var(--gap-v);
+      }
+    }
+
+    /* Hide navigation in stack mode */
+    .slider-nav,
+    .slider-dots {
+      display: none !important;
+    }
+  {% endif %}
+
+  /* Tablet */
+  @media (max-width: 768px) {
+    .category-tab {
+      font-size: 1.4rem;
+      padding: 0.6rem 1.2rem;
     }
   }
 
-  /* 1024px+: 4 per view (Desktop) */
-  @media (min-width: 1024px) {
-    .product-card {
-      width: calc((100% -(3 * var(--gap-h))) / 4);
+  /* Mobile */
+  @media (max-width: 480px) {
+    .category-tab {
+      font-size: 1.1rem;
+      padding: 0.5rem 1rem;
+      letter-spacing: 0.05em;
     }
   }
 
   .product-image {
     position: relative;
     margin-bottom: 1rem;
+    overflow: hidden;
   }
 
   .product-image img {
     width: 100%;
-    height: auto;
-    object-fit: cover;
-    aspect-ratio: 3 / 4;
+    height: 100%;
+    object-fit: {{ image_crop_mode | default: 'cover' }};
     background-color: #f7f7f7;
-    border: 1px solid #e0e0e0;
+    transition: opacity 0.3s ease;
+    /* NO BORDER RADIUS - clean square edges like in your image */
+    border-radius: 0;
   }
 
-  /* Conditional Hiding of Info */
-  {% if hide_info %}
-    .product-title,
-    .product-price,
-    .product-rating {
-      display: none !important;
+  /* Apply Image Aspect Ratio */
+  {% case image_aspect_ratio %}
+  {% when 'Natural' %}
+  .product-image {
+    aspect-ratio: auto;
+    height: auto;
+  }
+{% when 'Short' %}
+.product-image {
+  aspect-ratio: 4 / 3;
+}
+{% when 'Square' %}
+.product-image {
+  aspect-ratio: 1 / 1;
+}
+{% when 'Portrait' %}
+.product-image {
+  aspect-ratio: 4 / 5;
+}
+{% when 'Tall' %}
+.product-image {
+  aspect-ratio: 2 / 3;
+}
+{% else %}
+.product-image {
+  aspect-ratio: 3 / 4;
+}
+{% endcase %}
+
+/* Image Hover Logic */
+.product-secondary-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-secondary-image {
+  {% if show_secondary_image %}
+    opacity: 1;
+  {% endif %}
+}
+
+/* Quick Add Icon */
+.quick-add-icon {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--button-filled-label);
+  color: var(--button-filled-label);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10;
+  border: 2px solid var(--button-filled);
+  text-decoration: none;
+  cursor: pointer;
+
+  {% unless show_quick_buy %}
+    display: none !important;
+  {% endunless %}
+}
+
+.product-card:hover .quick-add-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.quick-add-icon:hover {
+  background-color: var(--button-filled-label);
+  color: var(--button-filled);
+  border-color: var(--button-filled-label);
+  transform: scale(1.15);
+}
+
+/* Badges */
+.product-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: var(--tag);
+  color: var(--tag-label);
+  z-index: 5;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+/* Conditional Hiding of Info */
+{% if hide_info %}
+  .product-info-wrap {
+    display: none !important;
+  }
+  .product-image {
+    margin-bottom: 0 !important;
+  }
+{% endif %}
+
+.product-vendor {
+  font-size: 0.75rem;
+  color: var(--secondary-text);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  {% unless show_vendor %}
+    display: none;
+  {% endunless %}
+}
+
+.product-title {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-body);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  color: var(--primary-text);
+  text-transform: uppercase;
+  {% if title_max_lines > 0 %}
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: {{ title_max_lines }};
+    overflow: hidden;
+    text-overflow: ellipsis;
+  {% endif %}
+}
+
+.product-price {
+  font-size: 0.85rem;
+  color: var(--primary-text);
+  font-weight: var(--font-weight-body-bold);
+  letter-spacing: 0.05em;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.product-price .price--compare {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.product-price .price--sale {
+  color: var(--link);
+  font-weight: var(--font-weight-body-bold);
+}
+
+/* Rating Styles */
+.product-rating {
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  {% unless show_rating %}
+    display: none;
+  {% endunless %}
+}
+
+.product-rating span {
+  color: var(--secondary-text);
+  font-size: 0.75rem;
+  margin-left: 5px;
+  font-weight: var(--font-weight-body);
+}
+
+.product-rating .fas,
+.product-rating .far {
+  font-weight: var(--icon-thickness);
+  color: var(--rating-stars);
+}
+
+.product-card a {
+  text-decoration: none;
+  color: var(--primary-text);
+}
+
+/* Color Swatches */
+.color-swatches {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 0.5rem;
+}
+
+.color-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: {% if section.settings.round_color_swatches %}50%{% else %}2px{% endif %};
+  border: 1px solid var(--border);
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+/* Slider Navigation */
+.slider-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--slider-nav-bg);
+  border: 1px solid var(--slider-nav-border);
+  color: var(--slider-nav-text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.slider-nav:hover {
+  background: var(--slider-nav-text);
+  color: var(--slider-nav-bg);
+  border-color: var(--slider-nav-text);
+}
+
+.slider-nav.prev {
+  left: 20px;
+}
+
+.slider-nav.next {
+  right: 20px;
+}
+
+.slider-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--secondary-text);
+  cursor: pointer;
+  transition: background-color 0.3s
+  , transform 0.3s;
+  opacity: 0.5;
+}
+
+.slider-dot.active {
+  background-color: var(--primary-text);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.button-wrapper {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.view-all-button {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+  padding: 12px 30px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body-bold);
+  color: var(--view-all-text);
+  background-color: var(--view-all-bg);
+  border: 2px solid var(--view-all-border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.4s ease-in-out
+  , border-color 0.4s ease-in-out;
+}
+
+.view-all-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: var(--view-all-text);
+  z-index: -1;
+  transition: right 0.4s ease-in-out;
+}
+
+.view-all-button:hover::before {
+  right: 0;
+}
+
+.view-all-button:hover {
+  color: var(--view-all-bg);
+  border-color: var(--view-all-bg);
+}
+
+.view-all-button a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+/* MOBILE SPECIFIC STYLES */
+@media (max-width: 767px) {
+  /* Stack mode mobile layout */
+  {% if stack_products %}
+    .slider-track {
+      gap: 4px !important;
     }
-    .product-image {
-      margin-bottom: 0 !important;
+
+    .product-card {
+      margin-bottom: 4px !important;
     }
   {% endif %}
 
-  .product-title {
-    font-size: 0.85rem;
-    font-weight: 400;
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.02em;
-    line-height: 1.4;
-    text-transform: uppercase;
+  /* Adjust container padding for mobile */
+  .slider-container {
+    padding: 0 4px !important;
   }
-
-  .product-price {
-    font-size: 0.85rem;
-    color: var(--color-secondary);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
-
-  /* Rating Styles to match image */
-  .product-rating {
-    margin-top: 0.2rem;
-    font-size: 0.75rem;
-    color: var(--color-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .product-rating span {
-    color: var(--color-secondary);
-    font-size: 0.75rem;
-    margin-left: 5px;
-    font-weight: 400;
-  }
-
-  .product-rating .fa-star {
-    color: var(--color-primary);
-  }
-
-  /* Navigation Arrows - Centered, Rounded, and Hover Implementation */
-  .slider-nav {
-    position: absolute;
-    top: 40%;
-    transform: translateY(-50%);
-    background: white;
-    border: 1px solid #e0e0e0;
-    cursor: pointer;
-    color: var(--color-primary);
-    z-index: 10;
-    padding: 0;
-    font-size: 0.8rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease-in-out;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  /* KEY: Hover over the active slider container to reveal the arrows */
-  .product-slider.active:hover .slider-nav:not(:disabled) {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .slider-nav:hover:not(:disabled) {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-  }
-
-  .slider-nav:disabled {
-    cursor: not-allowed;
-    opacity: 0 !important;
-  }
-  .button-wrapper {
-    text-align: center;
-    margin-top: 3rem;
-  }
-
-
-  /* Arrow Positioning on Desktop */
-  @media (min-width: 768px) {
-    .slider-container {
-      padding: 0 5rem;
-    }
-
-    /* Position arrows outside the product grid but inside the container padding */
-    .slider-nav.prev {
-      left: 3rem;
-    }
-
-    .slider-nav.next {
-      right: 3rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .slider-container {
-      padding: 0 6rem;
-    }
-
-    .slider-nav.prev {
-      left: 4rem;
-    }
-
-    .slider-nav.next {
-      right: 4rem;
-    }
-  }
-
-  /* Mobile/Tablet Adjustments: Always show arrows */
-  @media (max-width: 767px) {
-    .section-title {
-      font-size: 1.5rem;
-    }
-
-    .slider-container {
-      padding: 0 1rem;
-    }
-
-    /* Keep arrows visible on touch devices */
-    .product-slider .slider-nav {
-      opacity: 1;
-      pointer-events: auto;
-      background: white;
-      width: 30px;
-      height: 30px;
-      font-size: 0.7rem;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      border-color: #e0e0e0;
-    }
-
-    .slider-nav.prev {
-      left: 0;
-    }
-
-    .slider-nav.next {
-      right: 0;
-    }
-  }
-
-  /* Dots Indicator */
-  .slider-dots {
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
-  }
-
-  .slider-dot {
-    height: 6px;
-    width: 6px;
-    margin: 0 6px;
-    background-color: var(--color-secondary);
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-    transition: background-color 0.3s
-    , transform 0.3s;
-  }
-
-  .slider-dot.active {
-    background-color: var(--color-primary);
-    transform: scale(1.2);
-  }
-
-  /* View All Button */
-  .view-all-button {
-    text-align: center;
-    margin-top: 3rem;
-  }
-
-
-  /* Link hover state */
-
+}
 </style>
 
-<section class="section section-{{ section_id }}" data-section-id="{{ section_id }}">
-  <div class="container mx-auto px-4 md:px-8">
-    <h2 class="section-title">{{ featured_title }}</h2>
+<div class="color-scheme-{{ section.settings.color_scheme.id }}">
+  <section
+    class="section section-{{ section_id }}"
+    data-section-id="{{ section_id }}"
+    data-reveal-one-by-one="{{ reveal_one_by_one }}"
+    data-stack-products="{{ stack_products }}"
+    data-products-per-row-mobile="{{ products_per_row_mobile }}"
+    data-products-per-row-desktop="{{ products_per_row_desktop }}">
+    <div class="mx-auto">
+      <h2 class="section-title">{{ featured_title }}</h2>
 
-    <div class="category-tabs">
-      <div class="category-tab active" data-category="women">WOMEN</div>
-      <div class="category-tab" data-category="men">MEN</div>
-    </div>
+      <div class="category-tabs">
+        <div
+          class="category-tab active"
+          data-category="women"
+          data-link-text="ALL WOMEN'S BAGS"
+          data-link-url="{% if women_collection_handle != blank %}{{ collections[women_collection_handle].url }}{% else %}#{% endif %}">WOMEN</div>
+        <div
+          class="category-tab"
+          data-category="men"
+          data-link-text="ALL MEN'S BAGS"
+          data-link-url="{% if men_collection_handle != blank %}{{ collections[men_collection_handle].url }}{% else %}#{% endif %}">MEN</div>
+      </div>
 
-    {% comment %} WOMEN'S SLIDER {% endcomment %}
-    <div class="product-slider active" id="women-slider">
-      <div class="slider-container">
-        <div class="slider-track" id="women-track">
-          {% if women_collection != blank %}
-            {% assign collection = collections[women_collection] %}
-            {% if collection and collection.products %}
-              {% for product in collection.products limit: 8 %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="{{ product.url }}">
-                      {% if product.featured_image %}
-                        <img
-                          src="{{ product.featured_image | img_url: '400x500', crop: 'center' }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% else %}
-                        <img
-                          src="https://placehold.co/400x500/f5f5f5/666666?text=Product+{{ forloop.index }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% endif %}
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ product.title }}</h3>
-                    <div class="product-price">{{ product.price | money }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% else %}
-              {% comment %} Fallback placeholder products if collection is empty {% endcomment %}
-              {% assign women_products = "PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99,PRODUCT|$49.99" | split: ',' %}
-              {% for item in women_products %}
-                {% assign data = item | split: '|' %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="#">
-                      <img
-                        src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                        alt="{{ data[0] }}"
-                        loading="lazy"
-                        width="400"
-                        height="500" />
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ data[0] }}</h3>
-                    <div class="product-price">{{ data[1] }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
+      {% comment %} WOMEN'S SLIDER {% endcomment %}
+      <div class="product-slider active" id="women-slider">
+        <div class="slider-container">
+          <div class="slider-track" id="women-track">
+            {% assign collection_women = collections[women_collection_handle] %}
+            {% assign products_to_render = collection_women.products %}
+
+            {% if products_to_render == blank %}
+              {% assign products_to_render = collections.all.products %}
             {% endif %}
-          {% else %}
-            {% comment %} Placeholder Products for Women when no collection selected (Matching Image Icons) {% endcomment %}
-            {% assign women_products = "BACKPACK|$49.99,SNEAKER|$49.99,SUNGLASSES|$49.99,CAP|$49.99,TOTE BAG|$49.99,WALLET|$49.99,HEELS|$49.99,DRESS|$49.99" | split: ',' %}
-            {% for item in women_products %}
-              {% assign data = item | split: '|' %}
+
+            {% for product in products_to_render limit: 8 %}
+              {% assign product_image = product.featured_image %}
+            {% assign second_image = product.images[1] %}
+
+              {% comment %} Get first available variant for Quick Add {% endcomment %}
+              {% assign first_variant = product.selected_or_first_available_variant %}
+              {% assign add_to_cart_url = '/cart/add?id=' | append: first_variant.id %}
+
               <div class="product-card">
                 <div class="product-image">
-                  {% comment %} BADGE HTML REMOVED {% endcomment %}
-                  <a href="#">
+                  {% comment %} BADGES {% endcomment %}
+                  {% if show_sold_out_badge and product.available == false %}
+                    <span class="product-badge sold-out-badge">Sold Out</span>
+                  {% elsif show_discount_badge and product.compare_at_price > product.price %}
+                    <span class="product-badge discount-badge">
+                      {% case discount_type %}
+                        {% when 'Percentage' %}
+                          {% assign savings = product.compare_at_price | minus: product.price %}
+                          {% assign percentage = savings | times: 100.0 | divided_by: product.compare_at_price | round %}
+                          Save {{ percentage }}%
+                        {% when 'Saving' %}
+                          Save {{ product.compare_at_price | minus: product.price | money }}
+                        {% else %}
+                          Sale
+                      {% endcase %}
+                    </span>
+                  {% endif %}
+
+                  <a href="{{ product.url | default: '#' }}">
                     <img
-                      src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                      alt="{{ data[0] }}"
+                      src="{{ product_image | img_url: '400x500', crop: image_crop_mode | default: 'center' }}"
+                      alt="{{ product.title | default: 'Product Placeholder' }}"
                       loading="lazy"
                       width="400"
                       height="500" />
                   </a>
-                </div>
-                {% unless hide_info %}
-                  <h3 class="product-title">PRODUCT</h3>
-                  <div class="product-price">£49.99</div>
-                  <div class="product-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <span>(4.5)</span>
-                  </div>
-                {% endunless %}
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
 
-        <button class="slider-nav prev" id="women-prev">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="slider-nav next" id="women-next">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-
-      <div class="slider-dots" id="women-dots"></div>
-      <div class="button-wrapper">
-        <div class="view-all-button">
-          <a href="{% if women_collection != blank %}{{ collections[women_collection].url }}{% else %}#{% endif %}">
-            ALL WOMEN'S BAGS
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {% comment %} MEN'S SLIDER {% endcomment %}
-    <div class="product-slider" id="men-slider">
-      <div class="slider-container">
-        <div class="slider-track" id="men-track">
-          {% if men_collection != blank %}
-            {% assign collection = collections[men_collection] %}
-            {% if collection and collection.products %}
-              {% for product in collection.products limit: 8 %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="{{ product.url }}">
-                      {% if product.featured_image %}
-                        <img
-                          src="{{ product.featured_image | img_url: '400x500', crop: 'center' }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% else %}
-                        <img
-                          src="https://placehold.co/400x500/f5f5f5/666666?text=Product+{{ forloop.index }}"
-                          alt="{{ product.title }}"
-                          loading="lazy"
-                          width="400"
-                          height="500" />
-                      {% endif %}
-                    </a>
-                  </div>
-                  {% unless hide_info %}
-                    <h3 class="product-title">{{ product.title }}</h3>
-                    <div class="product-price">{{ product.price | money }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
-                    </div>
-                  {% endunless %}
-                </div>
-              {% endfor %}
-            {% else %}
-              {% comment %} Fallback placeholder products if collection is empty {% endcomment %}
-              {% assign men_products = "MEN'S LEATHER BAG|$521,EXECUTIVE BRIEFCASE|$589,URBAN BACKPACK|$478,TRAVEL DUFFLE|$635,MODERN MESSENGER|$599,CLASSIC PORTFOLIO|$542,SPORT BACKPACK|$487,LUXURY BRIEFCASE|$689" | split: ',' %}
-              {% for item in men_products %}
-                {% assign data = item | split: '|' %}
-                <div class="product-card">
-                  <div class="product-image">
-                    {% comment %} BADGE HTML REMOVED {% endcomment %}
-                    <a href="#">
+                  {% comment %} Secondary Image on Hover {% endcomment %}
+                  {% if show_secondary_image and second_image %}
+                    <a href="{{ product.url | default: '#' }}">
                       <img
-                        src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                        alt="{{ data[0] }}"
+                        src="{{ second_image | img_url: '400x500', crop: image_crop_mode | default: 'center' }}"
+                        alt="{{ product.title | default: 'Product Placeholder' }}"
+                        class="product-secondary-image"
                         loading="lazy"
                         width="400"
                         height="500" />
                     </a>
-                  </div>
+                  {% endif %}
+
+                  {% comment %} QUICK ADD PLUS ICON {% endcomment %}
+                  {% if show_quick_buy and product.available %}
+                    <a
+                      href="{{ add_to_cart_url }}"
+                      class="quick-add-icon"
+                      title="Add to Cart">
+                      <i class="fas fa-plus"></i>
+                    </a>
+                  {% endif %}
+                </div>
+
+                <div class="product-info-wrap">
                   {% unless hide_info %}
-                    <h3 class="product-title">{{ data[0] }}</h3>
-                    <div class="product-price">{{ data[1] }}</div>
-                    <div class="product-rating">
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="fas fa-star"></i>
-                      <i class="far fa-star"></i>
-                      <span>(4.5)</span>
+                    {% if show_vendor %}
+                      <h4 class="product-vendor">{{ product.vendor | default: placeholder_vendor }}</h4>
+                    {% endif %}
+
+                    <a href="{{ product.url | default: '#' }}">
+                      <h3 class="product-title">{{ product.title | default: 'Product Name' }}</h3>
+                    </a>
+
+                    <div class="product-price">
+                      {% if product.compare_at_price > product.price %}
+                        <span class="price--compare">{{ product.compare_at_price | money }}</span>
+                        <span class="price--sale">{{ product.price | money }}</span>
+                      {% else %}
+                        <span>{{ product.price | money }}</span>
+                      {% endif %}
                     </div>
+
+                    {% if show_rating %}
+                      <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        {% case section.settings.show_product_rating_as %}
+                          {% when 'Count (e.g. "3 reviews")' %}
+                            <span>(3 reviews)</span>
+                          {% else %}
+                            <span>(4.5)</span>
+                        {% endcase %}
+                      </div>
+                    {% endif %}
+
+                    {% comment %} Color Display Mode {% endcomment %}
+                    {% case section.settings.color_display_mode %}
+                      {% when 'Swatch' %}
+                        <div class="color-swatches">
+                          <span class="color-swatch" style="background-color: black;"></span>
+                          <span class="color-swatch" style="background-color: brown;"></span>
+                          <span class="color-swatch" style="background-color: navy;"></span>
+                        </div>
+                      {% when 'Count' %}
+                        <p style="font-size: 0.75rem; margin-top: 5px; color: var(--secondary-text);">+3 Colors</p>
+                    {% endcase %}
                   {% endunless %}
                 </div>
-              {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <button class="slider-nav prev" id="women-prev">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="slider-nav next" id="women-next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="slider-dots" id="women-dots"></div>
+        <div class="button-wrapper">
+          <div class="view-all-button">
+            <a href="{% if women_collection_handle != blank %}{{ collections[women_collection_handle].url }}{% else %}#{% endif %}" class="view-all-link">
+              ALL WOMEN'S BAGS
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {% comment %} MEN'S SLIDER {% endcomment %}
+      <div class="product-slider" id="men-slider">
+        <div class="slider-container">
+          <div class="slider-track" id="men-track">
+            {% assign collection_men = collections[men_collection_handle] %}
+            {% assign products_to_render = collection_men.products %}
+
+            {% if products_to_render == blank %}
+              {% assign products_to_render = collections.all.products %}
             {% endif %}
-          {% else %}
-            {% comment %} Placeholder Products for Men when no collection selected {% endcomment %}
-            {% assign men_products = "MEN'S LEATHER BAG|$521,EXECUTIVE BRIEFCASE|$589,URBAN BACKPACK|$478,TRAVEL DUFFLE|$635,MODERN MESSENGER|$599,CLASSIC PORTFOLIO|$542,SPORT BACKPACK|$487,LUXURY BRIEFCASE|$689" | split: ',' %}
-            {% for item in men_products %}
-              {% assign data = item | split: '|' %}
+
+            {% for product in products_to_render limit: 8 %}
+              {% assign product_image = product.featured_image %}
+            {% assign second_image = product.images[1] %}
+
+              {% comment %} Get first available variant for Quick Add {% endcomment %}
+              {% assign first_variant = product.selected_or_first_available_variant %}
+              {% assign add_to_cart_url = '/cart/add?id=' | append: first_variant.id %}
+
               <div class="product-card">
                 <div class="product-image">
-                  {% comment %} BADGE HTML REMOVED {% endcomment %}
-                  <a href="#">
+                  {% comment %} BADGES {% endcomment %}
+                  {% if show_sold_out_badge and product.available == false %}
+                    <span class="product-badge sold-out-badge">Sold Out</span>
+                  {% elsif show_discount_badge and product.compare_at_price > product.price %}
+                    <span class="product-badge discount-badge">
+                      {% case discount_type %}
+                        {% when 'Percentage' %}
+                          {% assign savings = product.compare_at_price | minus: product.price %}
+                          {% assign percentage = savings | times: 100.0 | divided_by: product.compare_at_price | round %}
+                          Save {{ percentage }}%
+                        {% when 'Saving' %}
+                          Save {{ product.compare_at_price | minus: product.price | money }}
+                        {% else %}
+                          Sale
+                      {% endcase %}
+                    </span>
+                  {% endif %}
+
+                  <a href="{{ product.url | default: '#' }}">
                     <img
-                      src="https://placehold.co/400x500/f5f5f5/666666?text={{ data[0] | replace: ' ', '+' }}"
-                      alt="{{ data[0] }}"
+                      src="{{ product_image | img_url: '400x500', crop: image_crop_mode | default: 'center' }}"
+                      alt="{{ product.title | default: 'Product Placeholder' }}"
                       loading="lazy"
                       width="400"
                       height="500" />
                   </a>
+
+                  {% comment %} Secondary Image on Hover {% endcomment %}
+                  {% if show_secondary_image and second_image %}
+                    <a href="{{ product.url | default: '#' }}">
+                      <img
+                        src="{{ second_image | img_url: '400x500', crop: image_crop_mode | default: 'center' }}"
+                        alt="{{ product.title | default: 'Product Placeholder' }}"
+                        class="product-secondary-image"
+                        loading="lazy"
+                        width="400"
+                        height="500" />
+                    </a>
+                  {% endif %}
+
+                  {% comment %} QUICK ADD PLUS ICON {% endcomment %}
+                  {% if show_quick_buy and product.available %}
+                    <a
+                      href="{{ add_to_cart_url }}"
+                      class="quick-add-icon"
+                      title="Add to Cart">
+                      <i class="fas fa-plus"></i>
+                    </a>
+                  {% endif %}
                 </div>
-                {% unless hide_info %}
-                  <h3 class="product-title">{{ data[0] }}</h3>
-                  <div class="product-price">{{ data[1] }}</div>
-                  <div class="product-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <span>(4.5)</span>
-                  </div>
-                {% endunless %}
+
+                <div class="product-info-wrap">
+                  {% unless hide_info %}
+                    {% if show_vendor %}
+                      <h4 class="product-vendor">{{ product.vendor | default: placeholder_vendor }}</h4>
+                    {% endif %}
+
+                    <a href="{{ product.url | default: '#' }}">
+                      <h3 class="product-title">{{ product.title | default: 'Product Name' }}</h3>
+                    </a>
+
+                    <div class="product-price">
+                      {% if product.compare_at_price > product.price %}
+                        <span class="price--compare">{{ product.compare_at_price | money }}</span>
+                        <span class="price--sale">{{ product.price | money }}</span>
+                      {% else %}
+                        <span>{{ product.price | money }}</span>
+                      {% endif %}
+                    </div>
+
+                    {% if show_rating %}
+                      <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        {% case section.settings.show_product_rating_as %}
+                          {% when 'Count (e.g. "3 reviews")' %}
+                            <span>(3 reviews)</span>
+                          {% else %}
+                            <span>(4.5)</span>
+                        {% endcase %}
+                      </div>
+                    {% endif %}
+
+                    {% comment %} Color Display Mode {% endcomment %}
+                    {% case section.settings.color_display_mode %}
+                      {% when 'Swatch' %}
+                        <div class="color-swatches">
+                          <span class="color-swatch" style="background-color: black;"></span>
+                          <span class="color-swatch" style="background-color: gray;"></span>
+                          <span class="color-swatch" style="background-color: navy;"></span>
+                        </div>
+                      {% when 'Count' %}
+                        <p style="font-size: 0.75rem; margin-top: 5px; color: var(--secondary-text);">+3 Colors</p>
+                    {% endcase %}
+                  {% endunless %}
+                </div>
               </div>
             {% endfor %}
-          {% endif %}
+          </div>
+
+          <button class="slider-nav prev" id="men-prev">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="slider-nav next" id="men-next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
 
-        <button class="slider-nav prev" id="men-prev">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="slider-nav next" id="men-next">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
-
-      <div class="slider-dots" id="men-dots"></div>
-      <div class="button-wrapper">
-        <div class="view-all-button">
-          <a href="{% if men_collection != blank %}{{ collections[men_collection].url }}{% else %}#{% endif %}">
-            ALL MEN'S BAGS
-          </a>
+        <div class="slider-dots" id="men-dots"></div>
+        <div class="button-wrapper">
+          <div class="view-all-button">
+            <a href="{% if men_collection_handle != blank %}{{ collections[men_collection_handle].url }}{% else %}#{% endif %}" class="view-all-link">
+              ALL MEN'S BAGS
+            </a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-  console.log('Collections Slider Tabs - Initializing...');
-  
-  const sectionId = '{{ section_id }}';
-  const sectionContainer = document.querySelector('.section-' + sectionId);
-  if (!sectionContainer) {
-    console.error('Section container not found');
-    return;
-  }
-
-  const categoryTabs = sectionContainer.querySelectorAll('.category-tab');
-  const productSliders = sectionContainer.querySelectorAll('.product-slider');
-  
-  // Storage for slider instances
-  const sliderInstances = {};
-
-  // --- Category Tab Functionality ---
-  categoryTabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-      console.log('Tab clicked:', this.getAttribute('data-category'));
-      
-      // Remove active class from all tabs and sliders
-      categoryTabs.forEach(t => t.classList.remove('active'));
-      productSliders.forEach(s => s.classList.remove('active'));
-      
-      // Add active class to clicked tab and corresponding slider
-      this.classList.add('active');
-      const category = this.getAttribute('data-category');
-      const activeSlider = document.getElementById(`${category}-slider`);
-      if (activeSlider) {
-        activeSlider.classList.add('active');
-        console.log('Active slider:', activeSlider.id);
-      }
-      
-      // Re-initialize the active slider (and reset its position)
-      const sliderKey = `${category}-track`;
-      if (sliderInstances[sliderKey] && sliderInstances[sliderKey].resetSlider) {
-        sliderInstances[sliderKey].resetSlider();
-      }
-      
-      // Update the View All Button Text/Style
-      const viewAllLink = activeSlider.querySelector('.view-all-link');
-      if (viewAllLink) {
-         viewAllLink.textContent = `ALL ${category.toUpperCase()}'S BAGS`;
-      }
-    });
-  });
-  
-  // --- Slider Core Logic ---
-  function initSlider(trackId, prevBtnId, nextBtnId, dotsContainerId) {
-    console.log('Initializing slider:', trackId);
+    console.log('Collections Slider Tabs - Initializing...');
     
-    const track = document.getElementById(trackId);
-    const prevBtn = document.getElementById(prevBtnId);
-    const nextBtn = document.getElementById(nextBtnId);
-    const dotsContainer = document.getElementById(dotsContainerId);
-    const container = track ? track.closest('.slider-container') : null; 
-    
-    if (!track || !prevBtn || !nextBtn || !dotsContainer || !container) {
-      console.error('Slider elements not found for:', trackId);
-      return null;
+    const sectionId = '{{ section_id }}';
+    const sectionContainer = document.querySelector('.section-' + sectionId);
+    const revealOneByOne = sectionContainer.getAttribute('data-reveal-one-by-one') === 'true';
+    const stackProducts = sectionContainer.getAttribute('data-stack-products') === 'true';
+    const productsPerRowMobile = parseInt(sectionContainer.getAttribute('data-products-per-row-mobile'));
+    const productsPerRowDesktop = parseInt(sectionContainer.getAttribute('data-products-per-row-desktop'));
+
+    if (!sectionContainer) {
+      console.error('Section container not found');
+      return;
     }
 
-    const slides = track.querySelectorAll('.product-card');
-    const totalSlides = slides.length;
+    const categoryTabs = sectionContainer.querySelectorAll('.category-tab');
+    const productSliders = sectionContainer.querySelectorAll('.product-slider');
     
-    console.log('Total slides:', totalSlides, 'for:', trackId);
-    
-    if (totalSlides === 0) {
-      prevBtn.style.display = 'none';
-      nextBtn.style.display = 'none';
-      dotsContainer.style.display = 'none';
-      return {};
-    }
+    // Storage for slider instances
+    const sliderInstances = {};
 
-    let currentIndex = 0;
-    let slidesPerView = getSlidesPerView();
-
-    function getSlidesPerView() {
-      const width = window.innerWidth;
-      // Must match CSS media queries
-      if (width < 480) return 1;
-      if (width < 768) return 2;
-      if (width < 1024) return 3;
-      return 4;
-    }
-
-    function calculateDotCount() {
-      // Calculate how many screens/views are needed
-      const count = Math.ceil(totalSlides / slidesPerView);
-      return count;
-    }
-    
-    let dotCount = calculateDotCount();
-
-    function renderDots() {
-      dotsContainer.innerHTML = '';
-      dotCount = calculateDotCount();
-      
-      if (dotCount <= 1) {
-        // Hide dots and navigation if only one view is needed
-        dotsContainer.style.display = 'none';
-        prevBtn.disabled = true;
-        nextBtn.disabled = true;
+    // --- Category Tab Functionality ---
+    categoryTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        console.log('Tab clicked:', this.getAttribute('data-category'));
         
+        // Remove active class from all tabs and sliders
+        categoryTabs.forEach(t => t.classList.remove('active'));
+        productSliders.forEach(s => s.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding slider
+        this.classList.add('active');
+        const category = this.getAttribute('data-category');
+        const activeSlider = document.getElementById(`${category}-slider`);
+        if (activeSlider) {
+          activeSlider.classList.add('active');
+        }
+        
+        // Update ALL view-all buttons in the section
+        sectionContainer.querySelectorAll('.view-all-link').forEach(link => {
+          link.textContent = this.getAttribute('data-link-text');
+          link.href = this.getAttribute('data-link-url');
+        });
+        
+        // Re-initialize the active slider
+        const sliderKey = `${category}-track`;
+        if (sliderInstances[sliderKey] && sliderInstances[sliderKey].resetSlider) {
+          sliderInstances[sliderKey].resetSlider();
+        }
+      });
+    });
+    
+    // --- Slider Core Logic ---
+    function initSlider(trackId, prevBtnId, nextBtnId, dotsContainerId) {
+      console.log('Initializing slider:', trackId, 'Stack mode:', stackProducts);
+      
+      const track = document.getElementById(trackId);
+      const prevBtn = document.getElementById(prevBtnId);
+      const nextBtn = document.getElementById(nextBtnId);
+      const dotsContainer = document.getElementById(dotsContainerId);
+      
+      if (!track || !prevBtn || !nextBtn || !dotsContainer) {
+        console.error('Slider elements not found for:', trackId);
+        return null;
+      }
+
+      // If stack products is enabled, use grid layout
+      if (stackProducts) {
+        console.log('Stack products enabled - using grid layout');
+        
+        // Apply grid layout
+        track.style.display = 'grid';
+        track.style.gridTemplateColumns = `repeat(${productsPerRowMobile}, 1fr)`;
+        track.style.gap = '4px';
+        track.style.width = '100%';
+        track.style.transform = 'none !important';
+        
+        // Update grid for desktop
+        function updateGridLayout() {
+          const width = window.innerWidth;
+          if (width >= 1150) {
+            track.style.gridTemplateColumns = `repeat(${productsPerRowDesktop}, 1fr)`;
+            track.style.gap = 'var(--gap-h)';
+          } else {
+            track.style.gridTemplateColumns = `repeat(${productsPerRowMobile}, 1fr)`;
+            track.style.gap = '4px';
+          }
+        }
+        
+        // Initial grid setup
+        updateGridLayout();
+        
+        // Update grid on resize
+        window.addEventListener('resize', updateGridLayout);
+        
+        // Hide navigation elements
         prevBtn.style.display = 'none';
         nextBtn.style.display = 'none';
-
-      } else {
-        dotsContainer.style.display = 'flex';
-        prevBtn.style.display = 'flex';
-        nextBtn.style.display = 'flex';
-      }
-      
-      for(let i = 0; i < dotCount; i++) {
-        const dot = document.createElement('span');
-        dot.classList.add('slider-dot');
-        dot.setAttribute('data-index', i);
-        dotsContainer.appendChild(dot);
+        dotsContainer.style.display = 'none';
         
-        dot.addEventListener('click', function() {
-          currentIndex = parseInt(this.getAttribute('data-index'));
-          updateSlider();
-        });
-      }
-      return dotsContainer.querySelectorAll('.slider-dot');
-    }
-
-    let dots = renderDots();
-
-    function updateSlider() {
-      if (totalSlides === 0 || dotCount <= 1) {
-        track.style.transform = 'translateX(0px)';
-        return;
+        return { 
+          resetSlider: function() {
+            updateGridLayout();
+          } 
+        };
       }
 
-      // We calculate the maximum scroll distance
-      const sliderWrapper = track.closest('.product-slider');
-      const containerWidth = sliderWrapper.clientWidth;
-      const trackWidth = track.scrollWidth;
+      // SLIDER MODE (when stack products is disabled)
+      const slides = track.querySelectorAll('.product-card');
+      const totalSlides = slides.length;
       
-      const maxOffset = trackWidth - containerWidth;
+      if (totalSlides === 0) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        dotsContainer.style.display = 'none';
+        return {};
+      }
+
+      let currentIndex = 0;
       
-      // Ensure currentIndex is not out of bounds
-      currentIndex = Math.min(currentIndex, dotCount - 1);
-      
-      let offset = 0;
-      // Calculate position based on current dot index, distributing scroll distance evenly
-      if (dotCount > 1) {
-         offset = (maxOffset / (dotCount - 1)) * currentIndex;
-      }
-      
-      // Ensure offset is non-negative and capped at maxOffset
-      offset = Math.max(0, Math.min(offset, maxOffset));
-
-      track.style.transform = `translateX(-${offset}px)`;
-
-      updateDots();
-    }
-
-    function updateDots() {
-      if (dotCount <= 1) return;
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentIndex);
-      });
-      // Set disabled property to control arrow appearance (opacity 0 !important via CSS)
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex >= dotCount - 1;
-    }
-
-    function nextSlide() {
-      if (currentIndex < dotCount - 1) {
-        currentIndex++;
-        updateSlider();
-      }
-    }
-
-    function prevSlide() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateSlider();
-      }
-    }
-
-    function resetSlider() {
-      const currentSlidesPerView = getSlidesPerView();
-      // Only re-render dots if slidesPerView changed (i.e., screen size crossed a breakpoint)
-      if (slidesPerView !== currentSlidesPerView) {
-        slidesPerView = currentSlidesPerView;
-        dots = renderDots();
-      } else if (dotCount === 0 || dots.length === 0) {
-        // Initial render case when content appears
-        dots = renderDots();
-      }
-      
-      // Ensure position is valid after a tab switch (or first load)
-      currentIndex = 0; 
-      updateSlider();
-      updateDots();
-    }
-    
-    // Event Listeners
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
-    
-    // Debounce/Throttle resize handler with requestAnimationFrame
-    let rAF;
-    window.addEventListener('resize', function() {
-      if (rAF) {
-        cancelAnimationFrame(rAF);
-      }
-      rAF = requestAnimationFrame(function() {
-        const newSlidesPerView = getSlidesPerView();
-        // Check if breakpoint changed or if the number of dots changed
-        if (slidesPerView !== newSlidesPerView) {
-          slidesPerView = newSlidesPerView;
-          dots = renderDots();
-          // Keep the current dot index if possible, but adjust if new dot count is smaller
-          currentIndex = Math.min(currentIndex, dotCount - 1);
+      // Get products per row based on screen size
+      function getSlidesPerView() {
+        const width = window.innerWidth;
+        if (width < 768) {
+          return productsPerRowMobile;
+        } else {
+          return productsPerRowDesktop;
         }
+      }
+
+      let slidesPerView = getSlidesPerView();
+
+      function calculateDotCount() {
+        const currentSlidesPerView = getSlidesPerView();
+        if (revealOneByOne) {
+          const remaining = totalSlides - currentSlidesPerView;
+          return remaining > 0 ? remaining + 1 : 1;
+        } else {
+          return Math.ceil(totalSlides / currentSlidesPerView);
+        }
+      }
+      
+      let dotCount = calculateDotCount();
+
+      function renderDots() {
+        dotsContainer.innerHTML = '';
+        dotCount = calculateDotCount();
+        
+        if (dotCount <= 1) {
+          dotsContainer.style.display = 'none';
+          prevBtn.disabled = true;
+          nextBtn.disabled = true;
+          prevBtn.style.display = 'none';
+          nextBtn.style.display = 'none';
+        } else {
+          dotsContainer.style.display = 'flex';
+          prevBtn.style.display = 'flex';
+          nextBtn.style.display = 'flex';
+        }
+        
+        for(let i = 0; i < dotCount; i++) {
+          const dot = document.createElement('span');
+          dot.classList.add('slider-dot');
+          dot.setAttribute('data-index', i);
+          dotsContainer.appendChild(dot);
+          
+          dot.addEventListener('click', function() {
+            currentIndex = parseInt(this.getAttribute('data-index'));
+            updateSlider();
+          });
+        }
+        return dotsContainer.querySelectorAll('.slider-dot');
+      }
+
+      let dots = renderDots();
+
+      function updateSlider() {
+        if (totalSlides === 0 || dotCount <= 1) {
+          track.style.transform = 'translateX(0px)';
+          return;
+        }
+
+        const containerWidth = track.parentElement.clientWidth;
+        const trackWidth = track.scrollWidth;
+        const card = slides[0];
+        const cardWidth = card.offsetWidth;
+        const computedGap = window.getComputedStyle(track).getPropertyValue('gap');
+        const gap = parseFloat(computedGap || 0);
+        
+        const maxOffset = trackWidth - containerWidth;
+        
+        let offset = 0;
+
+        if (revealOneByOne) {
+          const step = cardWidth + gap;
+          offset = currentIndex * step;
+        } else {
+          if (dotCount > 1) {
+            offset = (maxOffset / (dotCount - 1)) * currentIndex;
+          }
+        }
+        
+        offset = Math.max(0, Math.min(offset, maxOffset));
+        track.style.transform = `translateX(-${offset}px)`;
+        updateDots();
+      }
+
+      function updateDots() {
+        if (dotCount <= 1) return;
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === currentIndex);
+        });
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= dotCount - 1;
+      }
+
+      function nextSlide() {
+        if (currentIndex < dotCount - 1) {
+          currentIndex++;
+          updateSlider();
+        }
+      }
+
+      function prevSlide() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlider();
+        }
+      }
+
+      function resetSlider() {
+        const currentSlidesPerView = getSlidesPerView();
+        const newDotCount = calculateDotCount();
+        
+        if (slidesPerView !== currentSlidesPerView || dotCount !== newDotCount) {
+          slidesPerView = currentSlidesPerView;
+          dots = renderDots();
+        } else if (dotCount === 0 || dots.length === 0) {
+          dots = renderDots();
+        }
+        
+        currentIndex = 0; 
         updateSlider();
-        rAF = null;
+        updateDots();
+      }
+      
+      // Event Listeners
+      nextBtn.addEventListener('click', nextSlide);
+      prevBtn.addEventListener('click', prevSlide);
+      
+      let rAF;
+      window.addEventListener('resize', function() {
+        if (rAF) {
+          cancelAnimationFrame(rAF);
+        }
+        rAF = requestAnimationFrame(function() {
+          const newSlidesPerView = getSlidesPerView();
+          const newDotCount = calculateDotCount();
+          
+          if (slidesPerView !== newSlidesPerView || dotCount !== newDotCount) {
+            slidesPerView = newSlidesPerView;
+            dots = renderDots();
+          }
+          
+          currentIndex = Math.min(currentIndex, dotCount - 1);
+          updateSlider();
+          rAF = null;
+        });
       });
-    });
+      
+      // Initial render
+      resetSlider();
+
+      return { resetSlider };
+    }
     
-    // Initial render
-    resetSlider();
+    // Initialize both sliders
+    setTimeout(() => {
+      sliderInstances['women-track'] = initSlider('women-track', 'women-prev', 'women-next', 'women-dots');
+      sliderInstances['men-track'] = initSlider('men-track', 'men-prev', 'men-next', 'men-dots');
+    }, 100);
 
-    return { resetSlider };
-  }
-  
-  // Initialize both sliders and store their references
-  setTimeout(() => {
-    sliderInstances['women-track'] = initSlider('women-track', 'women-prev', 'women-next', 'women-dots');
-    sliderInstances['men-track'] = initSlider('men-track', 'men-prev', 'men-next', 'men-dots');
-    console.log('Sliders initialized:', sliderInstances);
-  }, 100);
+    console.log('Collections Slider Tabs initialized successfully');
   });
-
-  // Theme requirement
-  console.log('learn_shopify_api');
 </script>
 
 {% schema %}
@@ -871,6 +1236,12 @@
     "tag": "section",
     "class": "section-featured-collections-slider",
     "settings": [
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      },
       {
         "type": "header",
         "content": "Collections & Header"
@@ -886,8 +1257,7 @@
         "id": "separate_section_with_border",
         "label": "Separate section with border",
         "default": false
-      },
-      {
+      }, {
         "type": "checkbox",
         "id": "hide_product_information",
         "label": "Hide product information",
@@ -903,35 +1273,216 @@
         "label": "Men's Collection (MEN tab)"
       }, {
         "type": "header",
-        "content": "Color Settings"
+        "content": "Product List Layout"
       }, {
-        "type": "color",
-        "id": "color_text",
-        "label": "Text Color",
-        "default": "#000000"
+        "type": "checkbox",
+        "id": "stack_products",
+        "label": "Stack products",
+        "default": false,
+        "info": "Display products in a grid layout instead of slider (arrows and dots will be hidden)"
       }, {
-        "type": "color",
-        "id": "color_background",
-        "label": "Background Color",
-        "default": "#EFEFEF"
+        "type": "select",
+        "id": "products_per_row_mobile",
+        "label": "Products per row (mobile)",
+        "options": [
+          {
+            "value": "1",
+            "label": "1"
+          }, {
+            "value": "2",
+            "label": "2"
+          }
+        ],
+        "default": "1"
       }, {
-        "type": "color",
-        "id": "color_primary",
-        "label": "Primary Color (Active elements)",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "color_secondary",
-        "label": "Secondary Color (Inactive elements)",
-        "default": "#666666"
-      }, {
-        "type": "color",
-        "id": "color_accent",
-        "label": "Accent Color (Badges)",
-        "default": "#8B4513"
+        "type": "select",
+        "id": "products_per_row_desktop",
+        "label": "Products per row (desktop)",
+        "options": [
+          {
+            "value": "2",
+            "label": "2"
+          },
+          {
+            "value": "3",
+            "label": "3"
+          },
+          {
+            "value": "4",
+            "label": "4"
+          },
+          {
+            "value": "5",
+            "label": "5"
+          }, {
+            "value": "6",
+            "label": "6"
+          }
+        ],
+        "default": "4"
       }, {
         "type": "header",
-        "content": "Product List Spacing"
+        "content": "Product Card Display Options"
+      }, {
+        "type": "checkbox",
+        "id": "reveal_products_one_by_one",
+        "label": "Reveal products one by one",
+        "default": false,
+        "info": "Changes the slider navigation from a full page jump to one product at a time."
+      }, {
+        "type": "select",
+        "id": "image_size",
+        "label": "Image size",
+        "default": "Tall - cover",
+        "options": [
+          {
+            "value": "Natural - auto",
+            "label": "Natural"
+          },
+          {
+            "value": "Short - cover",
+            "label": "Short (4:3)"
+          },
+          {
+            "value": "Square - cover",
+            "label": "Square (1:1)"
+          },
+          {
+            "value": "Portrait - cover",
+            "label": "Portrait (4:5)"
+          }, {
+            "value": "Tall - cover",
+            "label": "Tall (2:3)"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "show_secondary_image_on_hover",
+        "label": "Show secondary image on hover",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_quick_buy",
+        "label": "Show Quick Add (+) icon on image hover",
+        "default": true,
+        "info": "This icon links directly to the Add to Cart URL."
+      }, {
+        "type": "text",
+        "id": "title_maximum_lines",
+        "label": "Title maximum lines (0 to never truncate)",
+        "default": "0",
+        "info": "Setting this to 0 will prevent truncation."
+      }, {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "label": "Show vendor",
+        "default": false
+      }, {
+        "type": "header",
+        "content": "Badges and Discounts"
+      }, {
+        "type": "checkbox",
+        "id": "show_sold_out_badge",
+        "label": "Show sold out badge",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_discount_badge",
+        "label": "Show discount badge",
+        "default": true
+      }, {
+        "type": "select",
+        "id": "show_discount_as",
+        "label": "Show discount as...",
+        "default": "Percentage",
+        "options": [
+          {
+            "value": "Percentage",
+            "label": "Percentage"
+          }, {
+            "value": "Saving",
+            "label": "Saving"
+          }, {
+            "value": "Badge Only",
+            "label": "Badge Only"
+          }
+        ]
+      }, {
+        "type": "header",
+        "content": "Color/Swatch Options"
+      }, {
+        "type": "select",
+        "id": "color_display_mode",
+        "label": "Color display mode",
+        "default": "Hide",
+        "options": [
+          {
+            "value": "Hide",
+            "label": "Hide"
+          }, {
+            "value": "Count",
+            "label": "Count"
+          }, {
+            "value": "Swatch",
+            "label": "Swatch"
+          }
+        ],
+        "info": "Display color variants as swatches or a count (e.g., +3 Colors)."
+      }, {
+        "type": "checkbox",
+        "id": "round_color_swatches",
+        "label": "Round color swatches",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Product Rating"
+      }, {
+        "type": "checkbox",
+        "id": "show_product_rating",
+        "label": "Show product rating",
+        "default": true
+      }, {
+        "type": "select",
+        "id": "show_product_rating_as",
+        "label": "Show product rating as...",
+        "default": "Average rating (e.g. \"4.5\")",
+        "options": [
+          {
+            "value": "Average rating (e.g. \"4.5\")",
+            "label": "Average rating (e.g. \"4.5\")"
+          }, {
+            "value": "Count (e.g. \"3 reviews\")",
+            "label": "Count (e.g. \"3 reviews\")"
+          }
+        ]
+      }, {
+        "type": "color",
+        "id": "star_rating_color",
+        "label": "Star rating color",
+        "default": "#1C1C1C"
+      }, {
+        "type": "select",
+        "id": "icon_thickness",
+        "label": "Icon thickness (Star rating)",
+        "options": [
+          {
+            "value": "300",
+            "label": "Thin (300)"
+          }, {
+            "value": "400",
+            "label": "Regular (400)"
+          }, {
+            "value": "700",
+            "label": "Bold (700)"
+          }, {
+            "value": "900",
+            "label": "Extra Bold (900)"
+          }
+        ],
+        "default": "400"
+      }, {
+        "type": "header",
+        "content": "Advanced Spacing"
       }, {
         "type": "range",
         "id": "horizontal_spacing_factor",

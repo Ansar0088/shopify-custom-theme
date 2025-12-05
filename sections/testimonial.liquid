@@ -34,12 +34,14 @@
     text-align: center;
     overflow: hidden;
     position: relative;
+
+
     
   {{ border_style }}
   }
 
   /* --- Content/Slider Container --- */
-  .slider-container {
+  .testimonial-slider-container {
     max-width: 1000px;
     margin: 0 auto;
     position: relative;
@@ -150,7 +152,7 @@
   class="section-{{ section.id }}"
   data-auto-rotate="{{ section.settings.auto_rotate }}">
 
-  <div class="slider-container" id="slider-container-{{ section.id }}">
+  <div class="testimonial-slider-container" id="testimonial-slider-container-{{ section.id }}">
 
     {% for block in section.blocks %}
       {% assign is_first = forloop.first %}
@@ -229,7 +231,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sectionId = '{{ section.id }}';
-        const sliderContainer = document.getElementById(`slider-container-${sectionId}`);
+        const sliderContainer = document.getElementById(`testimonial-slider-container-${sectionId}`);
         const dotsContainer = document.getElementById(`dots-container-${sectionId}`);
         const slides = sliderContainer.querySelectorAll('.testimonial-slide');
         const dots = dotsContainer.querySelectorAll('.dot');
@@ -403,7 +405,7 @@
     ],
     "presets": [
       {
-        "name": "Quote/Testimonial Slider",
+        "name": "Quote/Testimonial",
         "category": "Text",
         "blocks": [
           {

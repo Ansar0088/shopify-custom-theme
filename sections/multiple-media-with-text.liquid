@@ -1,7 +1,439 @@
+{% comment %}
+  ==============================================
+  Multiple Media with Text
+  Uses global color scheme and typography settings.
+  Maintains original image positioning.
+  ==============================================
+{% endcomment %}
+
+{% liquid
+  assign section_id = section.id
+%}
+
+<style>
+  /* Apply global color scheme - MATCHING THEME.LIQUID FORMAT */
+  .color-{{ section.settings.color_scheme.id }} {
+    /* --- GLOBAL COLOR SCHEME VARIABLES --- */
+    --color-background: {{ section.settings.color_scheme.settings.background }};
+    --color-primary-text: {{ section.settings.color_scheme.settings.primary_text }};
+    --color-secondary-text: {{ section.settings.color_scheme.settings.secondary_text }};
+    --color-header-text: {{ section.settings.color_scheme.settings.header_text }};
+    --color-link: {{ section.settings.color_scheme.settings.link }};
+    --color-button-filled: {{ section.settings.color_scheme.settings.button_filled }};
+    --color-button-filled-label: {{ section.settings.color_scheme.settings.button_filled_label }};
+    --color-border: {{ section.settings.color_scheme.settings.border }};
+
+    /* --- GLOBAL TYPOGRAPHY VARIABLES --- */
+    --font-base-size: {{ settings.font_size_base }}px;
+    --font-weight-normal: {{ settings.font_weight_normal }};
+    --font-weight-bold: {{ settings.font_weight_bold }};
+    --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+    --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+    --font-heading-family: {{ settings.font_heading.css_font_family }};
+    --font-body-family: {{ settings.font_body.css_font_family }};
+  }
+
+  /* --- BASE SECTION STYLES --- */
+  .collaboration-section-{{ section_id }} {
+    background-color: var(--color-background);
+    color: var(--color-header-text);
+    overflow: hidden;
+    padding: 80px 20px;
+    font-family: var(--font-body-family);
+    font-size: var(--font-base-size);
+    font-weight: var(--font-weight-normal);
+    width: 100%;
+  }
+
+  /* Main Container - Centered */
+  .collaboration-container-{{ section_id }} {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    width: 100%;
+  }
+
+  .collaboration-container-{{ section_id }}
+  .media-left {
+    flex-direction: row;
+  }
+
+  .collaboration-container-{{ section_id }}
+  .media-right {
+    flex-direction: row-reverse;
+  }
+
+  /* --- CONTENT STYLES (Left Column) - Centered --- */
+  .collaboration-content-panel-{{ section_id }} {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 450px;
+    width: 100%;
+  }
+
+  .section-subheading-{{ section_id }} {
+    font-size: calc(var(--font-base-size) * 0.875);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-secondary-text);
+    opacity: 1;
+  }
+
+  .section-heading-{{ section_id }} {
+    font-size: var(--font-size-heading-large);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: 25px;
+    font-family: var(--font-heading-family);
+    line-height: 1.1;
+    color: var(--color-header-text);
+  }
+
+  .section-content-{{ section_id }} {
+    font-size: var(--font-base-size);
+    line-height: 1.6;
+    margin-bottom: 35px;
+    font-family: var(--font-body-family);
+    color: var(--color-primary-text);
+    opacity: 0.9;
+  }
+
+  /* Button Styles */
+  .button-group-{{ section_id }} {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .section-button-{{ section_id }} {
+    padding: 15px 35px;
+    font-size: calc(var(--font-base-size) * 0.75);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-bold);
+    border: 1px solid var(--color-button-filled);
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 0;
+    min-width: 140px;
+    text-align: center;
+  }
+
+  .button-solid-{{ section_id }} {
+    background-color: var(--color-button-filled);
+    color: var(--color-button-filled-label) !important;
+  }
+
+  .button-outline-{{ section_id }} {
+    background-color: transparent;
+    border-color: var(--color-button-filled);
+    color: var(--color-button-filled);
+  }
+
+  .button-link-{{ section_id }} {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--color-button-filled);
+    text-decoration: underline;
+    padding: 15px 0;
+  }
+
+  .button-solid-{{ section_id }}:hover {
+    opacity: 0.85;
+  }
+
+  .button-outline-{{ section_id }}:hover {
+    background-color: var(--color-button-filled);
+    color: var(--color-button-filled-label) !important;
+  }
+
+  .button-link-{{ section_id }}:hover {
+    opacity: 0.7;
+  }
+
+  /* --- ORIGINAL IMAGE LAYOUT STYLES --- */
+  .collaboration-images-wrapper-{{ section_id }} {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+  }
+
+  .collaboration-images-panel-{{ section_id }} {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    min-height: 400px;
+    width: 600px;
+    position: relative;
+  }
+
+  .collaboration-image-1-{{ section_id }}
+  , .collaboration-image-2-{{ section_id }} {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .collaboration-image-1-{{ section_id }} {
+    justify-self: start;
+    align-self: center;
+    width: 50%;
+    height: auto;
+    z-index: 2;
+    margin-left: 20%;
+    margin-top: -100px;
+  }
+
+  .collaboration-image-2-{{ section_id }} {
+    justify-self: end;
+    align-self: end;
+    width: 60%;
+    height: auto;
+    z-index: 1;
+    margin-bottom: -40px;
+    margin-right: 0;
+  }
+
+  .collaboration-image-1-{{ section_id }}
+  img
+  , .collaboration-image-2-{{ section_id }}
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* --- RESPONSIVE STYLES --- */
+  @media (max-width: 1024px) {
+    .collaboration-section-{{ section_id }} {
+      padding: 60px 40px;
+    }
+
+    .collaboration-container-{{ section_id }} {
+      max-width: 1000px;
+      gap: 40px;
+    }
+
+    .collaboration-images-panel-{{ section_id }} {
+      width: 500px;
+      min-height: 500px;
+    }
+
+    .collaboration-image-1-{{ section_id }} {
+      margin-left: 10%;
+      margin-top: -50px;
+    }
+
+    .collaboration-image-2-{{ section_id }} {
+      margin-bottom: -20px;
+    }
+
+    .section-heading-{{ section_id }} {
+      font-size: var(--font-size-heading-medium);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .collaboration-container-{{ section_id }} {
+      flex-direction: column;
+      gap: 40px;
+      max-width: 100%;
+    }
+
+    .collaboration-container-{{ section_id }}
+    .media-left
+    , .collaboration-container-{{ section_id }}
+    .media-right {
+      flex-direction: column;
+    }
+
+    /* Mobile ordering */
+    .collaboration-content-panel-{{ section_id }} {
+      order: {% if section.settings.media_position_mobile == 'before' %}2{% else %}1{% endif %};
+    padding: 0;
+    max-width: 100%;
+    text-align: center;
+    align-items: center;
+  }
+
+  .collaboration-images-wrapper-{{ section_id }} {
+    order: {% if section.settings.media_position_mobile == 'before' %}1{% else %}2{% endif %};
+  min-height: 400px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.collaboration-images-panel-{{ section_id }} {
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* Reset positioning and stacking for mobile */
+.collaboration-image-1-{{ section_id }}
+, .collaboration-image-2-{{ section_id }} {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  justify-self: unset;
+  align-self: unset;
+  z-index: auto;
+}
+
+/* Stacking order on mobile: Purple (Image 1) on top, Blue (Image 2) below */
+.collaboration-image-1-{{ section_id }} {
+  order: 1;
+  margin-left: 0;
+  margin-top: 0;
+}
+
+.collaboration-image-2-{{ section_id }} {
+  order: 2;
+  margin-bottom: 0;
+  margin-right: 0;
+  margin-top: -40px;
+}
+
+.section-button-{{ section_id }} {
+  width: auto;
+  min-width: 160px;
+}
+
+.button-group-{{ section_id }} {
+  justify-content: center;
+  align-items: center;
+}
+}
+
+@media (max-width: 480px) {
+  .collaboration-section-{{ section_id }} {
+    padding: 40px 15px;
+  }
+
+  .section-heading-{{ section_id }} {
+    font-size: calc(var(--font-size-heading-medium) * 0.9);
+  }
+
+  .section-subheading-{{ section_id }} {
+    font-size: calc(var(--font-base-size) * 0.8);
+  }
+
+  .collaboration-images-panel-{{ section_id }} {
+    min-height: 300px;
+  }
+
+  .collaboration-image-1-{{ section_id }}
+  , .collaboration-image-2-{{ section_id }} {
+    width: 90%;
+  }
+
+  .section-button-{{ section_id }} {
+    padding: 12px 25px;
+    min-width: 140px;
+  }
+
+  .button-group-{{ section_id }} {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .button-group-{{ section_id }}
+  a {
+    width: 100%;
+    max-width: 250px;
+  }
+}
+</style>
+
+<div class="color-{{ section.settings.color_scheme.id }}">
+  <div class="collaboration-section-{{ section_id }}">
+    <div class="collaboration-container-{{ section_id }} media-{{ section.settings.media_position_desktop }}">
+
+      <div class="collaboration-content-panel-{{ section_id }}">
+        {% if section.settings.subheading != blank %}
+          <p class="section-subheading-{{ section_id }}">{{ section.settings.subheading | upcase }}</p>
+        {% endif %}
+
+        {% if section.settings.heading != blank %}
+          <h2 class="section-heading-{{ section_id }}">{{ section.settings.heading }}</h2>
+        {% endif %}
+
+        {% if section.settings.content != blank %}
+          <div class="section-content-{{ section_id }}">{{ section.settings.content }}</div>
+        {% endif %}
+
+        <div class="button-group-{{ section_id }}">
+          {% if section.settings.button_1_text != blank %}
+            <a href="{{ section.settings.button_1_link }}" class="section-button-{{ section_id }} button-{{ section.settings.button_1_style }}-{{ section_id }}">
+              {{ section.settings.button_1_text | upcase }}
+            </a>
+          {% endif %}
+
+          {% if section.settings.button_2_text != blank %}
+            <a href="{{ section.settings.button_2_link }}" class="section-button-{{ section_id }} button-{{ section.settings.button_2_style }}-{{ section_id }}">
+              {{ section.settings.button_2_text | upcase }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="collaboration-images-wrapper-{{ section_id }}">
+        <div class="collaboration-images-panel-{{ section_id }}">
+          {% comment %} Image 2 (Blue Snowboards Group) - BACK IMAGE {% endcomment %}
+          {% if section.settings.image_2 != blank %}
+            <div class="collaboration-image-2-{{ section_id }}" style="transform: rotate({{ section.settings.image_2_rotation }}deg);">
+              <img
+                src="{{ section.settings.image_2 | image_url: width: 600 }}"
+                alt="{{ section.settings.image_2.alt | default: section.settings.heading }}"
+                loading="lazy"
+                height=""
+                width="">
+            </div>
+          {% endif %}
+
+          {% comment %} Image 1 (Purple Snowboards Group) - FRONT IMAGE {% endcomment %}
+          {% if section.settings.image_1 != blank %}
+            <div class="collaboration-image-1-{{ section_id }}" style="transform: rotate({{ section.settings.image_1_rotation }}deg);">
+              <img
+                src="{{ section.settings.image_1 | image_url: width: 800 }}"
+                alt="{{ section.settings.image_1.alt | default: section.settings.heading }}"
+                loading="lazy"
+                height=""
+                width="">
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% schema %}
   {
     "name": "Multiple Media with Text",
     "settings": [
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      },
       {
         "type": "header",
         "content": "Layout Settings"
@@ -35,8 +467,7 @@
           }
         ],
         "default": "before"
-      },
-      {
+      }, {
         "type": "header",
         "content": "Content Settings"
       }, {
@@ -118,7 +549,7 @@
       }, {
         "type": "image_picker",
         "id": "image_1",
-        "label": "Image 1 (Purple Snowboards Group - FRONT)"
+        "label": "Image 1 (Front Image)"
       }, {
         "type": "range",
         "id": "image_1_rotation",
@@ -131,7 +562,7 @@
       }, {
         "type": "image_picker",
         "id": "image_2",
-        "label": "Image 2 (Blue Snowboards Group - BACK)"
+        "label": "Image 2 (Back Image)"
       }, {
         "type": "range",
         "id": "image_2_rotation",
@@ -141,357 +572,25 @@
         "step": 1,
         "unit": "deg",
         "default": 0
-      }, {
-        "type": "header",
-        "content": "Color Scheme"
-      }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#F0F0F0"
-      }, {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text Color",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "button_background",
-        "label": "Button Background Color",
-        "default": "#000000"
-      }, {
-        "type": "color",
-        "id": "button_text_color",
-        "label": "Button Text Color",
-        "default": "#F0F0F0"
       }
     ],
     "presets": [
       {
-        "name": "Multiple Media with Text (Custom Grid)",
-        "category": "Custom Sections"
+        "name": "Multiple Media with Text",
+        "category": "Image",
+        "settings": {
+          "color_scheme": "scheme_1",
+          "subheading": "COLLABORATION",
+          "heading": "US X THEM",
+          "content": "Born from the meeting of a minimalist creative and a timeless design studio, this collection combines refined aesthetics with thoughtful craftsmanship. Their shared vision results in pieces that are both elegant and understated.",
+          "button_1_text": "DISCOVER",
+          "button_1_style": "solid",
+          "button_2_text": "SHOP NOW",
+          "button_2_style": "outline",
+          "media_position_desktop": "right",
+          "media_position_mobile": "before"
+        }
       }
     ]
   }
 {% endschema %}
-
-<style>
-  /* --- BASE SECTION STYLES --- */
-  .collaboration-section {
-    background-color: {{ section.settings.background_color }};
-    color: {{ section.settings.text_color }};
-    overflow: hidden;
-    padding: 80px 60px;
-  }
-
-  .collaboration-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 60px;
-  }
-
-  .collaboration-container.media-left {
-    flex-direction: row;
-  }
-
-  .collaboration-container.media-right {
-    flex-direction: row-reverse;
-  }
-
-  /* --- CONTENT STYLES (Left Column) --- */
-  .collaboration-content-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 450px;
-  }
-
-  .section-subheading {
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    font-family: sans-serif;
-    opacity: 1;
-  }
-
-  .section-heading {
-    font-size: 52px;
-    font-weight: 400;
-    margin-bottom: 25px;
-    font-family: serif;
-    line-height: 1.1;
-  }
-
-  .section-content {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 35px;
-    font-family: sans-serif;
-    opacity: 0.9;
-  }
-
-  /* Button Styles */
-  .button-group {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-
-  .section-button {
-    padding: 15px 35px;
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: sans-serif;
-    border: 1px solid{{ section.settings.button_background }};
-    transition: all 0.3s ease;
-    display: inline-block;
-    text-decoration: none;
-  }
-
-  .button-solid {
-    background-color: {{ section.settings.button_background }};
-    color: {{ section.settings.button_text_color }}
-     !important;
-  }
-
-  .button-outline {
-    background-color: transparent;
-    border-color: {{ section.settings.button_background }};
-    color: {{ section.settings.button_background }};
-  }
-
-  .button-solid:hover {
-    opacity: 0.85;
-  }
-
-  .button-outline:hover {
-    background-color: {{ section.settings.button_background }};
-    color: {{ section.settings.button_text_color }}
-     !important;
-  }
-
-  /* --- CUSTOM IMAGE GRID STYLES (Right Column) --- */
-
-  .collaboration-images-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .collaboration-images-panel {
-    /* display: grid; */
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    min-height: 400px;
-    width: 600px;
-    position: relative;
-  }
-
-  .collaboration-image-1,
-  .collaboration-image-2 {
-    grid-column: 1 / span 2;
-    grid-row: 1 / span 2;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    /* Apply the white "canvas" padding to the container */
-    padding: 20px;
-    /* Apply white background to containers */
-  }
-
-  /* Position Image 1 (Purple Snowboards - FRONT) */
-  .collaboration-image-1 {
-    justify-self: start;
-    align-self: center;
-    width: 50%;
-    height: auto;
-    z-index: 2;
-    /* Custom positioning to match your request */
-    margin-left: 20%;
-    margin-top: -100px;
-  }
-
-  /* Position Image 2 (Blue Snowboards - BACK) */
-  .collaboration-image-2 {
-    justify-self: end;
-    align-self: end;
-    width: 60%;
-    height: auto;
-    z-index: 1;
-    margin-bottom: -40px;
-    margin-right: 0;
-  }
-
-  .collaboration-image-1 img,
-  .collaboration-image-2 img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-
-  /* --- RESPONSIVE STYLES --- */
-  @media (max-width: 1024px) {
-    .collaboration-section {
-      padding: 60px 40px;
-    }
-    .collaboration-images-panel {
-      width: 500px;
-      min-height: 500px;
-    }
-    .collaboration-image-1 {
-      margin-left: 10%;
-      margin-top: -50px;
-    }
-    .collaboration-image-2 {
-      margin-bottom: -20px;
-    }
-    .section-heading {
-      font-size: 40px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .collaboration-container {
-      flex-direction: column;
-      padding: 40px 20px;
-      gap: 30px;
-    }
-
-    .collaboration-container.media-left,
-    .collaboration-container.media-right {
-      flex-direction: column;
-    }
-
-    /* Mobile ordering */
-    .collaboration-content-panel {
-      order: {%- if section.settings.media_position_mobile == 'before' -%}
-        2
-      {%- else -%}
-      1
-    {%- endif -%}
-    ;
-      padding: 20px 0;
-      max-width: 100%;
-      text-align: center;
-      align-items: center;
-    }
-
-    .collaboration-images-wrapper {
-      order: {%- if section.settings.media_position_mobile == 'before' -%}
-        1
-      {%- else -%}
-      2
-    {%- endif -%}
-    ;
-      padding-top: 20px;
-    }
-
-    .collaboration-images-panel {
-      display: flex;
-      flex-direction: column;
-      min-height: auto;
-      width: 100%;
-      max-width: 450px;
-    }
-
-    /* Reset positioning and stacking for mobile */
-    .collaboration-image-1,
-    .collaboration-image-2 {
-      position: relative;
-      width: 100%;
-      margin: 0 auto;
-      /* Changed margin-bottom to 0 */
-      justify-self: unset;
-      align-self: unset;
-      z-index: auto;
-    }
-
-    /* Stacking order on mobile: Purple (Image 1) on top, Blue (Image 2) below */
-    .collaboration-image-1 {
-      order: 1;
-    }
-    .collaboration-image-2 {
-      order: 2;
-    }
-
-    .section-button {
-      width: 100%;
-      text-align: center;
-    }
-    .button-group {
-      flex-direction: column;
-    }
-  }
-</style>
-
-<div class="collaboration-section" style="background-color: #F0F0F0;">
-  <div class="collaboration-container media-{{ section.settings.media_position_desktop }}">
-
-    <div class="collaboration-content-panel">
-      {% if section.settings.subheading != blank %}
-        <p class="section-subheading">{{ section.settings.subheading | upcase }}</p>
-      {% endif %}
-
-      {% if section.settings.heading != blank %}
-        <h2 class="section-heading">{{ section.settings.heading }}</h2>
-      {% endif %}
-
-      {% if section.settings.content != blank %}
-        <div class="section-content">{{ section.settings.content }}</div>
-      {% endif %}
-
-      <div class="button-group">
-        {% if section.settings.button_1_text != blank %}
-          <a href="{{ section.settings.button_1_link }}" class="section-button button-{{ section.settings.button_1_style }}">
-            {{ section.settings.button_1_text | upcase }}
-          </a>
-        {% endif %}
-
-        {% comment %}Only render button 2 if the text is not blank (i.e., not removed by the user) {% endcomment %}
-        {% if section.settings.button_2_text != blank %}
-          <a href="{{ section.settings.button_2_link }}" class="section-button button-{{ section.settings.button_2_style }}">
-            {{ section.settings.button_2_text | upcase }}
-          </a>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="collaboration-images-wrapper">
-      <div class="collaboration-images-panel">
-
-        {% comment %}
-          Image 2 (Blue Snowboards Group) - BACK IMAGE. This is rendered first to sit lower in the Z-index.
-        {% endcomment %}
-        {% if section.settings.image_2 != blank %}
-          <div class="collaboration-image-2" style="transform: rotate({{ section.settings.image_2_rotation }}deg);">
-            <img
-              src="{{ section.settings.image_2 | image_url: width: 600 }}"
-              alt="{{ section.settings.heading }}"
-              loading="lazy">
-          </div>
-        {% endif %}
-
-        {% comment %}
-          Image 1 (Purple Snowboards Group) - FRONT IMAGE. This is rendered second to sit higher in the Z-index.
-        {% endcomment %}
-        {% if section.settings.image_1 != blank %}
-          <div class="collaboration-image-1" style="transform: rotate({{ section.settings.image_1_rotation }}deg);">
-            <img
-              src="{{ section.settings.image_1 | image_url: width: 800 }}"
-              alt="{{ section.settings.heading }}"
-              loading="lazy">
-          </div>
-        {% endif %}
-
-      </div>
-    </div>
-
-  </div>
-</div>

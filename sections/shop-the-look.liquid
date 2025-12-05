@@ -1,16 +1,598 @@
 {% comment %}
   ==============================================
-  SECTION SCHEMA: Defines the settings and blocks.
-  Preset added to show 3 blocks immediately upon adding the section.
+  Shop the Look Carousel
+  Uses global color scheme and typography settings.
+  Matches theme.liquid color class naming.
   ==============================================
 {% endcomment %}
+
+{% liquid
+  assign section_id = section.id
+  assign subheading = section.settings.subheading
+  assign heading = section.settings.heading
+  assign look_blocks = section.blocks
+%}
+
+<style>
+  /* Apply global color scheme - MATCHING THEME.LIQUID FORMAT */
+  .color-{{ section.settings.color_scheme.id }} {
+    /* --- GLOBAL COLOR SCHEME VARIABLES --- */
+    --color-background: {{ section.settings.color_scheme.settings.background }};
+    --color-primary-text: {{ section.settings.color_scheme.settings.primary_text }};
+    --color-secondary-text: {{ section.settings.color_scheme.settings.secondary_text }};
+    --color-header-text: {{ section.settings.color_scheme.settings.header_text }};
+    --color-link: {{ section.settings.color_scheme.settings.link }};
+    --color-button-filled: {{ section.settings.color_scheme.settings.button_filled }};
+    --color-button-filled-label: {{ section.settings.color_scheme.settings.button_filled_label }};
+    --color-border: {{ section.settings.color_scheme.settings.border }};
+
+    /* --- GLOBAL TYPOGRAPHY VARIABLES --- */
+    --font-base-size: {{ settings.font_size_base }}px;
+    --font-weight-normal: {{ settings.font_weight_normal }};
+    --font-weight-bold: {{ settings.font_weight_bold }};
+    --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+    --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+    --font-heading-family: {{ settings.font_heading.css_font_family }};
+    --font-body-family: {{ settings.font_body.css_font_family }};
+  }
+
+  /* --- General Styles --- */
+  .our-looks-section-{{ section_id }} {
+    width: 100%;
+    margin: 0 auto;
+    padding: 60px 0;
+    text-align: center;
+    box-sizing: border-box;
+    background-color: var(--color-background);
+    font-family: var(--font-body-family);
+    font-size: var(--font-base-size);
+    font-weight: var(--font-weight-normal);
+  }
+
+  /* --- Header Styling --- */
+  .looks-subheading-{{ section_id }} {
+    text-transform: uppercase;
+    font-size: calc(var(--font-base-size) * 0.8);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    color: var(--color-secondary-text);
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .looks-heading-{{ section_id }} {
+    text-transform: uppercase;
+    font-size: var(--font-size-heading-large);
+    font-weight: var(--font-weight-bold);
+    margin-top: 0;
+    margin-bottom: 40px;
+    font-family: var(--font-heading-family);
+    color: var(--color-header-text);
+  }
+
+  /* --- Carousel Container --- */
+  .looks-carousel-container-{{ section_id }} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0 5%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    overflow: hidden;
+    max-width: 1200px;
+  }
+
+  .carousel-track-{{ section_id }} {
+    display: flex;
+    width: 100%;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  /* --- Navigation Arrows --- */
+  .carousel-nav-{{ section_id }} {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    color: var(--color-header-text);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s
+    , border-color 0.3s;
+    font-family: var(--font-body-family);
+  }
+
+  .carousel-nav-{{ section_id }}
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .prev-btn-{{ section_id }} {
+    left: 1%;
+  }
+
+  .next-btn-{{ section_id }} {
+    right: 1%;
+  }
+
+  .carousel-nav-{{ section_id }}:hover {
+    background-color: var(--color-border);
+    border-color: var(--color-header-text);
+  }
+
+  /* --- Look Slide Content --- */
+  .look-slide-{{ section_id }} {
+    flex: 0 0 100%;
+    min-width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+    box-sizing: border-box;
+  }
+
+  /* Left Side: Main Graphic */
+  .look-graphic-{{ section_id }} {
+    flex: 1;
+    max-width: 450px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .look-graphic-{{ section_id }}
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    background-color: var(--color-header-text);
+  }
+
+  /* Placeholders */
+  .placeholder-graphic-{{ section_id }} {
+    width: 400px;
+    height: 400px;
+    background-color: var(--color-header-text);
+    position: relative;
+    overflow: hidden;
+    color: var(--color-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-heading-large);
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-heading-family);
+  }
+
+  /* Hotspot Dot */
+  .hotspot-dot-{{ section_id }} {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Right Side: Product Details */
+  .product-details-container-{{ section_id }} {
+    flex: 1;
+    max-width: 400px;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .product-thumbnail-{{ section_id }} {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+  }
+
+  .product-thumbnail-{{ section_id }}
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  .placeholder-thumbnail-{{ section_id }} {
+    width: 180px;
+    height: 180px;
+    background-color: transparent;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-secondary-text);
+  }
+
+  .placeholder-thumbnail-{{ section_id }}
+  svg {
+    width: 90px;
+    height: 90px;
+  }
+
+  .product-label-{{ section_id }} {
+    text-transform: uppercase;
+    font-size: calc(var(--font-base-size) * 0.8);
+    letter-spacing: 1px;
+    color: var(--color-header-text);
+    margin-bottom: 5px;
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .product-price-text-{{ section_id }} {
+    font-size: calc(var(--font-base-size) * 1.1);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.4;
+    margin: 5px 0 20px;
+    color: var(--color-header-text);
+    font-family: var(--font-body-family);
+  }
+
+  .product-rating-{{ section_id }} {
+    font-size: calc(var(--font-base-size) * 0.9);
+    color: var(--color-secondary-text);
+    margin-bottom: 20px;
+    font-family: var(--font-body-family);
+  }
+
+  .product-rating-{{ section_id }}
+  .stars-{{ section_id }} {
+    color: var(--color-header-text);
+    letter-spacing: 1px;
+  }
+
+  .view-product-btn-{{ section_id }} {
+    background-color: var(--color-button-filled);
+    color: var(--color-button-filled-label);
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 12px 25px;
+    font-size: calc(var(--font-base-size) * 0.9);
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .view-product-btn-{{ section_id }}:hover {
+    background-color: var(--color-button-filled);
+    opacity: 0.9;
+  }
+
+  /* --- Pagination Dots --- */
+  .carousel-pagination-{{ section_id }} {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .dot-{{ section_id }} {
+    height: 8px;
+    width: 8px;
+    background-color: var(--color-border);
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .dot-{{ section_id }}
+  .active {
+    background-color: var(--color-header-text);
+  }
+
+  /* --- Mobile Responsiveness --- */
+  @media (max-width: 768px) {
+    .looks-carousel-container-{{ section_id }} {
+      padding: 0 20px;
+    }
+
+    .carousel-nav-{{ section_id }} {
+      width: 35px;
+      height: 35px;
+    }
+
+    .prev-btn-{{ section_id }} {
+      left: 5px;
+    }
+
+    .next-btn-{{ section_id }} {
+      right: 5px;
+    }
+
+    .look-slide-{{ section_id }} {
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .look-graphic-{{ section_id }}
+    , .product-details-container-{{ section_id }} {
+      max-width: 100%;
+      width: 100%;
+      padding: 0;
+    }
+
+    .look-graphic-{{ section_id }} {
+      margin-bottom: 20px;
+    }
+
+    .product-details-container-{{ section_id }} {
+      order: 2;
+      padding: 0 20px;
+    }
+
+    .product-thumbnail-{{ section_id }}
+    , .placeholder-thumbnail-{{ section_id }} {
+      width: 150px;
+      height: 150px;
+    }
+
+    .looks-heading-{{ section_id }} {
+      font-size: var(--font-size-heading-medium);
+    }
+  }
+</style>
+
+<div class="color-{{ section.settings.color_scheme.id }}">
+  <section class="our-looks-section-{{ section_id }}">
+
+    <div class="looks-header-{{ section_id }}">
+      {% if subheading != blank %}
+        <p class="looks-subheading-{{ section_id }}">{{ subheading | upcase }}</p>
+      {% endif %}
+
+      {% if heading != blank %}
+        <h2 class="looks-heading-{{ section_id }}">{{ heading | upcase }}</h2>
+      {% endif %}
+    </div>
+
+    <div class="looks-carousel-container-{{ section_id }}" id="ShopTheLookCarousel-{{ section_id }}">
+
+      <button class="carousel-nav-{{ section_id }} prev-btn-{{ section_id }}" aria-label="Previous Look">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="currentColor">
+          <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.249-12.174z" />
+        </svg>
+      </button>
+
+      <div class="carousel-track-{{ section_id }}">
+        {% if look_blocks.size > 0 %}
+          {% for block in look_blocks %}
+            {% liquid
+              assign featured_product = block.settings.featured_product
+              assign product_tag = block.settings.product_tag
+              assign price_text = block.settings.price_display_text
+            %}
+
+            <div
+              class="look-slide-{{ section_id }}"
+              data-slide-index="{{ forloop.index0 }}"
+              {{ block.shopify_attributes }}>
+
+              <div class="look-graphic-{{ section_id }}">
+                {% if block.settings.look_main_image != blank %}
+                  {% assign main_image_url = block.settings.look_main_image | image_url: width: 800 %}
+                  <img
+                    src="{{ main_image_url }}"
+                    alt="Look Image"
+                    loading="lazy"
+                    height=""
+                    width="">
+                  <div
+                    class="hotspot-dot-{{ section_id }}"
+                    style="
+                      background-color: {{ block.settings.hotspot_color }}; 
+                      left: {{ block.settings.hotspot_h_pos }}%; 
+                      top: {{ block.settings.hotspot_v_pos }}%;
+                    "
+                    aria-label="Product hotspot"></div>
+                {% else %}
+                  <div class="placeholder-graphic-{{ section_id }}">
+                    <span>LOOK</span>
+                    <div class="hotspot-dot-{{ section_id }}" style="
+                      background-color: {{ block.settings.hotspot_color }}; 
+                      left: {{ block.settings.hotspot_h_pos }}%; 
+                      top: {{ block.settings.hotspot_v_pos }}%;
+                    ">
+</div>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="product-details-container-{{ section_id }}">
+                <div class="product-thumbnail-{{ section_id }}">
+                  {% if featured_product != blank and featured_product.featured_image != blank %}
+                    {% assign thumbnail_url = featured_product.featured_image | image_url: width: 180 %}
+                    <img
+                      src="{{ thumbnail_url }}"
+                      alt="{{ featured_product.title | escape }}"
+                      loading="lazy"
+                      height=""
+                      width="">
+                  {% else %}
+                    <div class="placeholder-thumbnail-{{ section_id }}">
+                      <svg
+                        width="90"
+                        height="90"
+                        viewBox="0 0 100 100"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="feather feather-briefcase">
+                        <rect
+                          x="30"
+                          y="20"
+                          width="40"
+                          height="40"
+                          rx="5"
+                          ry="5"></rect>
+                        <path d="M70 20v-5a5 5 0 0 0-5-5H35a5 5 0 0 0-5 5v5"></path>
+                        <circle
+                          cx="50"
+                          cy="40"
+                          r="15"></circle>
+                        <path d="M50 40v-10m0 20v-10"></path>
+                        <path d="M50 40h-10m20 0h-10"></path>
+                        <path d="M50 55a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h0a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5z"></path>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+
+                <p class="product-label-{{ section_id }}">{{ product_tag | upcase }}</p>
+
+                <p class="product-price-text-{{ section_id }}">
+                  {% if featured_product != blank %}
+                    {{ featured_product.price | money }}
+                  {% else %}
+                    {{ price_text }}
+                  {% endif %}
+                </p>
+
+                <div class="product-rating-{{ section_id }}">
+                  <span class="stars-{{ section_id }}">★★★★★</span>
+                  (4.5)
+                </div>
+
+                <a href="{% if featured_product != blank %}{{ featured_product.url }}{% else %}#{% endif %}" class="view-product-btn-{{ section_id }}">VIEW PRODUCT</a>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>Please add Look Slides in the theme editor using the **+ Add Look Slide** button.</p>
+        {% endif %}
+      </div>
+
+      <button class="carousel-nav-{{ section_id }} next-btn-{{ section_id }}" aria-label="Next Look">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="currentColor">
+          <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="carousel-pagination-{{ section_id }}" id="ShopTheLookPagination-{{ section_id }}">
+      {% for block in look_blocks %}
+        <span class="dot-{{ section_id }}" data-slide-index="{{ forloop.index0 }}"></span>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sectionId = "{{ section.id }}";
+    const carouselContainer = document.getElementById(`ShopTheLookCarousel-${sectionId}`);
+    if (!carouselContainer) return;
+
+    const sliderTrack = carouselContainer.querySelector('.carousel-track-{{ section_id }}');
+    const prevArrow = carouselContainer.querySelector('.prev-btn-{{ section_id }}');
+    const nextArrow = carouselContainer.querySelector('.next-btn-{{ section_id }}');
+    const paginationContainer = document.getElementById(`ShopTheLookPagination-${sectionId}`);
+    const dots = paginationContainer ? paginationContainer.querySelectorAll('.dot-{{ section_id }}') : [];
+    const slides = carouselContainer.querySelectorAll('.look-slide-{{ section_id }}');
+
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    // Hide navigation if there is only one slide
+    if (totalSlides <= 1) {
+      if (prevArrow) prevArrow.style.display = 'none';
+      if (nextArrow) nextArrow.style.display = 'none';
+      if (paginationContainer) paginationContainer.style.display = 'none';
+      return;
+    }
+
+    const updateSlider = () => {
+      const offset = -currentSlide * 100;
+      sliderTrack.style.transform = `translateX(${offset}%)`;
+      
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    };
+
+    const goToNextSlide = () => {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      updateSlider();
+    };
+
+    const goToPrevSlide = () => {
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      updateSlider();
+    };
+
+    if (nextArrow) nextArrow.addEventListener('click', goToNextSlide);
+    if (prevArrow) prevArrow.addEventListener('click', goToPrevSlide);
+    
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.slideIndex);
+        if (!isNaN(index)) {
+          currentSlide = index;
+          updateSlider();
+        }
+      });
+    });
+
+    updateSlider();
+  });
+</script>
+
 {% schema %}
   {
     "name": "Shop the Look Carousel",
     "settings": [
       {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      }, {
         "type": "header",
-        "content": "Section Text and Colors"
+        "content": "Section Text"
       }, {
         "type": "text",
         "id": "subheading",
@@ -21,11 +603,6 @@
         "id": "heading",
         "label": "Heading",
         "default": "OUR LOOKS"
-      }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#F0F0F0"
       }
     ],
     "blocks": [
@@ -93,6 +670,12 @@
     "presets": [
       {
         "name": "Shop the Look Carousel",
+        "category": "Image",
+        "settings": {
+          "color_scheme": "scheme_1",
+          "subheading": "SHOP",
+          "heading": "OUR LOOKS"
+        },
         "blocks": [
           {
             "type": "slide",
@@ -124,538 +707,3 @@
     ]
   }
 {% endschema %}
-
-{% comment %}
-  ==============================================
-  SECTION LIQUID AND HTML
-  ==============================================
-{% endcomment %}
-{% liquid
-  assign subheading = section.settings.subheading
-  assign heading = section.settings.heading
-  assign look_blocks = section.blocks
-  assign background_color = section.settings.background_color
-%}
-
-<section class="our-looks-section" style="background-color: {{ background_color }};">
-
-  <div class="looks-header">
-    <p class="looks-subheading">{{ subheading | upcase }}</p>
-    <h2 class="looks-heading">{{ heading | upcase }}</h2>
-  </div>
-
-  <div class="looks-carousel-container" id="ShopTheLookCarousel-{{ section.id }}">
-
-    <button class="carousel-nav prev-btn" aria-label="Previous Look">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="currentColor">
-        <path d="M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.249-12.174z" />
-      </svg>
-    </button>
-
-    <div class="carousel-track">
-      {% if look_blocks.size > 0 %}
-        {% for block in look_blocks %}
-          {% liquid
-            assign featured_product = block.settings.featured_product
-            assign product_tag = block.settings.product_tag
-            assign price_text = block.settings.price_display_text
-          %}
-          <div
-            class="look-slide"
-            data-slide-index="{{ forloop.index0 }}"
-            {{ block.shopify_attributes }}>
-
-            <div class="look-graphic">
-              {% if block.settings.look_main_image != blank %}
-                {% assign main_image_url = block.settings.look_main_image | image_url: width: 800 %}
-                <img
-                  src="{{ main_image_url }}"
-                  alt="Look Image"
-                  loading="lazy">
-                <div
-                  class="hotspot-dot"
-                  style="
-                                        background-color: {{ block.settings.hotspot_color }}; 
-                                        left: {{ block.settings.hotspot_h_pos }}%; 
-                                        top: {{ block.settings.hotspot_v_pos }}%;
-                                    "
-                  aria-label="Product hotspot"></div>
-              {% else %}
-                <div class="placeholder-graphic">
-                  <span>LOOK</span>
-                  <div class="hotspot-dot" style="
-                                          background-color: {{ block.settings.hotspot_color }}; 
-                                          left: {{ block.settings.hotspot_h_pos }}%; 
-                                          top: {{ block.settings.hotspot_v_pos }}%;
-                                      ">
-</div>
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="product-details-container">
-
-              <div class="product-thumbnail">
-                {% if featured_product != blank and featured_product.featured_image != blank %}
-                  {% assign thumbnail_url = featured_product.featured_image | image_url: width: 180 %}
-                  <img
-                    src="{{ thumbnail_url }}"
-                    alt="{{ featured_product.title | escape }}"
-                    loading="lazy">
-                {% else %}
-                  <div class="placeholder-thumbnail">
-                    <svg
-                      width="90"
-                      height="90"
-                      viewBox="0 0 100 100"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="feather feather-briefcase">
-                      <rect
-                        x="30"
-                        y="20"
-                        width="40"
-                        height="40"
-                        rx="5"
-                        ry="5"></rect>
-                      <path d="M70 20v-5a5 5 0 0 0-5-5H35a5 5 0 0 0-5 5v5"></path>
-                      <circle
-                        cx="50"
-                        cy="40"
-                        r="15"></circle>
-                      <path d="M50 40v-10m0 20v-10"></path>
-                      <path d="M50 40h-10m20 0h-10"></path>
-                      <path d="M50 55a5 5 0 0 0-5 5v5a5 5 0 0 0 5 5h0a5 5 0 0 0 5-5v-5a5 5 0 0 0-5-5z"></path>
-                    </svg>
-                  </div>
-                {% endif %}
-              </div>
-
-              <p class="product-label">{{ product_tag | upcase }}</p>
-
-              <p class="product-price-text">
-                {% if featured_product != blank %}
-                  {{ featured_product.price | money }}
-                {% else %}
-                  {{ price_text }}
-                {% endif %}
-              </p>
-
-              <div class="product-rating">
-                <span class="stars">★★★★★</span>
-                (4.5)
-              </div>
-
-              <a href="{% if featured_product != blank %}{{ featured_product.url }}{% else %}#{% endif %}" class="view-product-btn">VIEW PRODUCT</a>
-            </div>
-          </div>
-        {% endfor %}
-      {% else %}
-        <p>Please add Look Slides in the theme editor using the **+ Add Look Slide** button.</p>
-      {% endif %}
-    </div>
-
-    <button class="carousel-nav next-btn" aria-label="Next Look">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="currentColor">
-        <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z" />
-      </svg>
-    </button>
-  </div>
-
-  <div class="carousel-pagination" id="ShopTheLookPagination-{{ section.id }}">
-    {% for block in look_blocks %}
-      <span class="dot" data-slide-index="{{ forloop.index0 }}"></span>
-    {% endfor %}
-  </div>
-</section>
-
-{% comment %}
-  ==============================================
-  SECTION STYLES: CSS for Liquid and Responsive Layout
-  ==============================================
-{% endcomment %}
-<style>
-  /* --- General Styles --- */
-  .our-looks-section {
-    width: 100%;
-    margin: 0 auto;
-    padding: 60px 0;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  /* --- Header Styling --- */
-  .looks-subheading {
-    text-transform: uppercase;
-    font-size: 0.8em;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
-    color: #777;
-    font-family: sans-serif;
-  }
-
-  .looks-heading {
-    text-transform: uppercase;
-    font-size: 2.5em;
-    font-weight: 300;
-    margin-top: 0;
-    margin-bottom: 40px;
-    font-family: sans-serif;
-  }
-
-  /* --- Carousel Container (Liquid) --- */
-  .looks-carousel-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    padding: 0 5%;
-    margin: 0 auto;
-    box-sizing: border-box;
-    overflow: hidden;
-    max-width: 1200px;
-  }
-
-  .carousel-track {
-    display: flex;
-    width: 100%;
-    transition: transform 0.5s ease-in-out;
-  }
-
-  /* --- Navigation Arrows --- */
-  .carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    font-size: 1.2em;
-    color: #333;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s
-    , border-color 0.3s;
-  }
-  /* Ensure the SVG is centered and inherits color */
-  .carousel-nav svg {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-  }
-
-  .prev-btn {
-    left: 1%;
-  }
-  .next-btn {
-    right: 1%;
-  }
-  .carousel-nav:hover {
-    background-color: #e0e0e0;
-    border-color: #999;
-  }
-
-  /* --- Look Slide Content (Desktop View) --- */
-  .look-slide {
-    flex: 0 0 100%;
-    min-width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 0;
-    box-sizing: border-box;
-  }
-
-  /* Left Side: Main Graphic */
-  .look-graphic {
-    flex: 1;
-    max-width: 450px;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-  .look-graphic img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    background-color: #000;
-  }
-
-  /* Placeholders (for default empty state) */
-  .placeholder-graphic {
-    width: 400px;
-    height: 400px;
-    background-color: #000;
-    position: relative;
-    overflow: hidden;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5em;
-    /* Larger text for LOOK */
-    font-weight: bold;
-  }
-
-  /* Hotspot Dot */
-  .hotspot-dot {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 1px solid #999;
-    cursor: pointer;
-    z-index: 5;
-    transform: translate(-50%, -50%);
-  }
-
-  /* Right Side: Product Details */
-  .product-details-container {
-    flex: 1;
-    max-width: 400px;
-    padding: 0 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Center everything inside */
-    text-align: center;
-    /* Center text */
-    justify-content: center;
-    height: 100%;
-  }
-
-  .product-thumbnail {
-    width: 180px;
-    height: 180px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent;
-  }
-  .product-thumbnail img {
-    max-width: 100%;
-    max-height: 100%;
-    height: auto;
-    display: block;
-    object-fit: contain;
-  }
-
-  .placeholder-thumbnail {
-    width: 180px;
-    height: 180px;
-    background-color: transparent;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #a0a0a0;
-  }
-  .placeholder-thumbnail svg {
-    width: 90px;
-    height: 90px;
-  }
-
-  .product-label {
-    text-transform: uppercase;
-    font-size: 0.8em;
-    letter-spacing: 1px;
-    color: #333;
-    margin-bottom: 5px;
-    font-family: sans-serif;
-  }
-
-  .product-price-text {
-    font-size: 1.1em;
-    font-weight: 400;
-    line-height: 1.4;
-    margin: 5px 0 20px;
-    color: #333;
-    font-family: sans-serif;
-  }
-
-  .product-rating {
-    font-size: 0.9em;
-    color: #555;
-    margin-bottom: 20px;
-  }
-  .product-rating .stars {
-    color: #000;
-    letter-spacing: 1px;
-  }
-
-  .view-product-btn {
-    background-color: #000;
-    color: #fff;
-    text-transform: uppercase;
-    text-decoration: none;
-    padding: 12px 25px;
-    font-size: 0.9em;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-family: sans-serif;
-  }
-  .view-product-btn:hover {
-    background-color: #333;
-  }
-
-  /* --- Pagination Dots --- */
-  .carousel-pagination {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .dot {
-    height: 8px;
-    width: 8px;
-    background-color: #ccc;
-    border-radius: 50%;
-    display: inline-block;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .dot.active {
-    background-color: #000;
-  }
-
-  /* --- Mobile Responsiveness --- */
-  @media (max-width: 768px) {
-    .looks-carousel-container {
-      padding: 0 20px;
-    }
-
-    .carousel-nav {
-      width: 35px;
-      height: 35px;
-      font-size: 1em;
-    }
-    .prev-btn {
-      left: 5px;
-    }
-    .next-btn {
-      right: 5px;
-    }
-
-    .look-slide {
-      flex-direction: column;
-      padding: 20px 0;
-    }
-
-    .look-graphic,
-    .product-details-container {
-      max-width: 100%;
-      width: 100%;
-      padding: 0;
-    }
-
-    .look-graphic {
-      margin-bottom: 20px;
-    }
-
-    .product-details-container {
-      order: 2;
-      /* Ensures it appears below the image */
-      padding: 0 20px;
-      align-items: center;
-      text-align: center;
-    }
-
-    .product-thumbnail,
-    .placeholder-thumbnail {
-      width: 150px;
-      height: 150px;
-    }
-  }
-</style>
-
-{% comment %}
-  ==============================================
-  SECTION JAVASCRIPT
-  ==============================================
-{% endcomment %}
-<script>
-  // Encapsulated JavaScript to handle the carousel functionality
-  document.addEventListener('DOMContentLoaded', () => {
-      const sectionId = "{{ section.id }}";
-      const carouselContainer = document.getElementById(`ShopTheLookCarousel-${sectionId}`);
-      if (!carouselContainer) return;
-
-      const sliderTrack = carouselContainer.querySelector('.carousel-track');
-      const prevArrow = carouselContainer.querySelector('.prev-btn');
-      const nextArrow = carouselContainer.querySelector('.next-btn');
-      const paginationContainer = document.getElementById(`ShopTheLookPagination-${sectionId}`);
-      const dots = paginationContainer ? paginationContainer.querySelectorAll('.dot') : [];
-      const slides = carouselContainer.querySelectorAll('.look-slide');
-
-      let currentSlide = 0;
-      const totalSlides = slides.length;
-
-      // Hide navigation if there is only one slide
-      if (totalSlides <= 1) {
-          if(prevArrow) prevArrow.style.display = 'none';
-          if(nextArrow) nextArrow.style.display = 'none';
-          if(paginationContainer) paginationContainer.style.display = 'none';
-          return;
-      }
-
-      const updateSlider = () => {
-          const offset = -currentSlide * 100;
-          sliderTrack.style.transform = `translateX(${offset}%)`;
-          
-          dots.forEach((dot, index) => {
-              dot.classList.toggle('active', index === currentSlide);
-          });
-      };
-
-      const goToNextSlide = () => {
-          currentSlide = (currentSlide + 1) % totalSlides;
-          updateSlider();
-      };
-
-      const goToPrevSlide = () => {
-          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-          updateSlider();
-      };
-
-      if (nextArrow) nextArrow.addEventListener('click', goToNextSlide);
-      if (prevArrow) prevArrow.addEventListener('click', goToPrevSlide);
-      
-      dots.forEach(dot => {
-          dot.addEventListener('click', (e) => {
-              const index = parseInt(e.currentTarget.dataset.slideIndex);
-              if (!isNaN(index)) {
-                currentSlide = index;
-                updateSlider();
-              }
-          });
-      });
-
-      updateSlider();
-  });
-</script>

@@ -1,288 +1,357 @@
-{% comment %}
-  ============================================================================
-  SECTION: Image with Text Overlay (Simplified)
-  - Implements the specific overlay and central text styling.
-  - **UPDATE**: Updated the default rich text setting to include a line break (<br>).
-  - All colors, text, and dimensions are dynamic via schema settings.
-  - Video button/logic has been completely removed.
-  ============================================================================
-{% endcomment %}
-
 {% style %}
   /* --- SECTION SETTINGS VARIABLES --- */
   .image-overlay-section-{{ section.id }} {
     /* Define CSS Variables for dynamic values */
-    --color-text: {{ section.settings.text_color | default: '#000000' }};
-    --color-overlay: {{ section.settings.overlay_color | default: '#FFFFFF' }};
+    --color-text: {{ section.settings.color_scheme.settings.primary_text }};
+    --color-overlay: {{ section.settings.color_scheme.settings.background }};
     --overlay-opacity: {{ section.settings.overlay_opacity | times: 0.01 | default: 0.3 }};
 
     /* Set section height dynamically */
     {% assign section_height = section.settings.image_size | default: 'medium' %}
-    
+
     {% case section_height %}
-      {% when 'x-small' %}
-        height: 40vh;
-        min-height: 350px;
-      {% when 'small' %}
-        height: 60vh;
-        min-height: 450px;
-      {% when 'medium' %}
-        height: 75vh;
-        min-height: 550px;
-      {% when 'large' %}
-        height: 90vh;
-        min-height: 650px;
-      {% when 'fit_screen' %}
-        height: 100vh;
-        min-height: 600px;
-      {% when 'original' %}
-        /* Height will be determined by image ratio and padding, defined below */
-        height: auto; 
-    {% endcase %}
-    
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    color: var(--color-text);
-    text-align: center;
-    
-    {% if section.settings.remove_vertical_spacing %}
-      padding: 0;
-    {% else %}
-      /* Add some internal padding if height is auto (Original ratio) */
-      {% if section_height == 'original' %}
-        padding: 5rem 0;
-      {% endif %}
-    {% endif %}
+    {% when 'x-small' %}
+      height: 40vh;
+      min-height: 350px;
+    {% when 'small' %}
+      height: 60vh;
+      min-height: 450px;
+    {% when 'medium' %}
+      height: 75vh;
+      min-height: 550px;
+    {% when 'large' %}
+      height: 90vh;
+      min-height: 650px;
+    {% when 'fit_screen' %}
+      height: 100vh;
+      min-height: 600px;
+    {% when 'original' %}
+    /* Height will be determined by image ratio and padding, defined below */
+    height: auto;
+  {% endcase %}
 
-    {% if section.settings.reveal_image_on_scroll %}
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s, transform 0.8s;
-    {% endif %}
-  }
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  color: var(--color-text);
+  text-align: center;
 
-  /* --- IMAGE CONTAINER & BACKGROUND --- */
-  .image-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    
-    /* When using Original Image Ratio, use padding-top trick for height */
-    {% if section_height == 'original' and section.settings.image %}
-      /* Calculate ratio: Height / Width * 100% */
-      {% assign image_width = section.settings.image.width %}
-      {% assign image_height = section.settings.image.height %}
-      {% assign ratio = image_height | divided_by: image_width | times: 100 %}
-      padding-top: {{ ratio }}%;
-      height: 0; 
-    {% endif %}
-  }
-
-  /* Desktop Image */
-  {% assign desktop_image_url = section.settings.image | image_url: width: 2500 %}
-  .image-overlay-section-{{ section.id }} .image-background {
-    background-image: url('{{ desktop_image_url }}');
-  }
-
-  /* Mobile Image Override */
-  {% if section.settings.mobile_image != blank %}
-    @media (max-width: 767px) {
-      {% assign mobile_image_url = section.settings.mobile_image | image_url: width: 1100 %}
-      .image-overlay-section-{{ section.id }} .image-background {
-        background-image: url('{{ mobile_image_url }}') !important;
-      }
-      
-      {% if section_height == 'original' and section.settings.mobile_image %}
-        {% assign mobile_width = section.settings.mobile_image.width %}
-        {% assign mobile_height = section.settings.mobile_image.height %}
-        {% assign mobile_ratio = mobile_height | divided_by: mobile_width | times: 100 %}
-        .image-overlay-section-{{ section.id }} .image-background {
-          padding-top: {{ mobile_ratio }}% !important;
-        }
-      {% endif %}
-    }
+  {% if section.settings.remove_vertical_spacing %}
+    padding: 0;
+  {% else %}
+  /* Add some internal padding if height is auto (Original ratio) */
+  {% if section_height == 'original' %}
+    padding: 5rem 0;
   {% endif %}
+{% endif %}
 
-  /* Overlay Layer */
-  .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    background-color: var(--color-overlay);
-    opacity: var(--overlay-opacity);
-  }
+{% if section.settings.reveal_image_on_scroll %}
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s
+  , transform 0.8s;
+{% endif %}
+}
 
-  /* --- CONTENT POSITIONING & STYLING --- */
-  .content-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 1rem;
-  }
+/* Color scheme variables */
+.color-scheme-{{ section.settings.color_scheme.id }} {
+  --background: {{ section.settings.color_scheme.settings.background }};
+  --primary-text: {{ section.settings.color_scheme.settings.primary_text }};
+  --secondary-text: {{ section.settings.color_scheme.settings.secondary_text }};
+  --header-text: {{ section.settings.color_scheme.settings.header_text }};
+  --link-color: {{ section.settings.color_scheme.settings.link }};
+  --border-color: {{ section.settings.color_scheme.settings.border }};
 
-  /* Apply desktop alignment using flex properties */
-  {% assign desktop_pos = section.settings.desktop_content_position | replace: '_', '-' %}
-  .content-wrapper {
-    {% if desktop_pos contains 'top' %}
-      justify-content: flex-start;
-    {% elsif desktop_pos contains 'bottom' %}
-      justify-content: flex-end;
-    {% else %}
-      justify-content: center;
-    {% endif %}
+  /* Base Font Settings */
+  --font-base-size: {{ settings.font_size_base }}px;
+  --font-weight-normal: {{ settings.font_weight_normal }};
+  --font-weight-bold: {{ settings.font_weight_bold }};
 
-    {% if desktop_pos contains 'left' %}
-      align-items: flex-start;
-    {% elsif desktop_pos contains 'right' %}
-      align-items: flex-end;
-    {% else %}
-      align-items: center;
-    {% endif %}
-  }
+  /* Heading Font Sizes */
+  --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+  --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
 
-  /* Apply mobile alignment using flex properties */
-  {% assign mobile_pos = section.settings.mobile_content_position | replace: '_', '-' %}
+  /* Font families */
+  --font-heading-family: {{ settings.font_heading.css_font_family }};
+  --font-body-family: {{ settings.font_body.css_font_family }};
+}
+
+/* --- IMAGE CONTAINER & BACKGROUND --- */
+.image-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* When using Original Image Ratio, use padding-top trick for height */
+  {% if section_height == 'original' and section.settings.image %}
+    /* Calculate ratio: Height / Width * 100% */
+    {% assign image_width = section.settings.image.width %}
+    {% assign image_height = section.settings.image.height %}
+    {% assign ratio = image_height | divided_by: image_width | times: 100 %}
+    padding-top: {{ ratio }}%;
+    height: 0;
+  {% endif %}
+}
+
+/* Desktop Image */
+{% assign desktop_image_url = section.settings.image | image_url: width: 2500 %}
+.image-overlay-section-{{ section.id }}
+.image-background {
+  background-image: url('{{ desktop_image_url }}');
+}
+
+/* Mobile Image Override */
+{% if section.settings.mobile_image != blank %}
   @media (max-width: 767px) {
-    .content-wrapper {
-      {% if mobile_pos contains 'top' %}
-        justify-content: flex-start;
-      {% elsif mobile_pos contains 'bottom' %}
-        justify-content: flex-end;
-      {% else %}
-        justify-content: center;
-      {% endif %}
-
-      {% if mobile_pos contains 'left' %}
-        align-items: flex-start;
-      {% elsif mobile_pos contains 'right' %}
-        align-items: flex-end;
-      {% else %}
-        align-items: center;
-      {% endif %}
+    {% assign mobile_image_url = section.settings.mobile_image | image_url: width: 1100 %}
+    .image-overlay-section-{{ section.id }}
+    .image-background {
+      background-image: url('{{ mobile_image_url }}') !important;
     }
-  }
 
-
-  /* --- CONTENT BOX STYLING --- */
-  {% assign content_width = section.settings.content_width | default: 'medium' %}
-  {% liquid
-    assign max_width = '900px'
-    if content_width == 'x-small'
-      assign max_width = '400px'
-    elsif content_width == 'small'
-      assign max_width = '600px'
-    elsif content_width == 'large'
-      assign max_width = '1100px'
-    elsif content_width == 'x-large'
-      assign max_width = '1400px'
-    endif
-  %}
-  
-  .content-container {
-    max-width: {{ max_width }};
-    width: 100%;
-    padding: 0 1rem;
-    /* Ensure content text alignment is dynamic based on container position */
-    text-align: center;
-    
-    {% if desktop_pos contains 'left' %}
-      text-align: left;
-    {% elsif desktop_pos contains 'right' %}
-      text-align: right;
-    {% endif %}
-  }
-
-  @media (max-width: 767px) {
-     .content-container {
-        /* Reset text alignment on mobile if needed, or follow mobile position */
-        text-align: center;
-        {% if mobile_pos contains 'left' %}
-          text-align: left;
-        {% elsif mobile_pos contains 'right' %}
-          text-align: right;
-        {% endif %}
+    {% if section_height == 'original' and section.settings.mobile_image %}
+      {% assign mobile_width = section.settings.mobile_image.width %}
+      {% assign mobile_height = section.settings.mobile_image.height %}
+      {% assign mobile_ratio = mobile_height | divided_by: mobile_width | times: 100 %}
+      .image-overlay-section-{{ section.id }}
+      .image-background {
+        padding-top: {{ mobile_ratio }}
+        % !important;
       }
+    {% endif %}
   }
+{% endif %}
 
-  /* --- TYPOGRAPHY (DECREASED FONT SIZES) --- */
-  .content-container h2 {
-    /* Adjusted from 2.5rem, 5vw, 4rem to a smaller range */
-    font-size: clamp(1.5rem, 4vw, 3rem); 
-    font-weight: bold;
-    line-height: 1.1;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
+/* Overlay Layer */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background-color: var(--color-overlay);
+  opacity: var(--overlay-opacity);
+}
+
+/* --- CONTENT POSITIONING & STYLING --- */
+.content-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+}
+
+/* Helper function to determine flex property value based on position string */
+{% liquid
+    assign desktop_pos = section.settings.desktop_content_position | split: '_'
+    assign desktop_vertical = desktop_pos[0]
+    assign desktop_horizontal = desktop_pos[1]
+
+    case desktop_vertical
+      when 'top'
+        assign desktop_justify_content = 'flex-start'
+      when 'bottom'
+        assign desktop_justify_content = 'flex-end'
+      else
+        assign desktop_justify_content = 'center'
+    endcase
+
+    case desktop_horizontal
+      when 'left'
+        assign desktop_align_items = 'flex-start'
+        assign desktop_text_align = 'left'
+      when 'right'
+        assign desktop_align_items = 'flex-end'
+        assign desktop_text_align = 'right'
+      else
+        assign desktop_align_items = 'center'
+        assign desktop_text_align = 'center'
+    endcase
+%}/* Apply desktop alignment using flex properties */
+.content-wrapper {
+  justify-content: {{ desktop_justify_content }};
+  align-items: {{ desktop_align_items }};
+}
+
+/* Apply mobile alignment using flex properties */
+{% liquid
+    assign mobile_pos = section.settings.mobile_content_position | split: '_'
+    assign mobile_vertical = mobile_pos[0]
+    assign mobile_horizontal = mobile_pos[1]
+
+    case mobile_vertical
+      when 'top'
+        assign mobile_justify_content = 'flex-start'
+      when 'bottom'
+        assign mobile_justify_content = 'flex-end'
+      else
+        assign mobile_justify_content = 'center'
+    endcase
+
+    case mobile_horizontal
+      when 'left'
+        assign mobile_align_items = 'flex-start'
+        assign mobile_text_align = 'left'
+      when 'right'
+        assign mobile_align_items = 'flex-end'
+        assign mobile_text_align = 'right'
+      else
+        assign mobile_align_items = 'center'
+        assign mobile_text_align = 'center'
+    endcase
+%}
+
+@media (max-width: 767px) {
+  .content-wrapper {
+    justify-content: {{ mobile_justify_content }};
+    align-items: {{ mobile_align_items }};
   }
-  
-  .content-container p {
-    /* Adjusted from 1.1rem to 1rem */
-    font-size: 1rem;
-    margin-top: 0;
+}
+
+
+/* --- CONTENT BOX STYLING --- */
+{% assign content_width = section.settings.content_width | default: 'medium' %}
+{% liquid
+      assign max_width = '900px'
+      if content_width == 'x-small'
+        assign max_width = '400px'
+      elsif content_width == 'small'
+        assign max_width = '600px'
+      elsif content_width == 'large'
+        assign max_width = '1100px'
+      elsif content_width == 'x-large'
+        assign max_width = '1400px'
+      endif
+%}
+
+.content-container {
+  max-width: {{ max_width }};
+  width: 100%;
+  padding: 0 1rem;
+  /* THIS ENSURES ALL TEXT AND BLOCK ELEMENTS ALIGN WITH THE CONTAINER POSITION */
+  text-align: {{ desktop_text_align }};
+}
+
+@media (max-width: 767px) {
+  .content-container {
+    text-align: {{ mobile_text_align }};
   }
-  
-  /* --- JS utility class for reveal effect --- */
-  .image-overlay-section-{{ section.id }}.scroll-in {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+/* --- TYPOGRAPHY WITH GLOBAL FONT SETTINGS --- */
+{%- liquid
+      assign font_base_size = settings.font_size_base | default: 16
+      assign font_weight_normal = settings.font_weight_normal | default: 400
+      assign font_weight_bold = settings.font_weight_bold | default: 700
+      assign font_size_heading_large = settings.font_size_heading_large 
+      assign font_size_heading_medium = settings.font_size_heading_medium
+      assign font_heading_family = settings.font_heading.family | default: 'system-ui, sans-serif'
+      assign font_body_family = settings.font_body.family | default: 'system-ui, sans-serif'
+      assign font_heading_css = settings.font_heading.css_font_family | default: font_heading_family
+      assign font_body_css = settings.font_body.css_font_family | default: font_body_family
+      
+      assign heading_font_size = font_size_heading_large | append: 'px'
+      assign body_font_size = font_base_size | append: 'px'
+-%}
+
+.content-container h2 {
+  font-size: var(--font-size-heading-large);
+  font-weight: {{ font_weight_bold }};
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-family: {{ font_heading_css }};
+  color: var(--header-text);
+}
+
+.content-container p,
+.content-container .content-text {
+  /* Adjusted from 1.1rem to 1rem */
+  font-size: {{ body_font_size }};
+  margin-top: 0;
+  font-family: {{ font_body_css }};
+  font-weight: {{ font_weight_normal }};
+  color: var(--primary-text);
+
+
+  /*
+   For block elements like the rich text div, ensure margin: 0 auto is not applied
+   unless the block is being centered (text-align: center)
+*/
+  {% if desktop_text_align == 'center' %}
+    margin-left: auto;
+    margin-right: auto;
+  {% else %}
+    margin-left: 0;
+    margin-right: 0;
+  {% endif %}
+}
+
+.content-container {
+  font-family: {{ font_body_css }};
+}
+
+/* --- JS utility class for reveal effect --- */
+.image-overlay-section-{{ section.id }} .scroll-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .responsive-box {
+    width: 100% !important;
+    /* Remove fixed width on mobile for better responsiveness */
   }
-   @media (max-width: 768px) {
-    .responsive-box {
-      width: 100% !important;
-      margin: 0 auto;
-    }
-  }
+}
 {% endstyle %}
 
 <section
-  class="image-overlay-section-{{ section.id }}"
+  class="color-scheme-{{ section.settings.color_scheme.id }} image-overlay-section-{{ section.id }}"
   data-section-id="{{ section.id }}"
+  {{ section.shopify_attributes }}
   {% if section.settings.reveal_image_on_scroll %}
-    data-reveal-on-scroll
-  {% endif %}
-  >
-  
+  data-reveal-on-scroll
+  {% endif %}>
+
   {% if section.settings.image != blank %}
     <div class="image-background"></div>
   {% endif %}
-  
+
   <div class="image-overlay"></div>
 
   <div class="content-wrapper">
     <div class="content-container">
-      
+
       {% if section.settings.heading != blank %}
-        <h2 class="content-heading">
+        <h2 class="" data-shopify-editor-setting="heading">
           {{ section.settings.heading | escape }}
         </h2>
       {% endif %}
-      
+
       {% if section.settings.text != blank %}
-        <div class="content-text responsive-box" style="width:650px;margin: 0 auto;">
+        <!-- REMOVED: style="width:650px;margin: 0 auto;" to allow parent text-align to control alignment -->
+        <div class="content-text responsive-box" data-shopify-editor-setting="text">
           {{ section.settings.text }}
         </div>
       {% endif %}
-      
+
     </div>
   </div>
 </section>
 
 {% comment %} 
-  --- JavaScript for Scroll Reveal --- 
+                        --- JavaScript for Scroll Reveal --- 
 {% endcomment %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -316,6 +385,17 @@
     "settings": [
       {
         "type": "header",
+        "content": "Color Scheme"
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "background-1",
+        "info": "Uses global color scheme settings"
+      },
+      {
+        "type": "header",
         "content": "Image & Dimensions"
       },
       {
@@ -323,14 +403,12 @@
         "id": "image",
         "label": "Desktop image",
         "info": "2500 x 900px recommended"
-      },
-      {
+      }, {
         "type": "image_picker",
         "id": "mobile_image",
         "label": "Mobile image (Optional)",
         "info": "1100 x 1500px recommended. Defaults to desktop image."
-      },
-      {
+      }, {
         "type": "select",
         "id": "image_size",
         "label": "Image Height",
@@ -351,48 +429,47 @@
           {
             "value": "medium",
             "label": "Medium"
-          },
-          {
+          }, {
             "value": "large",
             "label": "Large"
-          },
-          {
+          }, {
             "value": "fit_screen",
             "label": "Fit screen (100% viewport height)"
           }
         ]
-      },
-      {
+      }, {
         "type": "checkbox",
         "id": "remove_vertical_spacing",
         "label": "Remove vertical spacing",
         "default": false
-      },
-      {
+      }, {
         "type": "checkbox",
         "id": "reveal_image_on_scroll",
         "label": "Reveal image on scroll",
         "default": false
-      },
-      
-      {
+      }, {
+        "type": "range",
+        "id": "overlay_opacity",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "label": "Overlay opacity",
+        "default": 30
+      }, {
         "type": "header",
         "content": "Content & Positioning"
-      },
-      {
+      }, {
         "type": "text",
         "id": "heading",
         "label": "Heading",
         "default": "OUR VALUES"
-      },
-      {
+      }, {
         "type": "richtext",
         "id": "text",
         "label": "Text",
-        /* UPDATED DEFAULT VALUE to include <br> for the desired line break */
         "default": "<p>We aspire to be a brand of the 21st century: 100% online and without any intermediary.<br>From you to us directly.</p>"
-      },
-      {
+      }, {
         "type": "select",
         "id": "content_width",
         "label": "Content width",
@@ -413,79 +490,100 @@
           {
             "value": "large",
             "label": "Large"
-          },
-          {
+          }, {
             "value": "x-large",
             "label": "X-Large"
           }
         ]
-      },
-      {
+      }, {
         "type": "select",
         "id": "mobile_content_position",
         "label": "Mobile content position",
         "default": "middle_center",
         "options": [
-          { "value": "top_left", "label": "Top left" },
-          { "value": "top_center", "label": "Top center" },
-          { "value": "top_right", "label": "Top right" },
-          { "value": "middle_left", "label": "Middle left" },
-          { "value": "middle_center", "label": "Middle center" },
-          { "value": "middle_right", "label": "Middle right" },
-          { "value": "bottom_left", "label": "Bottom left" },
-          { "value": "bottom_center", "label": "Bottom center" },
-          { "value": "bottom_right", "label": "Bottom right" }
+          {
+            "value": "top_left",
+            "label": "Top left"
+          },
+          {
+            "value": "top_center",
+            "label": "Top center"
+          },
+          {
+            "value": "top_right",
+            "label": "Top right"
+          },
+          {
+            "value": "middle_left",
+            "label": "Middle left"
+          }, {
+            "value": "middle_center",
+            "label": "Middle center"
+          }, {
+            "value": "middle_right",
+            "label": "Middle right"
+          }, {
+            "value": "bottom_left",
+            "label": "Bottom left"
+          }, {
+            "value": "bottom_center",
+            "label": "Bottom center"
+          }, {
+            "value": "bottom_right",
+            "label": "Bottom right"
+          }
         ]
-      },
-      {
+      }, {
         "type": "select",
         "id": "desktop_content_position",
         "label": "Desktop content position",
         "default": "middle_center",
         "options": [
-          { "value": "top_left", "label": "Top left" },
-          { "value": "top_center", "label": "Top center" },
-          { "value": "top_right", "label": "Top right" },
-          { "value": "middle_left", "label": "Middle left" },
-          { "value": "middle_center", "label": "Middle center" },
-          { "value": "middle_right", "label": "Middle right" },
-          { "value": "bottom_left", "label": "Bottom left" },
-          { "value": "bottom_center", "label": "Bottom center" },
-          { "value": "bottom_right", "label": "Bottom right" }
+          {
+            "value": "top_left",
+            "label": "Top left"
+          },
+          {
+            "value": "top_center",
+            "label": "Top center"
+          },
+          {
+            "value": "top_right",
+            "label": "Top right"
+          },
+          {
+            "value": "middle_left",
+            "label": "Middle left"
+          }, {
+            "value": "middle_center",
+            "label": "Middle center"
+          }, {
+            "value": "middle_right",
+            "label": "Middle right"
+          }, {
+            "value": "bottom_left",
+            "label": "Bottom left"
+          }, {
+            "value": "bottom_center",
+            "label": "Bottom center"
+          }, {
+            "value": "bottom_right",
+            "label": "Bottom right"
+          }
         ]
-      },
-
-      {
+      }, {
         "type": "header",
-        "content": "Color Scheme"
-      },
-      {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text Color",
-        "default": "#FFFFFF"
-      },
-      {
-        "type": "color",
-        "id": "overlay_color",
-        "label": "Overlay Color",
-        "default": "#000000"
-      },
-      {
-        "type": "range",
-        "id": "overlay_opacity",
-        "min": 0,
-        "max": 100,
-        "step": 5,
-        "unit": "%",
-        "label": "Overlay opacity",
-        "default": 30
+        "content": "Font Settings",
+        "info": "Font settings are inherited from global theme settings"
       }
     ],
     "presets": [
       {
         "name": "Image with Text Overlay",
-        "category": "Image"
+        "category": "Image",
+        "settings": {
+          "color_scheme": "backgr ound-1"
+        }
       }
     ]
   }

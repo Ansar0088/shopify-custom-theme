@@ -174,44 +174,6 @@
     opacity: 0.8;
   }
 
-  .view-all-button {
-    display: inline-block;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    z-index: 1;
-    padding: 10px 25px;
-    font-size: 0.9rem;
-    color: #fff;
-    background-color: transparent;
-    border: 2px solid #333;
-    transition: color 0.3s ease
-    , border-color 0.3s ease;
-  }
-
-  .view-all-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #1C1C1C;
-    z-index: -1;
-    transform: scaleX(1);
-    transform-origin: left;
-    transition: transform 0.4s ease-in-out;
-  }
-
-  .view-all-button:hover::before {
-    transform: scaleX(0);
-  }
-
-  .view-all-button:hover {
-    background: transparent;
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-  }
 
   /* --- MEDIA CAROUSEL STYLES (The Dots) --- */
   .media-slides {
@@ -484,9 +446,9 @@
           <p class="product-details__title">{{ current_product.title }}</p>
 
           {% comment %} <div class="product-details__description">
-                                    {{ current_product.description | strip_html | truncatewords: 40 }}
-                                    <a href="{{ current_product.url }}" style="color: {{ text_color }}; text-decoration: underline; display: block; margin-top: 10px;">Read more</a>
-                              </div> {% endcomment %}
+                                                                                                {{ current_product.description | strip_html | truncatewords: 40 }}
+                                                                                                <a href="{{ current_product.url }}" style="color: {{ text_color }}; text-decoration: underline; display: block; margin-top: 10px;">Read more</a>
+                                                                                </div> {% endcomment %}
 
           <p class="product-details__price">{{ current_product.price | money }}</p>
 

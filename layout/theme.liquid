@@ -1,26 +1,87 @@
 <!doctype html>
 <html lang="{{ request.locale.iso_code }}" data-market="{{ localization.market.handle }}">
   <head>
-    {% # Inlined CSS Variables %}
-    {{ 'application.css' | asset_url | stylesheet_tag }}
-    {{ 'style.css' | asset_url | stylesheet_tag }}
-  {% render 'css-variables' %}
+    <style > :root
+    {
+      /* Default color scheme */
+      {%- assign default_scheme = settings.color_schemes.first -%}
+      --color-background: {{ default_scheme.settings.background }};
+      --color-primary-text: {{ default_scheme.settings.primary_text }};
+      --color-secondary-text: {{ default_scheme.settings.secondary_text }};
+      --color-header-text: {{ default_scheme.settings.header_text }};
+      --color-link: {{ default_scheme.settings.link }};
+      --color-button-filled: {{ default_scheme.settings.button_filled }};
+      --color-button-filled-label: {{ default_scheme.settings.button_filled_label }};
+      --color-border: {{ default_scheme.settings.border }};
+
+      /* Base Font Settings */
+      --font-base-size: {{ settings.font_size_base }}px;
+      --font-weight-normal: {{ settings.font_weight_normal }};
+      --font-weight-bold: {{ settings.font_weight_bold }};
+
+      /* Heading Font Sizes */
+      --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+      --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+
+      /* You can also define the font-family here for consistency */
+      --font-heading-family: {{ settings.font_heading.css_font_family }};
+      --font-body-family: {{ settings.font_body.css_font_family }};
+    }
+
+    /* Apply the base size to the body element */
+    body {
+      font-size: var(--font-base-size);
+      font-family: var(--font-body-family);
+      font-weight: var(--font-weight-normal);
+    }
+
+    /* Apply the heading sizes */
+    h1 {
+      font-size: var(--font-size-heading-large);
+      font-family: var(--font-heading-family);
+      font-weight: var(--font-weight-bold);
+    }
+    h2 {
+      font-size: var(--font-size-heading-medium);
+      font-family: var(--font-heading-family);
+    }
 
 
-    {% # Load and preload the critical CSS %}
-  {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
-    {% # Social, title, etc. %}
-    {% render 'meta-tags' %}
+    /* Color scheme classes */
+    {%- for scheme in settings.color_schemes -%}
+      .color-{{ scheme.id }} {
+        --color-background: {{ scheme.settings.background }};
+        --color-primary-text: {{ scheme.settings.primary_text }};
+        --color-secondary-text: {{ scheme.settings.secondary_text }};
+        --color-header-text: {{ scheme.settings.header_text }};
+        --color-link: {{ scheme.settings.link }};
+        --color-button-filled: {{ scheme.settings.button_filled }};
+        --color-button-filled-label: {{ scheme.settings.button_filled_label }};
+        --color-border: {{ scheme.settings.border }};
+      }
+    {%- endfor -%}
 
-    {{ content_for_header }}
-    <script src="{{ 'localization-form.js' | asset_url }}"></script>
-  </head>
 
-  <body class="">
-    {% sections 'header-group' %}
+</style>
 
-    {{ content_for_layout }}
+  {% # Inlined CSS Variables %}
+  {{ 'application.css' | asset_url | stylesheet_tag }}
+  {{ 'style.css' | asset_url | stylesheet_tag }}
+{% render 'css-variables' %}
 
-    {% sections 'footer-group' %}
-  </body>
-</html>
+  {% # Load and preload the critical CSS %}
+{{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+  {% # Social, title, etc. %}
+  {% render 'meta-tags' %}
+
+  {{ content_for_header }}
+  <script src="{{ 'localization-form.js' | asset_url }}"></script>
+</head>
+
+<body class="">
+  {% sections 'header-group' %}
+
+  {{ content_for_layout }}
+
+  {% sections 'footer-group' %}
+</body></html>

@@ -1,27 +1,14 @@
-{% comment %}
-  SECTION: NEWSLETTER SUBSCRIPTION (Newsletter Section Code)
-
-  This code is visually correct (black/white style) and avoids the
-  color scheme error for this specific section by removing the setting
-  from the schema block.
-{% endcomment %}
-
-{% assign overlay_color = section.settings.overlay_color | default: '#000000' %}
-{% assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0 %}
-
 <style>
-  /* Load Inter font */
+  /* Load Inter font as fallback */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
   /* --- General Section Styles --- */
   .section-{{ section.id }} {
-    font-family: 'Inter'
-    , sans-serif;
     position: relative;
-    /* Section background hardcoded to black */
-    background-color: #000000;
-    /* All primary text is white */
-    color: #FFFFFF;
+    /* Section background uses theme color scheme */
+    background-color: var(--color-background);
+    /* Text color uses theme color scheme */
+    color: var(--color-primary-text);
     padding: 100px 20px;
     text-align: center;
     overflow: hidden;
@@ -29,7 +16,7 @@
 
   {% if section.settings.separator %}
     .section-{{ section.id }} {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(var(--color-primary-text-rgb, 255, 255, 255), 0.1);
     }
   {% endif %}
 
@@ -41,7 +28,8 @@
     width: 100%;
     height: 100%;
     z-index: 1;
-    background-color: #000000;
+    /* Background color uses theme */
+    background-color: var(--color-background);
   }
 
   .newsletter-background-image {
@@ -56,8 +44,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: {{ overlay_color }};
-    opacity: {{ overlay_opacity }};
+    background-color: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
     z-index: 2;
   }
 
@@ -69,29 +57,60 @@
     margin: 0 auto;
   }
 
+  /* Apply theme font families if they exist */
+  .newsletter-subheading,
+  .newsletter-heading,
+  .newsletter-body,
+  .newsletter-input,
+  .newsletter-button {
+    {% if settings.font_heading %}
+      font-family: {{ settings.font_heading.family }}, 
+      {{ settings.font_heading.fallback_families }}
+      , 'Inter'
+      , sans-serif;
+    {% else %}
+      font-family: 'Inter'
+      , sans-serif;
+    {% endif %}
+  }
+
+  /* Body font for body text */
+  .newsletter-body,
+  .newsletter-input,
+  .newsletter-button {
+    {% if settings.font_body %}
+      font-family: {{ settings.font_body.family }}, 
+      {{ settings.font_body.fallback_families }}
+      , 'Inter'
+      , sans-serif;
+    {% endif %}
+  }
+
   /* --- Typography Styles --- */
   .newsletter-subheading {
-    font-size: 0.75rem;
+    font-size: {{ settings.font_size_small | default: 12 }}px;
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 5px;
-    color: #a0a0a0;
+    color: var(--color-secondary-text);
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
   }
 
   .newsletter-heading {
-    font-size: 2.2rem;
-    font-weight: 400;
+    font-size: {{ settings.font_size_heading_large | default: 36 }}px;
+    font-weight: {{ settings.font_weight_normal | default: 400 }};
     text-transform: uppercase;
     margin-bottom: 25px;
-    color: #FFFFFF;
+    color: var(--color-header-text);
   }
 
   .newsletter-body {
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: {{ settings.font_size_base | default: 16 }}px;
+    line-height: {{ settings.body_line_height | default: 1.5 }};
     max-width: 450px;
     margin: 0 auto 35px;
-    color: #FFFFFF;
+    color: var(--color-primary-text);
+    font-weight: {{ settings.font_weight_normal | default: 400 }};
   }
 
   /* --- Form Styles --- */
@@ -107,45 +126,61 @@
     max-width: 300px;
     height: 48px;
     padding: 12px 15px;
-    /* Input border set to White */
-    border: 1px solid #FFFFFF;
+    /* Input border uses theme link color */
+    border: 1px solid var(--color-link);
     background-color: transparent;
-    /* Input text color set to White */
-    color: #FFFFFF;
-    font-size: 0.95rem;
+    /* Input text color uses theme */
+    color: var(--color-primary-text);
+    font-size: {{ settings.font_size_base | default: 16 | times: 0.95 }}px;
     transition: border-color 0.3s;
   }
 
   .newsletter-input:focus {
     outline: none;
-    border-color: #FFFFFF;
+    border-color: var(--color-button-filled);
   }
 
   .newsletter-input::placeholder {
-    color: #777;
+    color: var(--color-secondary-text);
+    opacity: 0.7;
   }
 
   .newsletter-button {
     height: 48px;
     padding: 0 30px;
-    /* Button border set to White */
-    border: 1px solid #FFFFFF;
-    /* Default white background */
-    background-color: #FFFFFF;
-    /* Default black text */
-    color: #000000;
-    font-size: 0.95rem;
-    font-weight: 500;
+    /* Button border uses theme button color */
+    border: 1px solid var(--color-button-filled);
+    /* Button background uses theme button color */
+    background-color: var(--color-button-filled);
+    /* Button text color uses theme button label color */
+    color: var(--color-button-filled-label);
+    font-size: {{ settings.font_size_base | default: 16 | times: 0.95 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
     text-transform: uppercase;
     cursor: pointer;
     transition: background-color 0.3s
-    , color 0.3s;
+    , color 0.3s
+    , opacity 0.3s;
   }
 
-  /* Button Hover State: Transparent background, white text/border */
+  /* Button Hover State */
   .newsletter-button:hover {
-    background-color: transparent;
-    color: #FFFFFF;
+    opacity: 0.9;
+  }
+
+  /* Form Messages */
+  .form-success {
+    margin-top: 20px !important;
+    color: var(--color-link) !important;
+    font-size: {{ settings.font_size_base | default: 16 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
+  }
+
+  .form-error {
+    margin-top: 20px !important;
+    color: #ff5555 !important;
+    font-size: {{ settings.font_size_base | default: 16 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
   }
 
   /* --- Mobile Responsiveness --- */
@@ -153,17 +188,21 @@
     .section-{{ section.id }} {
       padding: 70px 20px;
     }
+
     .newsletter-heading {
-      font-size: 1.8rem;
+      font-size: {{ settings.font_size_heading_medium | default: 28 }}px;
     }
+
     .newsletter-body {
-      font-size: 0.9rem;
+      font-size: {{ settings.font_size_base | default: 16 | times: 0.9 }}px;
       margin-bottom: 25px;
     }
+
     .newsletter-form {
       flex-direction: column;
       gap: 10px;
     }
+
     .newsletter-input,
     .newsletter-button {
       max-width: 100%;
@@ -172,8 +211,7 @@
   }
 </style>
 
-<section class="section-{{ section.id }}">
-
+<section class="section-{{ section.id }} color-{{ section.settings.color_scheme.id | default: settings.color_schemes.first.id }}">
   <div class="newsletter-background">
     {% if section.settings.image != blank %}
       {% assign desktop_image = section.settings.image %}
@@ -188,14 +226,18 @@
           src="{{ desktop_image | img_url: '1500x' }}"
           alt="{{ section.settings.heading | escape }}"
           class="newsletter-background-image"
-          loading="lazy">
+          loading="lazy"
+          width=""
+          height="">
       </picture>
     {% endif %}
   </div>
-  <div class="newsletter-overlay"></div>
+
+  {% if section.settings.overlay_opacity > 0 %}
+    <div class="newsletter-overlay"></div>
+  {% endif %}
 
   <div class="newsletter-content">
-
     {% if section.settings.subheading != blank %}
       <p class="newsletter-subheading">
         {{ section.settings.subheading | escape }}
@@ -225,7 +267,7 @@
           id="NewsletterForm--{{ section.id }}"
           class="newsletter-input"
           value="{{ form.email }}"
-          placeholder="E-mail"
+          placeholder="{{ section.settings.placeholder_text | default: 'E-mail' }}"
           required
           aria-required="true"
           autocorrect="off"
@@ -241,20 +283,17 @@
 
       {% comment %} Display success or error messages {% endcomment %}
       {% if form.posted_successfully? %}
-        <p class="form-success" style="margin-top: 20px; color: #FFFFFF;">
-          Thank you for subscribing!
+        <p class="form-success">
+          {{ section.settings.success_message | default: 'Thank you for subscribing!' }}
         </p>
       {% elsif form.errors %}
-        <p class="form-error" style="margin-top: 20px; color: #ff5555;">
+        <p class="form-error">
           {{ form.errors | default_errors }}
         </p>
       {% endif %}
-
     {% endform %}
-
   </div>
 </section>
-
 
 {% schema %}
   {
@@ -264,6 +303,16 @@
     "settings": [
       {
         "type": "header",
+        "content": "Color Scheme"
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      },
+      {
+        "type": "header",
         "content": "Text Content"
       },
       {
@@ -271,14 +320,12 @@
         "id": "subheading",
         "label": "Subheading",
         "default": "Keep me updated"
-      },
-      {
+      }, {
         "type": "text",
         "id": "heading",
         "label": "Heading",
         "default": "Newsletter"
-      },
-      {
+      }, {
         "type": "richtext",
         "id": "content",
         "label": "Short Description",
@@ -286,9 +333,19 @@
         "info": "This text appears just above the email input field."
       }, {
         "type": "text",
+        "id": "placeholder_text",
+        "label": "Input placeholder text",
+        "default": "E-mail"
+      }, {
+        "type": "text",
         "id": "button_text",
         "label": "Button text",
         "default": "Subscribe"
+      }, {
+        "type": "text",
+        "id": "success_message",
+        "label": "Success message",
+        "default": "Thank you for subscribing!"
       }, {
         "type": "header",
         "content": "Background & Design"

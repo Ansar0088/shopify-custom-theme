@@ -1,29 +1,15 @@
-{% comment %}
-  SECTION: TIMELINE / MILESTONES
-  This section displays milestones in a horizontal grid with interactive year navigation
-{% endcomment %}
-
 <style>
-  /* Load Inter font */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
-  /* --- General Section and Grid Styles --- */
-  .section-{{ section.id }} {
-    font-family: 'Inter'
-    , sans-serif;
-    display: flex;
-    flex-direction: column;
-    padding: 80px 20px;
-    background-color: {{ section.settings.background_color | default: '#ffffff' }};
-    color: {{ section.settings.text_color | default: '#000000' }};
+  .collaboration-section {
+    background-color: var(--color-background);
+    color: var(--color-primary-text);
+    padding: 40px 0;
   }
 
   .collaboration-grid {
     display: flex;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto;
     width: 100%;
-    background-color: {{ section.settings.grid_background | default: '#f8f8f8' }};
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     overflow: hidden;
@@ -33,7 +19,7 @@
   .collab-image-container {
     flex: 1 1 55%;
     position: relative;
-    overflow: hidden;
+    n overflow: hidden;
     background-color: #000;
     min-height: 400px;
     display: flex;
@@ -58,7 +44,7 @@
     align-items: center;
     justify-content: center;
     color: #999;
-    font-size: 1em;
+    font-size: 16px;
     text-align: center;
     padding: 20px;
     transition: opacity 0.4s ease-in-out;
@@ -79,8 +65,8 @@
     flex-direction: column;
     justify-content: center;
     transition: opacity 0.4s ease-in-out;
-    color: {{ section.settings.grid_text_color | default: '#111111' }};
-    background-color: {{ section.settings.grid_background | default: '#f8f8f8' }};
+    color: var(--color-primary-text);
+    background-color: var(--color-background);
   }
 
   .content-fading {
@@ -89,25 +75,26 @@
   }
 
   .collab-tag {
-    font-size: 0.75em;
+    font-size: 12px;
     letter-spacing: 1px;
-    color: #666;
+    color: var(--color-secondary-text);
     margin-bottom: 5px;
     text-transform: uppercase;
     font-weight: 500;
   }
 
   .collab-title {
-    font-size: 1.8em;
+    font-size: 28px;
     line-height: 1.2;
     margin: 0 0 20px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    color: var(--color-header-text);
   }
 
   .collab-body {
-    font-size: 0.9em;
-    color: #555;
+    font-size: 16px;
+    color: var(--color-primary-text);
     line-height: 1.6;
     margin-bottom: 20px;
   }
@@ -124,7 +111,7 @@
     justify-content: center;
     gap: 35px;
     font-size: 15px;
-    color: #999;
+    color: var(--color-secondary-text);
     flex-wrap: wrap;
     font-weight: 500;
   }
@@ -138,11 +125,11 @@
   }
 
   .timeline-year:hover {
-    color: #555;
+    color: var(--color-header-text);
   }
 
   .timeline-year.active {
-    color: #333;
+    color: var(--color-header-text);
     font-weight: 700;
   }
 
@@ -154,7 +141,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background-color: #333;
+    background-color: var(--color-link);
   }
 
   /* --- Button Styles --- */
@@ -166,22 +153,23 @@
     border-radius: 4px;
     transition: all 0.3s ease;
     font-weight: 600;
+    font-size: 14px;
   }
 
   .button--link {
-    color: #333;
-    border-bottom: 1px solid #333;
+    color: var(--color-link);
+    border-bottom: 1px solid var(--color-link);
     padding: 0 0 2px;
   }
 
   .button--solid {
-    background-color: #333;
-    color: white;
+    background-color: var(--color-button-filled);
+    color: var(--color-button-filled-label);
   }
 
   .button--outline {
-    border: 2px solid #333;
-    color: #333;
+    border: 2px solid var(--color-button-filled);
+    color: var(--color-button-filled);
   }
 
   .button--link:hover {
@@ -189,17 +177,18 @@
   }
 
   .button--solid:hover {
-    background-color: #555;
+    background-color: var(--color-button-filled);
+    opacity: 0.9;
   }
 
   .button--outline:hover {
-    background-color: #333;
-    color: white;
+    background-color: var(--color-button-filled);
+    color: var(--color-button-filled-label);
   }
 
   /* --- RESPONSIVENESS --- */
   @media (max-width: 900px) {
-    .section-{{ section.id }} {
+    .collaboration-section {
       padding: 60px 0;
     }
 
@@ -220,7 +209,7 @@
     }
 
     .collab-title {
-      font-size: 1.5em;
+      font-size: 24px;
     }
 
     .timeline {
@@ -238,7 +227,7 @@
   }
 
   @media (max-width: 600px) {
-    .section-{{ section.id }} {
+    .collaboration-section {
       padding: 40px 0;
     }
 
@@ -247,15 +236,15 @@
     }
 
     .collab-title {
-      font-size: 1.3em;
+      font-size: 20px;
     }
 
     .collab-body {
-      font-size: 0.85em;
+      font-size: 14px;
     }
 
     .collab-tag {
-      font-size: 0.7em;
+      font-size: 11px;
     }
 
     .timeline {
@@ -265,7 +254,89 @@
   }
 </style>
 
-<section class="collaboration-section section-{{ section.id }}">
+{% comment %} Apply font families from theme settings {% endcomment %}
+<style>
+  /* Apply theme font families if they exist */
+  .collab-title,
+  .collab-tag,
+  .collab-body,
+  .collab-button,
+  .timeline-year {
+    {% if settings.font_heading %}
+      font-family: {{ settings.font_heading.family }}, 
+      {{ settings.font_heading.fallback_families }};
+    {% endif %}
+  }
+
+  /* Body font for body text */
+  .collab-body,
+  .collab-button,
+  .timeline-year,
+  .collab-tag {
+    {% if settings.font_body %}
+      font-family: {{ settings.font_body.family }}, 
+      {{ settings.font_body.fallback_families }};
+    {% endif %}
+  }
+
+  /* Apply base font size from theme */
+  .collaboration-section {
+    font-size: {{ settings.font_size_base | default: 16 }}px;
+  }
+
+  /* Apply heading sizes from theme */
+  .collab-title {
+    font-size: {{ settings.font_size_heading_large | default: 28 }}px;
+    font-weight: {{ settings.font_weight_bold | default: 700 }};
+  }
+
+  /* Apply body font size */
+  .collab-body {
+    font-size: {{ settings.font_size_base | default: 16 }}px;
+    font-weight: {{ settings.font_weight_normal | default: 400 }};
+  }
+
+  /* Apply smaller sizes relative to base */
+  .collab-tag {
+    font-size: {{ settings.font_size_small | default: 12 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
+  }
+
+  /* Button font size */
+  .collab-button {
+    font-size: {{ settings.font_size_base | times: 0.875 | default: 14 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 600 }};
+  }
+
+  /* Timeline font */
+  .timeline-year {
+    font-size: {{ settings.font_size_base | times: 0.875 | default: 14 }}px;
+    font-weight: {{ settings.font_weight_medium | default: 500 }};
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 900px) {
+    .collab-title {
+      font-size: {{ settings.font_size_heading_medium | default: 24 }}px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .collab-title {
+      font-size: {{ settings.font_size_heading_medium | times: 0.85 | default: 20 }}px;
+    }
+
+    .collab-body {
+      font-size: {{ settings.font_size_base | times: 0.875 | default: 14 }}px;
+    }
+
+    .collab-tag {
+      font-size: {{ settings.font_size_small | times: 0.9 | default: 11 }}px;
+    }
+  }
+</style>
+
+<section class="collaboration-section color-{{ section.settings.color_scheme.id | default: settings.color_schemes.first.id }}">
   <div class="collaboration-grid">
     <div class="collab-image-container" id="collab-image-wrapper-{{ section.id }}">
       {% assign first_block = section.blocks | first %}
@@ -275,7 +346,9 @@
           id="collab-image-{{ section.id }}"
           src="{{ first_block.settings.image | img_url: '800x800' }}"
           alt="{{ first_block.settings.heading | escape }}"
-          loading="lazy" />
+          loading="lazy"
+          width=""
+          height="" />
       {% else %}
         <div id="collab-image-{{ section.id }}" class="collab-placeholder">
           <svg
@@ -459,35 +532,12 @@
     "settings": [
       {
         "type": "header",
-        "content": "Section Colors"
-      },
-      {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background Color",
-        "default": "#ffffff"
-      },
-      {
-        "type": "color",
-        "id": "text_color",
-        "label": "Text Color",
-        "default": "#000000"
-      },
-      {
-        "type": "color",
-        "id": "grid_background",
-        "label": "Grid Background",
-        "default": "#f8f8f8"
+        "content": "Color Scheme"
       }, {
-        "type": "color",
-        "id": "grid_text_color",
-        "label": "Grid Text Color",
-        "default": "#111111"
-      }, {
-        "type": "checkbox",
-        "id": "separator",
-        "label": "Separate section with border",
-        "default": false
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
       }
     ],
     "blocks": [

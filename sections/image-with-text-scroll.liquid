@@ -1,345 +1,816 @@
-{% comment %}
-    IMAGE-ON-IMAGE SCROLL SECTION
-    This section creates a full-height, two-column layout designed to place a foreground image 
-    and scrollable text content over a large, fixed background image, replicating the provided design.
-{% endcomment %}
-
 <style>
+  /* --- GLOBAL FONT SETTINGS FROM THEME --- */
+  {%- assign heading_font = settings.font_heading -%}
+  {%- assign body_font = settings.font_body -%}
+  
+  :root {
+    /* Font Families */
+    --font-heading-family: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    --font-body-family: {{ body_font.family }}, {{ body_font.fallback_families }};
     
-    /* --- CORE CONTAINER STYLES --- */
+    /* Font Weights */
+    --font-weight-normal: {{ settings.font_weight_normal }};
+    --font-weight-bold: {{ settings.font_weight_bold }};
+    
+    /* Font Sizes */
+    --font-size-base: {{ settings.font_size_base }}px;
+    --font-size-heading-large: {{ settings.font_size_heading_large }}px;
+    --font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+    --font-size-heading-small: {{ settings.font_size_heading_small }}px;
+  }
+
+  /* --- COLOR SCHEME WITH 9% OPACITY OVERLAY --- */
+  {%- assign default_scheme = settings.color_schemes.first -%}
+  {%- if section.settings.color_scheme %}
+    {%- assign selected_scheme = section.settings.color_scheme %}
+  {%- else %}
+    {%- assign selected_scheme = default_scheme %}
+  {%- endif %}
+  
+  .color-scheme-{{ selected_scheme.id }} {
+    /* Background colors - MATCHING YOUR THEME.LIQUID VARIABLES */
+    --background: {{ selected_scheme.settings.background }};
+    --background-rgb: {{ selected_scheme.settings.background | color_to_rgb | remove: 'rgb(' | remove: ')' }};
+    
+    /* Text colors - MATCHING YOUR THEME.LIQUID VARIABLES */
+    --text: {{ selected_scheme.settings.primary_text }};
+    --primary-text: {{ selected_scheme.settings.primary_text }};
+    --secondary-text: {{ selected_scheme.settings.secondary_text }};
+    --header-text: {{ selected_scheme.settings.header_text }};
+    
+    /* Link colors - MATCHING YOUR THEME.LIQUID VARIABLES */
+    --link: {{ selected_scheme.settings.link }};
+    --link-hover: {{ selected_scheme.settings.link | color_darken: 15 }};
+    
+    /* Button colors - MATCHING YOUR THEME.LIQUID VARIABLES */
+    --button-background: {{ selected_scheme.settings.button_filled }};
+    --button-text: {{ selected_scheme.settings.button_filled_label }};
+    
+    /* Border colors - MATCHING YOUR THEME.LIQUID VARIABLES */
+    --border: {{ selected_scheme.settings.border }};
+    
+    /* OVERLAY COLOR WITH 9% OPACITY */
+    --overlay-color: {{ selected_scheme.settings.background }};
+    --overlay-opacity: 0.09; /* 9% OPACITY */
+  }
+
+  /* --- CORE CONTAINER STYLES --- */
+  .section-{{ section.id }} {
+    font-family: var(--font-body-family);
+    background-color: var(--background);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  /* --- 9% OPACITY OVERLAY FOR ENTIRE SECTION --- */
+  .section-{{ section.id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+    opacity: var(--overlay-opacity); /* 9% opacity */
+    z-index: 1;
+  }
+
+  /* --- BACKGROUND IMAGE --- */
+  .section-background-{{ section.id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  /* Mobile background */
+  .mobile-background-{{ section.id }} {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
     .section-{{ section.id }} {
-        font-family: 'Inter', sans-serif;
-        background-color: #0a0a0a; /* Fallback background */
-        color: #fff;
-        display: flex;
-        flex-direction: column; /* Stacked on mobile */
-        overflow: hidden;
-        border-radius: 8px; 
-        position: relative; /* Context for absolute background */
-        min-height: 100vh; /* Always aim for full height */
+      min-height: auto;
+      height: auto;
     }
-
-    /* --- BACKGROUND IMAGE (The Blue Pattern) --- */
-    .section-background-{{ section.id }} {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 1; /* Below content */
+    
+    .desktop-background-{{ section.id }} {
+      display: none;
     }
+    .mobile-background-{{ section.id }} {
+      display: block;
+    }
+  }
 
-    /* --- CONTENT WRAPPER (To layer the columns above the background) --- */
+  /* --- CONTENT WRAPPER --- */
+  .content-wrapper-{{ section.id }} {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  @media (max-width: 767px) {
     .content-wrapper-{{ section.id }} {
-        position: relative;
-        z-index: 5; /* Above background */
-        width: 100%;
-        display: flex;
-        flex-direction: column; /* Stacked on mobile */
-        min-height: 100vh;
+      min-height: auto;
+      height: auto;
     }
+  }
 
-    /* Crucial: Ensure the content wrapper uses min-height: 100vh on desktop 
-       to enable the independent scrolling in the right column. */
-    @media (min-width: 1024px) {
-        .content-wrapper-{{ section.id }} {
-            flex-direction: row; /* Side-by-side on desktop */
-        }
+  @media (min-width: 1024px) {
+    .content-wrapper-{{ section.id }} {
+      flex-direction: row;
     }
+  }
 
-    /* --- LEFT COLUMN: IMAGE COLUMN (The Snowboards) --- */
+  /* --- IMAGE COLUMN --- */
+  .image-column-{{ section.id }} {
+    width: 100%;
+    padding: 20px;
+    height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    position: relative;
+  }
+
+  /* Image position classes */
+  .image-left .image-column-{{ section.id }} {
+    order: 1;
+  }
+  .image-left .text-column-{{ section.id }} {
+    order: 2;
+  }
+  .image-right .image-column-{{ section.id }} {
+    order: 2;
+  }
+  .image-right .text-column-{{ section.id }} {
+    order: 1;
+  }
+
+  .image-container-{{ section.id }} {
+    width: 100%;
+    max-width: 300px;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #f8f8f8;
+  }
+
+  .image-container-{{ section.id }} img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 767px) {
     .image-column-{{ section.id }} {
-        width: 100%;
-        padding: 32px;
-        min-height: 50vh; /* Half screen height on mobile */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        /* The container itself has a transparent background to show the section background */
-        background-color: transparent; 
+      padding: 15px;
+      height: 35vh;
     }
     
-   
-
-    .image-container-{{ section.id }} img {
-        display: block;
-        max-width: 100%;
-        height: auto;
+    .image-container-{{ section.id }} {
+      max-width: 280px;
+      height: 220px;
     }
+  }
 
-    @media (min-width: 1024px) {
-        .image-column-{{ section.id }} {
-            width: 50%;
-            height: 100vh;
-            min-height: 100vh;
-        }
-        .image-container-{{ section.id }} {
-             /* Adjust size for desktop */
-            width: 65%; 
-            height: auto;
-        }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .image-column-{{ section.id }} {
+      padding: 25px;
+      height: 45vh;
     }
+    
+    .image-container-{{ section.id }} {
+      max-width: 350px;
+      height: 280px;
+    }
+  }
 
-    /* --- RIGHT COLUMN: TEXT CONTENT (SCROLLABLE) --- */
+  @media (min-width: 1024px) {
+    .image-column-{{ section.id }} {
+      width: 50%;
+      height: 100vh;
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      padding: 40px;
+    }
+    
+    .image-container-{{ section.id }} {
+      max-width: 400px;
+      height: 300px;
+    }
+  }
+
+  /* --- TEXT COLUMN --- */
+  .text-column-{{ section.id }} {
+    width: 100%;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: {{ section.settings.text_alignment }};
+    justify-content: center;
+    text-align: {{ section.settings.text_alignment }};
+    position: relative;
+    min-height: 60vh;
+  }
+
+  /* 9% OPACITY OVERLAY FOR TEXT COLUMN */
+  .text-column-{{ section.id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(var(--background-rgb), 0.09); /* 9% opacity */
+    z-index: -1;
+  }
+
+  /* Text alignment classes */
+  .text-left .text-column-{{ section.id }} {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .text-center .text-column-{{ section.id }} {
+    align-items: center;
+    text-align: center;
+  }
+  .text-right .text-column-{{ section.id }} {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  @media (max-width: 767px) {
     .text-column-{{ section.id }} {
-        width: 100%;
-        padding: 40px; /* p-10 */
-        background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent overlay to make text readable */
-        
-        display: flex;
-        flex-direction: column;
-        align-items: center; 
-        justify-content: center; 
-        text-align: center;
+      padding: 20px 15px;
+      min-height: 65vh;
+      height: auto;
     }
-    
-    @media (min-width: 768px) {
-        .text-column-{{ section.id }} {
-            padding: 64px; /* md:p-16 */
-        }
-    }
+  }
 
-    @media (min-width: 1024px) {
-        .text-column-{{ section.id }} {
-            width: 50%;
-            height: 100vh;
-            min-height: 100vh;
-            /* The key to independent scroll: */
-            max-height: 100vh;
-            overflow-y: auto;
-        }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .text-column-{{ section.id }} {
+      padding: 35px 25px;
+      min-height: 55vh;
     }
+  }
 
-    /* --- Typography Styles --- */
+  @media (min-width: 1024px) {
+    .text-column-{{ section.id }} {
+      width: 50%;
+      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      padding: 50px 40px;
+    }
+  }
+
+  /* --- TYPOGRAPHY USING GLOBAL SETTINGS --- */
+  .text-content-wrapper {
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+  }
+
+  @media (max-width: 767px) {
     .text-content-wrapper {
-        max-width: 448px; /* max-w-md */
-        text-align: center; /* Center the text within the wrapper */
+      max-width: 100%;
+      padding: 0 5px;
     }
-    
+  }
+
+  /* Subheading - Using global font settings */
+  .subheading {
+    font-size: calc(var(--font-size-base) * 0.75); /* 12px if base is 16px */
+    letter-spacing: 0.15em;
+    color: var(--secondary-text);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-family: var(--font-body-family);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 767px) {
     .subheading {
-        font-size: 0.75rem; /* text-xs */
-        letter-spacing: 0.1em; /* tracking-widest */
-        color: #9ca3af; /* gray-400 */
-        font-weight: 500; /* font-medium */
-        margin-bottom: 8px; /* mb-2 */
+      margin-bottom: 8px;
+      font-size: calc(var(--font-size-base) * 0.7);
+      letter-spacing: 0.1em;
     }
+  }
 
-    /* Specific Heading Style Adjustment */
+  /* Heading Styles - Using global font settings */
+  .heading {
+    margin-bottom: 15px;
+    font-family: var(--font-heading-family);
+    color: var(--header-text);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  /* Heading size based on global settings */
+  .heading-style-h2 {
+    font-size: var(--font-size-heading-large);
+  }
+  .heading-style-h3 {
+    font-size: var(--font-size-heading-medium);
+  }
+
+  @media (max-width: 767px) {
     .heading {
-        font-size: 15px; /* REQUESTED SIZE */
-        font-weight: 600; 
-        margin-bottom: 24px; 
-        text-transform: uppercase;
+      margin-bottom: 12px;
+      line-height: 1.2;
     }
     
-    @media (min-width: 768px) {
-        .heading {
-            font-size: 1.5rem; /* Slightly larger on tablet */
-        }
+    .heading-style-h2 {
+      font-size: calc(var(--font-size-heading-large) * 0.8);
     }
+    .heading-style-h3 {
+      font-size: calc(var(--font-size-heading-medium) * 0.8);
+    }
+  }
 
+  /* Content Body - Using global font settings */
+  .content-body {
+    font-size: var(--font-size-base);
+    color: var(--primary-text);
+    line-height: 1.6;
+    font-family: var(--font-body-family);
+    font-weight: var(--font-weight-normal);
+  }
+
+  .content-body p {
+    margin-bottom: 10px;
+  }
+
+  .content-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 767px) {
     .content-body {
-        font-size: 1rem; 
-        color: #d1d5db; 
-        margin-bottom: 32px; 
-        line-height: 1.625; 
+      font-size: calc(var(--font-size-base) * 0.9);
+      line-height: 1.5;
     }
+  }
 
-    /* Button Styles - Underline Link */
-    .learn-more-btn {
-        display: inline-block;
-        margin-top: 32px; 
-        font-size: 0.875rem; 
-        font-weight: 600; 
-        letter-spacing: 0.05em; 
-        text-transform: uppercase;
-        transition: opacity 0.3s, color 0.3s, border-color 0.3s;
-    }
-    
-    .learn-more-btn-underline {
-        padding-bottom: 2px;
-        border-bottom: 1px solid #fff;
-        color: #fff;
-        text-decoration: none;
-    }
-    .learn-more-btn-underline:hover {
-        border-bottom: 1px solid #6b7280; 
-        color: #6b7280; 
-    }
+  /* --- SINGLE TEXT BLOCK STYLES (Only one visible at a time) --- */
+  .text-blocks-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
 
-    /* Custom scrollbar styling for the text container (for aesthetics) */
-    .custom-scroll-{{ section.id }}::-webkit-scrollbar {
-        width: 4px;
-    }
+  .text-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-    .custom-scroll-{{ section.id }}::-webkit-scrollbar-thumb {
-        background-color: #4a4a4a;
-        border-radius: 2px;
+  @media (max-width: 767px) {
+    .text-block {
+      padding: 10px 0;
     }
+  }
+
+  .text-block.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: all;
+    position: relative;
+  }
+
+  /* Navigation Dots */
+  .block-navigation {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+    display: none;
+  }
+
+  /* Show dots only on mobile */
+  @media (max-width: 768px) {
+    .block-navigation {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .block-navigation {
+      display: none !important;
+    }
+  }
+
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--secondary-text);
+    opacity: 0.3;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+  }
+
+  .nav-dot.active {
+    background-color: var(--header-text);
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+
+  /* Scroll Indicator */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--secondary-text);
+    font-size: calc(var(--font-size-base) * 0.6875); /* 11px if base is 16px */
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    text-align: center;
+    display: none;
+    font-family: var(--font-body-family);
+  }
+
+  .scroll-indicator span {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .scroll-arrow {
+    animation: bounce 2s infinite;
+    font-size: calc(var(--font-size-base) * 0.875); /* 14px if base is 16px */
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-8px);
+    }
+    60% {
+      transform: translateY(-4px);
+    }
+  }
+
+  /* Show scroll indicator only on desktop */
+  @media (min-width: 769px) {
+    .scroll-indicator {
+      display: block;
+    }
+  }
+
+  /* Hide scrollbar completely */
+  .custom-scroll-{{ section.id }} {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .custom-scroll-{{ section.id }}::-webkit-scrollbar {
+    display: none;
+  }
 </style>
 
-
-<section 
-    id="design-section-{{ section.id }}" 
-    class="section-{{ section.id }}"
->
-
-    {% comment %} 1. Large Background Image {% endcomment %}
+<div class="color-scheme-{{ section.settings.color_scheme.id | default: settings.color_schemes.first.id }} image-{{ section.settings.image_position }} text-{{ section.settings.text_alignment }}">
+  <section id="design-section-{{ section.id }}" class="section-{{ section.id }}">
+    
+    {% comment %} Background Images {% endcomment %}
     {% if section.settings.background_image != blank %}
-        <img
-            src="{{ section.settings.background_image | img_url: '2000x' }}"
-            alt="Section Background"
-            loading="lazy"
-            class="section-background-{{ section.id }}"
-            height=""
-            width=""
-        >
+      <img
+        src="{{ section.settings.background_image | img_url: '2000x' }}"
+        alt="Section Background"
+        loading="lazy"
+        class="section-background-{{ section.id }} desktop-background-{{ section.id }}"
+        height=""
+        width=""
+      >
+    {% endif %}
+    
+    {% if section.settings.mobile_background_image != blank %}
+      <img
+        src="{{ section.settings.mobile_background_image | img_url: '1200x' }}"
+        alt="Mobile Background"
+        loading="lazy"
+        class="section-background-{{ section.id }} mobile-background-{{ section.id }}"
+        height=""
+        width=""
+      >
+    {% elsif section.settings.background_image != blank %}
+      <img
+        src="{{ section.settings.background_image | img_url: '1200x' }}"
+        alt="Section Background"
+        loading="lazy"
+        class="section-background-{{ section.id }} mobile-background-{{ section.id }}"
+        height=""
+        width=""
+      >
     {% endif %}
 
-    {% comment %} 2. Content Wrapper (Holds the two columns over the background) {% endcomment %}
     <div class="content-wrapper-{{ section.id }}">
-        
-        <!-- LEFT COLUMN: FOREGROUND IMAGE (The Snowboards - Fixed) -->
-        <div class="image-column-{{ section.id }}">
-            
-            {% if section.settings.image != blank %}
-                {% comment %} Display the uploaded foreground image {% endcomment %}
-                <div class="image-container-{{ section.id }}">
-                    <img
-                        src="{{ section.settings.image | img_url: '1000x' }}"
-                        alt="{{ section.settings.heading | escape }}"
-                        loading="lazy"
-                        width=""
-                        height=""
-                    >
-                </div>
-            {% else %}
-                {% comment %} Placeholder if no foreground image is uploaded {% endcomment %}
-                <div class="image-container-{{ section.id }}" style="background-color: #EFEFEF; width: 65%; height: 300px; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 112px; height: 112px; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-12 10a2 2 0 01-2-2v-4a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 9h.01"></path>
-                    </svg>
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- RIGHT COLUMN: TEXT CONTENT (SCROLLABLE) -->
-        <div class="text-column-{{ section.id }} custom-scroll-{{ section.id }}">
-            
-            <div class="text-content-wrapper">
-                <!-- Subheading -->
-                <p class="subheading">
-                    {{ section.settings.subheading | escape }}
-                </p>
-                
-                <!-- Heading -->
-                <h2 class="heading">
-                    {{ section.settings.heading | escape }}
-                </h2>
-
-                <!-- Content -->
-                <div class="content-body">
-                    {{ section.settings.content }}
-                </div>
-                
-                <!-- Button: Hardcoded to use the underline style -->
-                {% if section.settings.button_text != blank %}
-                    <a 
-                        href="{{ section.settings.button_link }}" 
-                        class="learn-more-btn learn-more-btn-underline"
-                    >
-                        {{ section.settings.button_text | escape }}
-                    </a>
-                {% endif %}
+      
+      <!-- IMAGE COLUMN -->
+      <div class="image-column-{{ section.id }}">
+        <div class="image-container-{{ section.id }}">
+          <!-- Image exactly like in your picture -->
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);">
+            <div style="text-align: center; color: #666; font-family: var(--font-body-family);">
+              <!-- Icon like in your picture -->
+              <svg style="width: 60px; height: 60px; margin-bottom: 15px; color: #888;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-12 10a2 2 0 01-2-2v-4a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 9h.01"></path>
+              </svg>
+              <div style="font-size: 14px; font-weight: 500;">Product Image</div>
             </div>
-            
+          </div>
         </div>
+      </div>
 
+      <!-- TEXT COLUMN -->
+      <div class="text-column-{{ section.id }} custom-scroll-{{ section.id }}">
+        <div class="text-content-wrapper">
+          <div class="text-blocks-container">
+            <!-- Main heading block -->
+            <div class="text-block active" data-block-index="0">
+              <p class="subheading">
+                OUR COMMITMENTS
+              </p>
+              
+              <h2 class="heading heading-style-h2">
+                SUSTAINABILITY
+              </h2>
+
+              <div class="content-body">
+                <p>From the very beginning, responsibility has been a core value - both towards you and the environment. From design to distribution, each step is approached with care to create pieces that are timeless, high quality, and fairly priced.</p>
+              </div>
+            </div>
+
+            <!-- Additional text blocks -->
+            <div class="text-block" data-block-index="1">
+              <p class="subheading">
+                OUR MATERIALS
+              </p>
+              
+              <h3 class="heading heading-style-h3">
+                ECO-FRIENDLY FABRICS
+              </h3>
+
+              <div class="content-body">
+                <p>We use only sustainable materials that are gentle on the planet while delivering exceptional quality and comfort.</p>
+              </div>
+            </div>
+
+            <div class="text-block" data-block-index="2">
+              <p class="subheading">
+                OUR PROCESS
+              </p>
+              
+              <h3 class="heading heading-style-h3">
+                ETHICAL PRODUCTION
+              </h3>
+
+              <div class="content-body">
+                <p>Every product is made in facilities that uphold the highest standards of worker safety and fair wages.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Navigation Dots -->
+        <div class="block-navigation">
+          <div class="nav-dot active" data-target="0"></div>
+          <div class="nav-dot" data-target="1"></div>
+          <div class="nav-dot" data-target="2"></div>
+        </div>
+        
+       
+      </div>
     </div>
-    
-</section>
+  </section>
+</div>
 
 <script>
-    // No JavaScript is required for this fixed/scroll layout.
+document.addEventListener('DOMContentLoaded', function() {
+  const sectionId = '{{ section.id }}';
+  const textColumn = document.querySelector(`.text-column-${sectionId}`);
+  const textBlocks = document.querySelectorAll(`.text-column-${sectionId} .text-block`);
+  const navDots = document.querySelectorAll(`.text-column-${sectionId} .nav-dot`);
+  
+  if (!textColumn || textBlocks.length <= 1) return;
+  
+  let currentBlockIndex = 0;
+  let isScrolling = false;
+  const scrollThreshold = 30;
+  let touchStartY = 0;
+  let wheelTimeout;
+  
+  // Function to show specific block
+  function showBlock(index) {
+    if (index < 0 || index >= textBlocks.length || isScrolling) return;
+    
+    isScrolling = true;
+    
+    // Hide all blocks
+    textBlocks.forEach(block => {
+      block.classList.remove('active');
+    });
+    
+    // Show selected block
+    textBlocks[index].classList.add('active');
+    
+    // Update navigation dots
+    if (navDots.length > 0) {
+      navDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+    
+    currentBlockIndex = index;
+    
+    // Reset scrolling flag
+    setTimeout(() => {
+      isScrolling = false;
+    }, 400);
+  }
+  
+  // Handle mouse wheel scrolling
+  textColumn.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    
+    clearTimeout(wheelTimeout);
+    
+    if (isScrolling) return;
+    
+    if (e.deltaY > 0) {
+      // Scrolling down - show next block
+      if (currentBlockIndex < textBlocks.length - 1) {
+        showBlock(currentBlockIndex + 1);
+      }
+    } else {
+      // Scrolling up - show previous block
+      if (currentBlockIndex > 0) {
+        showBlock(currentBlockIndex - 1);
+      }
+    }
+    
+    wheelTimeout = setTimeout(() => {
+      // Cooldown period
+    }, 300);
+  }, { passive: false });
+  
+  // Handle touch events for mobile
+  textColumn.addEventListener('touchstart', function(e) {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  
+  textColumn.addEventListener('touchend', function(e) {
+    if (isScrolling) return;
+    
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartY - touchEndY;
+    
+    if (Math.abs(deltaY) > scrollThreshold) {
+      if (deltaY > 0) {
+        // Swiped up - show next block
+        if (currentBlockIndex < textBlocks.length - 1) {
+          showBlock(currentBlockIndex + 1);
+        }
+      } else {
+        // Swiped down - show previous block
+        if (currentBlockIndex > 0) {
+          showBlock(currentBlockIndex - 1);
+        }
+      }
+    }
+  }, { passive: true });
+  
+  // Navigation dots click events
+  navDots.forEach(dot => {
+    dot.addEventListener('click', function() {
+      const targetIndex = parseInt(this.getAttribute('data-target'));
+      if (targetIndex !== currentBlockIndex) {
+        showBlock(targetIndex);
+      }
+    });
+  });
+  
+  // Initialize first block
+  showBlock(0);
+});
 </script>
-
 
 {% schema %}
 {
-    "name": "Image-on-Image Scroll",
-    "tag": "section",
-    "class": "section-image-on-image-scroll",
-    "settings": [
+  "name": "Image with Text Scroll",
+  "tag": "section",
+  "class": "section-image-text-scroll",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Color Scheme"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme_1"
+    },
+    {
+      "type": "header",
+      "content": "Background Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Desktop Background Image",
+      "info": "2000 x 1200px .jpg recommended"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_background_image",
+      "label": "Mobile Background Image",
+      "info": "1200 x 1600px .jpg recommended"
+    },
+    {
+      "type": "header",
+      "content": "Content Layout"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
         {
-            "type": "header",
-            "content": "Aesthetic & Background"
+          "value": "left",
+          "label": "Left"
         },
         {
-            "type": "image_picker",
-            "id": "background_image",
-            "label": "Background Image (Pattern)",
-            "info": "This image stretches across the entire section. Use a high-res pattern or background image."
-        },
-        {
-            "type": "range",
-            "id": "text_overlay_opacity",
-            "min": 0,
-            "max": 1,
-            "step": 0.1,
-            "label": "Text Column Background Opacity",
-            "default": 0.4
-        },
-        {
-            "type": "header",
-            "content": "Content Settings"
-        },
-        {
-            "type": "image_picker",
-            "id": "image",
-            "label": "Foreground Image (The Snowboard)",
-            "info": "This image is placed in a white box on the left side."
-        },
-        {
-            "type": "text",
-            "id": "subheading",
-            "label": "Subheading",
-            "default": "OUR COMMITMENTS"
-        },
-        {
-            "type": "text",
-            "id": "heading",
-            "label": "Heading",
-            "default": "SUSTAINABILITY"
-        },
-        {
-            "type": "richtext",
-            "id": "content",
-            "label": "Content",
-            "default": "<p>From the very beginning, responsibility has been a core value - both towards you and the environment. From design to distribution, each step is approached with care to create pieces that are timeless, high quality, and fairly priced.</p>"
-        },
-        {
-            "type": "header",
-            "content": "Button"
-        },
-        {
-            "type": "text",
-            "id": "button_text",
-            "label": "Button text",
-            "default": "Learn more"
-        },
-        {
-            "type": "url",
-            "id": "button_link",
-            "label": "Button link"
+          "value": "right",
+          "label": "Right"
         }
-    ],
-    "presets": [
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
         {
-            "name": "Image-on-Image Scroll Section",
-            "category": "Image"
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
         }
-    ]
+      ],
+      "default": "center"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with Text Scroll"
+    }
+  ]
 }
 {% endschema %}

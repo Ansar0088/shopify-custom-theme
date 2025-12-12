@@ -64,10 +64,12 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     font-family: var(--font-body);
     font-size: var(--font-size-base);
+    border: 2px solid red;
     {% if enable_sticky_header %}
       position: sticky;
       top: 0;
       z-index: 1000;
+
       transition: all 0.3s ease;
     {% else %}
       position: relative;
@@ -1325,7 +1327,7 @@
     }
 
     // Initialize all functionality
-    initStickyHeader(); // Initialize sticky header first
+    initStickyHeader();
     setupDropdowns();
     setupMobileNav();
     setupLocalizationDropdowns();

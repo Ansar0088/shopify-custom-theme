@@ -1,52 +1,1419 @@
-{% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
-{% endcomment %}
+{% capture styles %}
+  /* CSS Variables based on your settings */
+  :root {
+    /* Color Scheme - Scheme 3 */
+    --primary-color: #000000;
+    --secondary-color: #333333;
+    --accent-color: #d32f2f;
+    --background-color: #ffffff;
+    --border-color: #e0e0e0;
+    --text-light: #666666;
+    --text-dark: #000000;
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+    /* Font Sizes */
+    --title-font-size: 26px;
+    --price-font-size: 24px;
+    --label-font-size: 14px;
+    --button-font-size: 16px;
+    --spec-label-size: 12px;
+    --spec-value-size: 14px;
+  }
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+  /* Main Container - Large Width */
+  .product-page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
+  /* Product Grid Layout - 35% info width */
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr 35%;
+    gap: 60px;
+    margin: 40px 0;
+  }
 
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
+  /* Media Gallery - Grid (1 per row) */
+  .product-media-container {
+    position: relative;
+  }
+
+  .product-media-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 30px;
+  }
+
+  .product-media-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .product-media-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .product-media-item img:hover {
+    transform: scale(1.02);
+  }
+
+  /* Thumbnails on Left Side */
+  .product-thumbnails {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .product-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .product-thumbnail.active {
+    border-color: var(--primary-color);
+  }
+
+  .product-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Zoom Container */
+  .zoom-container {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    background: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  /* Media Navigation Dots */
+  .media-navigation {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+  }
+
+  .media-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .media-dot.active {
+    background: var(--primary-color);
+    transform: scale(1.2);
+  }
+
+  /* Product Info Sidebar */
+  .product-info-sidebar {
+    position: sticky;
+    top: 20px;
+    padding: 20px 0;
+    height: fit-content;
+  }
+
+  /* Product Header - Centered on Mobile */
+  .product-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .product-vendor {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+
+  .product-title {
+    font-size: var(--title-font-size);
+    font-weight: 300;
+    text-transform: uppercase;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: 3px;
+  }
+
+  /* Price Section */
+  .product-price-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+  }
+
+  .current-price {
+    font-size: var(--price-font-size);
+    font-weight: 600;
+    color: var(--accent-color);
+  }
+
+  .original-price {
+    font-size: 18px;
+    color: var(--text-light);
+    text-decoration: line-through;
+  }
+
+  .discount-badge {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  /* Rating */
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+
+  .star-rating {
+    color: #ffc107;
+    letter-spacing: 2px;
+    font-size: 16px;
+  }
+
+  .review-count {
+    font-size: 14px;
+    color: var(--text-light);
+  }
+
+  /* Variant Selector */
+  .variant-selector {
+    margin-bottom: 25px;
+  }
+
+  .variant-label {
+    display: block;
+    font-size: var(--label-font-size);
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    color: var(--text-dark);
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .variant-option {
+    min-width: 50px;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  .variant-option.selected {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .variant-option.unavailable {
+    opacity: 0.5;
+    text-decoration: line-through;
+    cursor: not-allowed;
+    background: #f5f5f5;
+  }
+
+  /* Size Selector - Special Styling */
+  .size-selector .variant-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .size-selector .variant-option {
+    padding: 12px 8px;
+    min-width: auto;
+    font-weight: 500;
+  }
+
+  /* Quantity Selector */
+  .quantity-selector {
+    margin-bottom: 25px;
+  }
+
+  .quantity-label {
+    display: block;
+    font-size: var(--label-font-size);
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    color: var(--text-dark);
+  }
+
+  .quantity-input-wrapper {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    width: 150px;
+  }
+
+  .quantity-btn {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+  }
+
+  .quantity-btn:hover {
+    background: #f5f5f5;
+  }
+
+  .quantity-input {
+    width: 70px;
+    height: 40px;
+    border: none;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+  }
+
+  /* Action Buttons - Exact from screenshot */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 30px 0;
+  }
+
+  .btn-add-to-cart {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: var(--button-font-size);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    width: 100%;
+    font-weight: 500;
+    border-radius: 0;
+  }
+
+  .btn-add-to-cart:hover {
+    opacity: 0.9;
+  }
+
+  .btn-add-to-cart:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-buy-now {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 18px;
+    font-size: var(--button-font-size);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    width: 100%;
+    font-weight: 500;
+    border-radius: 0;
+  }
+
+  .btn-buy-now:hover {
+    opacity: 0.9;
+  }
+
+  .btn-buy-now:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Sticky Add to Cart */
+  .sticky-add-to-cart {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 15px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .sticky-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .sticky-title h3 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  .sticky-price {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-color);
+    white-space: nowrap;
+  }
+
+  .sticky-buttons {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  .sticky-buttons button {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  /* Specifications Accordion */
+  .specifications-accordion {
+    margin-top: 40px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 30px;
+  }
+
+  .specifications-accordion h3 {
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    letter-spacing: 1px;
+  }
+
+  .accordion-item {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .accordion-header {
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  .accordion-header::after {
+    content: '+';
+    font-size: 20px;
+    transition: transform 0.3s ease;
+    color: var(--text-light);
+  }
+
+  .accordion-item.active .accordion-header::after {
+    content: '−';
+    transform: rotate(0deg);
+  }
+
+  .accordion-content {
+    padding: 0 0 20px;
+    display: none;
+  }
+
+  .accordion-item.active .accordion-content {
+    display: block;
+  }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .spec-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .spec-label {
+    font-size: var(--spec-label-size);
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .spec-value {
+    font-size: var(--spec-value-size);
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+
+  /* Features Tags */
+  .features-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .feature-tag {
+    background: #f5f5f5;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* HOT SALE Badge */
+  .hot-sale-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--accent-color);
+    color: white;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 10;
+  }
+
+  /* Hidden class */
+  .hidden {
+    display: none !important;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .product-grid {
+      gap: 40px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .product-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .product-info-sidebar {
+      position: static;
+    }
+
+    .product-thumbnails {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    /* Center on Mobile */
+    .product-header,
+    .product-price-container,
+    .product-rating,
+    .variant-selector,
+    .quantity-selector {
+      text-align: center;
+    }
+
+    .product-title {
+      font-size: 22px;
+    }
+
+    .current-price {
+      font-size: 22px;
+    }
+
+    .specs-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .variant-options {
+      justify-content: center;
+    }
+
+    .quantity-input-wrapper {
+      margin: 0 auto;
+    }
+
+    .sticky-content {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .sticky-buttons {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-add-to-cart,
+    .btn-buy-now {
+      padding: 16px;
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-page-container {
+      padding: 0 15px;
+    }
+
+    .product-title {
+      font-size: 20px;
+    }
+
+    .product-price-container {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .variant-options {
+      gap: 8px;
+    }
+
+    .variant-option {
+      padding: 10px 12px;
+      min-width: 45px;
+      font-size: 13px;
+    }
+
+    .size-selector .variant-options {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .btn-add-to-cart,
+    .btn-buy-now {
+      padding: 14px;
+      font-size: 14px;
+    }
+  }
+
+  /* Video Styling */
+  video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+{% endcapture %}
+<style>
+  {{ styles }}
+</style>
+
+<div class="product-page-container" data-product-id="{{ product.id }}">
+  <!-- Sticky Add to Cart -->
+  <div class="sticky-add-to-cart" id="sticky-add-to-cart">
+    <div class="sticky-content">
+      <div class="sticky-title">
+        <h3>{{ product.title | truncate: 50 }}</h3>
+      </div>
+      <div class="sticky-price">
+        {{ current_variant.price | money }}
+        {% if current_variant.compare_at_price > current_variant.price %}
+          <span class="original-price">{{ current_variant.compare_at_price | money }}</span>
+        {% endif %}
+      </div>
+      <div class="sticky-buttons">
+        <button class="btn-add-to-cart" onclick="document.getElementById('add-to-cart-main').click()">
+          ADD TO CART
+        </button>
+        <button class="btn-buy-now" onclick="document.getElementById('buy-now-main').click()">
+          BUY IT NOW
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOT SALE Badge -->
+  {% if product.compare_at_price > product.price %}
+    <div class="hot-sale-badge">HOT SALE</div>
+  {% endif %}
+
+  <div class="product-grid">
+    <!-- Left Column: Media Gallery -->
+    <div class="product-media-container">
+      {% if product.media.size > 1 %}
+        <div class="product-thumbnails" id="product-thumbnails">
+          {% for media in product.media limit: 5 %}
+            <div class="product-thumbnail {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}">
+              {% if media.media_type == 'image' %}
+                <img
+                  src="{{ media | img_url: '100x' }}"
+                  alt="{{ media.alt }}"
+                  loading="lazy"
+                  height=""
+                  width="">
+              {% else %}
+                <div style="width: 100%; height: 100%; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                  {% if media.media_type == 'video' %}📹{% else %}🎥{% endif %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="product-media-grid" id="product-media-grid">
+        {% for media in product.media %}
+          <div
+            class="product-media-item"
+            data-media-id="{{ media.id }}"
+            data-media-type="{{ media.media_type }}">
+            {% case media.media_type %}
+              {% when 'image' %}
+                <img
+                  src="{{ media | image_url: '1200x' }}"
+                  alt="{{ media.alt }}"
+                  data-zoom="{{ media | image_url: '2400x' }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  class="main-product-image"
+                  height=""
+                  width="">
+              {% when 'video' %}
+                <video
+                  {% if section.settings.enable_media_autoplay %}
+                  autoplay
+                  muted{% endif %}
+                  {% if section.settings.enable_video_looping %}
+                  loop{% endif %}
+                  playsinline
+                  controls
+                  preload="metadata">
+                  {% for source in media.sources %}
+                    <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                  {% endfor %}
+                </video>
+              {% when 'external_video' %}
+                <div class="external-video-wrapper">
+                  {{ media | external_video_tag: class: 'product-external-video' }}
+                </div>
+              {% when 'model' %}
+                {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true }}
+              {% else %}
+                {{ media | media_tag: class: 'media-item' }}
+            {% endcase %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if product.media.size > 1 and section.settings.mobile_controls == 'dots' %}
+        <div class="media-navigation" id="media-navigation">
+          {% for media in product.media %}
+            <div class="media-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}"></div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Product Info -->
+    <div class="product-info-sidebar">
+      <div class="product-header">
+        {% if section.settings.show_vendor and product.vendor %}
+          <div class="product-vendor">{{ product.vendor }}</div>
+        {% endif %}
+
+        <h1 class="product-title">{{ product.title }}</h1>
+
+        <div class="product-price-container">
+          <span class="current-price">{{ current_variant.price | money }}</span>
+          {% if current_variant.compare_at_price > current_variant.price %}
+            <span class="original-price">{{ current_variant.compare_at_price | money }}</span>
+            {% assign discount_percent = current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | round %}
+            <span class="discount-badge">{{ discount_percent }}% OFF</span>
           {% endif %}
-        >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
+        </div>
 
-    <input type="text" name="quantity" min="1" value="1">
+        {% if section.settings.show_rating %}
+          <div class="product-rating">
+            <div class="star-rating">★★★★★</div>
+            <span class="review-count">({{ product.metafields.reviews.rating_count | default: "0" }} reviews)</span>
+          </div>
+        {% endif %}
+      </div>
 
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
+      <form
+        action="/cart/add"
+        method="post"
+        enctype="multipart/form-data"
+        id="AddToCartForm">
+        <!-- Color Variants -->
+        {% for option in product.options_with_values %}
+          {% assign option_name_lower = option.name | downcase %}
+          <div class="variant-selector {% if option_name_lower contains 'color' %}color-selector{% elsif option_name_lower contains 'size' %}size-selector{% endif %}">
+            <label class="variant-label">{{ option.name }}</label>
+            <div class="variant-options" data-option-index="{{ forloop.index0 }}">
+              {% for value in option.values %}
+                {% assign variant_available = true %}
+                {% for variant in product.variants %}
+                  {% if variant.options contains value %}
+                    {% unless variant.available %}
+                      {% assign variant_available = false %}
+                    {% endunless %}
+                  {% endif %}
+                {% endfor %}
+                <div
+                  class="variant-option {% if option.selected_value == value %}selected{% endif %} {% unless variant_available %}unavailable{% endunless %}"
+                  data-value="{{ value | escape }}"
+                  {% if option_name_lower contains 'color' and value contains 'black' %}
+                  style="background: #000; color: #fff;"
+                  {% endif %}
+                  {% if option_name_lower contains 'color' and value contains 'white' %}
+                  style="background: #fff; border: 2px solid #000;"
+                  {% endif %}>
+                  {{ value }}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+
+        <!-- Quantity Selector -->
+        <div class="quantity-selector">
+          <label class="quantity-label">Quantity</label>
+          <div class="quantity-input-wrapper">
+            <button
+              type="button"
+              class="quantity-btn"
+              onclick="decreaseQuantity()">−</button>
+            <input
+              type="number"
+              id="Quantity"
+              name="quantity"
+              value="1"
+              min="1"
+              class="quantity-input"
+              onchange="updateQuantity(this.value)">
+            <button
+              type="button"
+              class="quantity-btn"
+              onclick="increaseQuantity()">+</button>
+          </div>
+        </div>
+
+        <!-- Hidden Variant Input -->
+        <select
+          name="id"
+          id="productSelect"
+          class="hidden">
+          {% for variant in product.variants %}
+            <option
+              value="{{ variant.id }}"
+              {% if variant == current_variant %}
+              selected="selected"
+              {% endif %}
+              {% unless variant.available %}
+              disabled{% endunless %}>
+              {{ variant.title }} - {{ variant.price | money }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button
+            type="submit"
+            name="add"
+            id="add-to-cart-main"
+            class="btn-add-to-cart"
+            {% unless current_variant.available %}
+            disabled{% endunless %}>
+            {% if current_variant.available %}
+              ADD TO CART
+            {% else %}
+              SOLD OUT
+            {% endif %}
+          </button>
+
+          <button
+            type="button"
+            id="buy-now-main"
+            class="btn-buy-now"
+            {% unless current_variant.available %}
+            disabled{% endunless %}
+            onclick="buyNow()">
+            BUY IT NOW
+          </button>
+        </div>
+      </form>
+
+      <!-- Specifications Accordion -->
+      <div class="specifications-accordion">
+        <h3>SPECIFICATIONS</h3>
+
+        <div class="accordion-item active">
+          <div class="accordion-header">Product Details</div>
+          <div class="accordion-content">
+            <div class="specs-grid">
+              {% if product.type %}
+                <div class="spec-item">
+                  <span class="spec-label">Product Type</span>
+                  <span class="spec-value">{{ product.type }}</span>
+                </div>
+              {% endif %}
+
+              {% if product.vendor %}
+                <div class="spec-item">
+                  <span class="spec-label">Brand</span>
+                  <span class="spec-value">{{ product.vendor }}</span>
+                </div>
+              {% endif %}
+
+              {% for variant in product.variants %}
+                {% if variant.sku %}
+                  <div class="spec-item">
+                    <span class="spec-label">SKU</span>
+                    <span class="spec-value">{{ variant.sku }}</span>
+                  </div>
+                  {% break %}
+                {% endif %}
+              {% endfor %}
+
+              {% if product.weight %}
+                <div class="spec-item">
+                  <span class="spec-label">Weight</span>
+                  <span class="spec-value">{{ product.weight | weight_with_unit }}</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Zoom Container -->
+<div class="zoom-container" id="zoom-container"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all features
+    initVariantSelectors();
+    initMediaGallery();
+    initThumbnails();
+    initAccordion();
+    initStickyCart();
+    
+    // Initialize zoom if enabled
+    {% if section.settings.image_zoom_enable %}
+      initImageZoom();
+    {% endif %}
+  });
+
+  // Variant Selection
+  function initVariantSelectors() {
+    const variantOptions = document.querySelectorAll('.variant-option:not(.unavailable)');
+    const variantSelect = document.getElementById('productSelect');
+    
+    variantOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        if (this.classList.contains('unavailable')) return;
+        
+        const optionIndex = this.parentElement.dataset.optionIndex;
+        const value = this.dataset.value;
+        
+        // Update UI
+        this.parentElement.querySelectorAll('.variant-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        
+        // Find matching variant
+        updateVariantSelection(optionIndex, value);
+      });
+    });
+  }
+
+  function updateVariantSelection(optionIndex, value) {
+    const variantSelect = document.getElementById('productSelect');
+    const variants = JSON.parse('{{ product.variants | json }}');
+    
+    // Get current selected options
+    const selectedOptions = [];
+    document.querySelectorAll('.variant-selector').forEach((selector, index) => {
+      const selectedOption = selector.querySelector('.variant-option.selected');
+      if (selectedOption) {
+        selectedOptions[index] = selectedOption.dataset.value;
+      }
+    });
+    
+    // Find matching variant
+    let selectedVariant = null;
+    variants.forEach(variant => {
+      if (JSON.stringify(variant.options) === JSON.stringify(selectedOptions)) {
+        selectedVariant = variant;
+      }
+    });
+    
+    // If no exact match, find first available variant with matching options
+    if (!selectedVariant) {
+      variants.forEach(variant => {
+        if (variant.available && variant.options[optionIndex] === value) {
+          if (!selectedVariant) selectedVariant = variant;
+        }
+      });
+    }
+    
+    if (selectedVariant) {
+      variantSelect.value = selectedVariant.id;
+      updateVariantInfo(selectedVariant);
+    }
+  }
+
+  function updateVariantInfo(variant) {
+    // Update price
+    const priceElement = document.querySelector('.current-price');
+    const originalPriceElement = document.querySelector('.original-price');
+    const discountBadge = document.querySelector('.discount-badge');
+    const stickyPrice = document.querySelector('.sticky-price .current-price');
+    
+    if (priceElement) {
+      priceElement.textContent = formatMoney(variant.price);
+      if (stickyPrice) stickyPrice.textContent = formatMoney(variant.price);
+    }
+    
+    if (variant.compare_at_price > variant.price) {
+      if (originalPriceElement) {
+        originalPriceElement.textContent = formatMoney(variant.compare_at_price);
+        originalPriceElement.style.display = 'inline';
+      }
+      if (discountBadge) {
+        const discountPercent = Math.round((variant.compare_at_price - variant.price) * 100 / variant.compare_at_price);
+        discountBadge.textContent = discountPercent + '% OFF';
+        discountBadge.style.display = 'inline-block';
+      }
+    } else {
+      if (originalPriceElement) originalPriceElement.style.display = 'none';
+      if (discountBadge) discountBadge.style.display = 'none';
+    }
+    
+    // Update availability
+    const addToCartBtn = document.getElementById('add-to-cart-main');
+    const buyNowBtn = document.getElementById('buy-now-main');
+    
+    if (variant.available) {
+      addToCartBtn.disabled = false;
+      addToCartBtn.textContent = 'ADD TO CART';
+      buyNowBtn.disabled = false;
+    } else {
+      addToCartBtn.disabled = true;
+      addToCartBtn.textContent = 'SOLD OUT';
+      buyNowBtn.disabled = true;
+    }
+  }
+
+  // Media Gallery with Thumbnails
+  function initMediaGallery() {
+    const mediaItems = document.querySelectorAll('.product-media-item');
+    
+    // Show first image by default
+    mediaItems.forEach((item, index) => {
+      if (index === 0) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+    
+    // Initialize dots if they exist
+    const dots = document.querySelectorAll('.media-dot');
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        showSlide(index);
+      });
+    });
+    
+    // Auto play if enabled
+    {% if section.settings.enable_media_autoplay %}
+      let currentSlide = 0;
+      const autoSlideInterval = setInterval(() => {
+        currentSlide = (currentSlide + 1) % mediaItems.length;
+        showSlide(currentSlide);
+      }, 5000);
+    {% endif %}
+  }
+
+  function initThumbnails() {
+    const thumbnails = document.querySelectorAll('.product-thumbnail');
+    const mediaItems = document.querySelectorAll('.product-media-item');
+    
+    thumbnails.forEach((thumbnail, index) => {
+      thumbnail.addEventListener('click', () => {
+        // Update active thumbnail
+        thumbnails.forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+        
+        // Show corresponding media
+        showSlide(index);
+      });
+    });
+  }
+
+  function showSlide(index) {
+    const mediaItems = document.querySelectorAll('.product-media-item');
+    const dots = document.querySelectorAll('.media-dot');
+    const thumbnails = document.querySelectorAll('.product-thumbnail');
+    
+    // Hide all media items
+    mediaItems.forEach(item => {
+      item.style.display = 'none';
+    });
+    
+    // Show selected media item
+    if (mediaItems[index]) {
+      mediaItems[index].style.display = 'block';
+      
+      // If it's a video, play it
+      const video = mediaItems[index].querySelector('video');
+      if (video) {
+        video.play().catch(e => console.log('Video autoplay prevented:', e));
+      }
+    }
+    
+    // Update dots
+    dots.forEach(dot => dot.classList.remove('active'));
+    if (dots[index]) dots[index].classList.add('active');
+    
+    // Update thumbnails
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    if (thumbnails[index]) thumbnails[index].classList.add('active');
+  }
+
+  // Image Zoom
+  function initImageZoom() {
+    const zoomContainer = document.getElementById('zoom-container');
+    const images = document.querySelectorAll('.product-media-item img');
+    
+    images.forEach(img => {
+      img.addEventListener('mousemove', function(e) {
+        if (!this.dataset.zoom) return;
+        
+        const container = this.getBoundingClientRect();
+        const x = ((e.clientX - container.left) / container.width) * 100;
+        const y = ((e.clientY - container.top) / container.height) * 100;
+        
+        zoomContainer.style.display = 'block';
+        zoomContainer.style.left = (e.clientX + 20) + 'px';
+        zoomContainer.style.top = (e.clientY + 20) + 'px';
+        
+        const zoomImg = zoomContainer.querySelector('.zoom-image') || document.createElement('img');
+        zoomImg.className = 'zoom-image';
+        zoomImg.src = this.dataset.zoom;
+        
+        const zoomLevel = {{ section.settings.max_zoom_level | default: 2 }};
+        zoomImg.style.width = (container.width * zoomLevel) + 'px';
+        zoomImg.style.height = (container.height * zoomLevel) + 'px';
+        zoomImg.style.left = (-x * (zoomLevel - 1)) + '%';
+        zoomImg.style.top = (-y * (zoomLevel - 1)) + '%';
+        
+        if (!zoomContainer.contains(zoomImg)) {
+          zoomContainer.innerHTML = '';
+          zoomContainer.appendChild(zoomImg);
+        }
+      });
+      
+      img.addEventListener('mouseleave', function() {
+        zoomContainer.style.display = 'none';
+      });
+    });
+  }
+
+  // Quantity Management
+  function increaseQuantity() {
+    const input = document.getElementById('Quantity');
+    input.value = parseInt(input.value) + 1;
+  }
+
+  function decreaseQuantity() {
+    const input = document.getElementById('Quantity');
+    if (parseInt(input.value) > 1) {
+      input.value = parseInt(input.value) - 1;
+    }
+  }
+
+  function updateQuantity(value) {
+    const input = document.getElementById('Quantity');
+    if (value < 1) input.value = 1;
+  }
+
+  // Accordion
+  function initAccordion() {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+      header.addEventListener('click', function() {
+        const item = this.parentElement;
+        const isActive = item.classList.contains('active');
+        
+        // Close all accordions
+        document.querySelectorAll('.accordion-item').forEach(accItem => {
+          accItem.classList.remove('active');
+          accItem.querySelector('.accordion-content').style.display = 'none';
+        });
+        
+        // Open clicked accordion if it was closed
+        if (!isActive) {
+          item.classList.add('active');
+          item.querySelector('.accordion-content').style.display = 'block';
+        }
+      });
+    });
+  }
+
+  // Sticky Add to Cart
+  function initStickyCart() {
+    {% if section.settings.show_sticky_add_to_cart %}
+      const stickyCart = document.getElementById('sticky-add-to-cart');
+      const productInfo = document.querySelector('.product-info-sidebar');
+      
+      if (!stickyCart || !productInfo) return;
+      
+      window.addEventListener('scroll', function() {
+        const productInfoBottom = productInfo.getBoundingClientRect().bottom + window.scrollY;
+        const scrollPosition = window.scrollY + window.innerHeight;
+        
+        if (scrollPosition > productInfoBottom + 100) {
+          stickyCart.style.display = 'block';
+        } else {
+          stickyCart.style.display = 'none';
+        }
+      });
+    {% endif %}
+  }
+
+  // Buy Now Function
+  function buyNow() {
+    const form = document.getElementById('AddToCartForm');
+    const buyNowInput = document.createElement('input');
+    buyNowInput.type = 'hidden';
+    buyNowInput.name = 'return_to';
+    buyNowInput.value = '/checkout';
+    form.appendChild(buyNowInput);
+    form.submit();
+  }
+
+  // Utility Function
+  function formatMoney(cents) {
+    return '$' + (cents / 100).toFixed(2);
+  }
+</script>
 
 {% schema %}
-{
-  "name": "t:general.product",
-  "settings": [],
-  "disabled_on": {
-    "groups": ["header", "footer"]
+  {
+    "name": "Product Page - Fashion",
+    "tag": "section",
+    "class": "product-template",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Color scheme"
+      },
+      {
+        "type": "select",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "options": [
+          {
+            "value": "scheme-1",
+            "label": "Scheme 1"
+          }, {
+            "value": "scheme-2",
+            "label": "Scheme 2"
+          }, {
+            "value": "scheme-3",
+            "label": "Scheme 3"
+          }
+        ],
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "select",
+        "id": "section_width",
+        "label": "Section width",
+        "options": [
+          {
+            "value": "large",
+            "label": "Large"
+          }, {
+            "value": "full",
+            "label": "Full width"
+          }
+        ],
+        "default": "large"
+      }, {
+        "type": "range",
+        "id": "product_info_width",
+        "label": "Product info width (desktop)",
+        "min": 25,
+        "max": 50,
+        "step": 1,
+        "unit": "%",
+        "default": 35,
+        "info": "Product media will fill the remaining space."
+      }, {
+        "type": "checkbox",
+        "id": "show_sticky_add_to_cart",
+        "label": "Show sticky add to cart",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "center_basic_info_mobile",
+        "label": "Center basic info on mobile",
+        "info": "Includes title, vendor, price and rating.",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Media",
+        "info": "Learn more about media types."
+      }, {
+        "type": "select",
+        "id": "desktop_media_layout",
+        "label": "Desktop media layout",
+        "options": [
+          {
+            "value": "grid",
+            "label": "Grid (1 per row)"
+          }, {
+            "value": "carousel",
+            "label": "Carousel"
+          }
+        ],
+        "default": "grid"
+      }, {
+        "type": "range",
+        "id": "grid_gap_desktop",
+        "label": "Grid gap between images (desktop)",
+        "min": 0,
+        "max": 50,
+        "step": 5,
+        "unit": "px",
+        "default": 30
+      }, {
+        "type": "select",
+        "id": "mobile_controls",
+        "label": "Mobile controls",
+        "options": [
+          {
+            "value": "dots",
+            "label": "Dots"
+          }, {
+            "value": "thumbnails",
+            "label": "Thumbnails"
+          }, {
+            "value": "arrows",
+            "label": "Arrows"
+          }
+        ],
+        "default": "dots"
+      }, {
+        "type": "checkbox",
+        "id": "enable_media_autoplay",
+        "label": "Enable media autoplay",
+        "info": "Videos are muted automatically to allow autoplay.",
+        "default": false
+      }, {
+        "type": "checkbox",
+        "id": "enable_video_looping",
+        "label": "Enable video looping",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "image_zoom_enable",
+        "label": "Image zoom",
+        "info": "Zoom won't show video or 3D models",
+        "default": true
+      }, {
+        "type": "range",
+        "id": "max_zoom_level",
+        "label": "Max zoom level",
+        "min": 1,
+        "max": 5,
+        "step": 0.5,
+        "default": 2
+      }, {
+        "type": "header",
+        "content": "Product Information"
+      }, {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "label": "Show vendor",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_rating",
+        "label": "Show rating",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "Product Page",
+        "category": "Product"
+      }
+    ]
   }
-}
 {% endschema %}

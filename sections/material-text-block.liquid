@@ -1,34 +1,22 @@
-{% comment %}
-  SECTION: MATERIALS WITH CENTERED TEXT BLOCK (Image 1)
-
-  This section uses a full-width background image with a centered, contrasting text box overlaid,
-  matching the line-art style reference. It includes settings for responsiveness and color scheme.
-{% endcomment %}
-
-{% assign current_scheme = section.settings.color_scheme %}
+{%- liquid
+  assign current_scheme = section.settings.color_scheme
+  assign desktop_image = section.settings.image
+  assign mobile_image = section.settings.mobile_image | default: desktop_image
+  assign content_width = section.settings.content_width
+  assign image_size = section.settings.image_size
+-%}
 
 <style>
-  /* Load Inter font */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
   /* --- General Section Styles --- */
   .section-{{ section.id }} {
-    font-family: 'Inter'
-    , sans-serif;
     position: relative;
     width: 100%;
     min-height: 600px;
-    /* Minimum height for desktop */
     height: 100vh;
-    /* Attempt to fill screen height */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-
-    /* Apply color scheme styles */
-    background-color: {{ current_scheme.background }};
-    color: {{ current_scheme.text }};
 
     {% if section.settings.remove_spacing %}
       padding-top: 0;
@@ -59,15 +47,81 @@
   .materials-background-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    /* Fit screen setting */
-    /* Apply grayscale filter as in the line-art image */
     filter: grayscale(100%);
     transition: transform 0.3s ease-out;
 
+    /* Apply image size settings */
+    {% if image_size == 'x-small' %}
+      object-fit: contain;
+      max-width: 30%;
+      max-height: 30%;
+      width: auto;
+      height: auto;
+    {% elsif image_size == 'small' %}
+      object-fit: contain;
+      max-width: 50%;
+      max-height: 50%;
+      width: auto;
+      height: auto;
+    {% elsif image_size == 'medium' %}
+      object-fit: contain;
+      max-width: 70%;
+      max-height: 70%;
+      width: auto;
+      height: auto;
+    {% elsif image_size == 'large' %}
+      object-fit: contain;
+      max-width: 90%;
+      max-height: 90%;
+      width: auto;
+      height: auto;
+    {% elsif image_size == 'fit-screen' %}
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    {% endif %}
+
     {% if section.settings.parallax_enabled %}
-      /* Apply a slight scale for the parallax effect if enabled */
       transform: scale(1.05);
+    {% endif %}
+  }
+
+  /* Center all image sizes except fit-screen */
+  {% if image_size != 'fit-screen' %}
+    .materials-background-image-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  {% endif %}
+
+  /* Fallback Background (mimics the screenshot) */
+  .materials-fallback-bg {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-background);
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 600'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:none;stroke:%23000;stroke-width:1px;%7D%3C/style%3E%3C/defs%3E%3Cpath class='cls-1' d='M10, 300L250, 100L490, 300L250, 500Z'/%3E%3Cpath class='cls-1' d='M510, 300L750, 100L990, 300L750, 500Z'/%3E%3Ccircle class='cls-1' cx='50' cy='50' r='10'/%3E%3Ccircle class='cls-1' cx='950' cy='50' r='10'/%3E%3Ccircle class='cls-1' cx='50' cy='550' r='10'/%3E%3Ccircle class='cls-1' cx='950' cy='550' r='10'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 500px 300px;
+    filter: grayscale(100%);
+
+    /* Apply same size restrictions */
+    {% if image_size == 'x-small' %}
+      max-width: 30%;
+      max-height: 30%;
+      background-size: 150px 90px;
+    {% elsif image_size == 'small' %}
+      max-width: 50%;
+      max-height: 50%;
+      background-size: 250px 150px;
+    {% elsif image_size == 'medium' %}
+      max-width: 70%;
+      max-height: 70%;
+      background-size: 350px 210px;
+    {% elsif image_size == 'large' %}
+      max-width: 90%;
+      max-height: 90%;
+      background-size: 450px 270px;
     {% endif %}
   }
 
@@ -76,46 +130,49 @@
     position: relative;
     z-index: 2;
 
-    /* Set max width dynamically based on settings */
-    {% assign content_width = section.settings.content_width %}
     {% if content_width == 'small' %}
       max-width: 400px;
+      width: 90%;
     {% elsif content_width == 'medium' %}
       max-width: 600px;
+      width: 90%;
     {% elsif content_width == 'large' %}
       max-width: 800px;
+      width: 90%;
     {% endif %}
+
+    margin: 0 auto;
   }
 
   .materials-content-box {
-    background-color: #fff;
-    /* Always white for contrast as per image */
+    background-color: var(--color-background);
+    color: var(--color-primary-text);
     padding: 40px 50px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    color: #333;
-    /* Dark text color for readability on white box */
-    border: 1px solid #e0e0e0;
-    /* Subtle border to define the block */
+    border: 1px solid var(--color-border);
   }
 
   /* --- Typography Styles --- */
   .materials-title {
-    font-size: 0.85em;
+    font-family: {{ settings.font_heading.family }}, 
+    {{ settings.font_heading.fallback_families }};
+    font-size: {{ settings.font_size_heading_medium | times: 0.85 | round }}px;
     letter-spacing: 3px;
-    font-weight: 500;
+    font-weight: {{ settings.font_heading.weight }};
     text-transform: uppercase;
     margin-bottom: 20px;
-    color: #333;
+    color: var(--color-header-text);
   }
 
   .materials-description {
-    font-size: 1em;
+    font-family: {{ settings.font_body.family }}, 
+    {{ settings.font_body.fallback_families }};
+    font-size: {{ settings.font_size_base }}px;
     line-height: 1.6;
     margin-bottom: 30px;
-    color: #555;
+    color: var(--color-primary-text);
     max-width: 350px;
-    /* Constraints text width for clean look */
     margin-left: auto;
     margin-right: auto;
   }
@@ -123,59 +180,47 @@
   /* --- Button/Link Styles --- */
   .materials-learn-more {
     display: inline-block;
-    font-size: 0.9em;
+    font-family: {{ settings.font_body.family }}, 
+    {{ settings.font_body.fallback_families }};
+    font-size: {{ settings.font_size_base | times: 0.9 | round }}px;
+    font-weight: {{ settings.font_body.weight }};
     text-transform: capitalize;
     padding-bottom: 2px;
-    border-bottom: 1px solid #333;
-    /* Dark underline */
-    color: #333;
-    transition: opacity 0.3s;
+    border-bottom: 1px solid var(--color-link);
+    color: var(--color-link);
+    transition: all 0.3s ease;
     text-decoration: none;
   }
-  .materials-learn-more:hover {
-    opacity: 0.7;
-    border-color: #555;
-  }
 
-  /* Parallax Scroll Effect (via JavaScript/Liquid) */
-  {% if section.settings.parallax_enabled %}
-    .materials-section[data-parallax="true"] {
-    ;
 
-    /*
-   Placeholder for potential JS implementation if required,
-   but CSS translation is often enough for simple effects
-*/
-  }
-{% endif %}
+  /* Mobile adjustments for padding and box size */
+  @media (max-width: 767px) {
+    .materials-content-box {
+      padding: 30px 20px;
+    }
 
-/* Mobile adjustments for padding and box size */
-@media (max-width: 500px) {
-  .materials-content-box {
-    padding: 30px 20px;
-  }
-  .materials-description {
-    font-size: 0.9em;
-  }
-}
+    .materials-description {
+      font-size: {{ settings.font_size_base | times: 0.9 | round }}px;
+      line-height: 1.5;
+    }
 
+    .materials-title {
+      font-size: {{ settings.font_size_heading_medium | times: 0.75 | round }}px;
+      letter-spacing: 2px;
+    }
+  }
 </style>
 
 <section
   id="materials-section-{{ section.id }}"
-  class="section-{{ section.id }}"
+  class="section-{{ section.id }} color-{{ current_scheme }}"
   {% if section.settings.parallax_enabled %}
   data-parallax="true"
   {% endif %}>
-
   <div class="materials-background-image-wrapper">
-    {% assign desktop_image = section.settings.image %}
-    {% assign mobile_image = section.settings.mobile_image | default: desktop_image %}
-
-      {% if desktop_image != blank %}
-      {% comment %} Render Image Tag with different sources for responsiveness {% endcomment %}
+    {% if desktop_image != blank %}
       <picture>
-        {% if mobile_image != blank %}
+        {% if mobile_image != blank and mobile_image != desktop_image %}
           <source media="(max-width: 767px)" srcset="{{ mobile_image | img_url: '1000x' }}">
         {% endif %}
 
@@ -184,11 +229,12 @@
           srcset="{{ desktop_image | img_url: '1000x' }} 1000w, {{ desktop_image | img_url: '2000x' }} 2000w"
           alt="{{ section.settings.title | escape }}"
           class="materials-background-image"
-          loading="lazy" />
+          loading="lazy"
+          width="{{ desktop_image.width }}"
+          height="{{ desktop_image.height }}">
       </picture>
     {% else %}
-      {% comment %} Placeholder if no image is uploaded {% endcomment %}
-      <div style="width: 100%; height: 100%; background-color: #f0f0f0; filter: grayscale(100%);"></div>
+      <div class="materials-fallback-bg"></div>
     {% endif %}
   </div>
 
@@ -197,10 +243,12 @@
       <h2 class="materials-title">
         {{ section.settings.title | escape }}
       </h2>
+
       <p class="materials-description">
         {{ section.settings.description | escape }}
       </p>
-      {% if section.settings.button_text != blank %}
+
+      {% if section.settings.button_text != blank and section.settings.button_link != blank %}
         <a href="{{ section.settings.button_link }}" class="materials-learn-more">
           {{ section.settings.button_text | escape }}
         </a>
@@ -208,13 +256,6 @@
     </div>
   </div>
 </section>
-
-{% comment %}
-  NOTE: For the parallax effect to work smoothly on scroll,
-  you might need a small amount of JavaScript, but the CSS scale
-  is included above for a basic effect.
-{% endcomment %}
-
 
 {% schema %}
   {
@@ -224,6 +265,16 @@
     "settings": [
       {
         "type": "header",
+        "content": "Color Scheme"
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      },
+      {
+        "type": "header",
         "content": "Background Image"
       },
       {
@@ -231,14 +282,39 @@
         "id": "image",
         "label": "Desktop Background Image",
         "info": "2500 x 900px recommended"
-      },
-      {
+      }, {
         "type": "image_picker",
         "id": "mobile_image",
         "label": "Mobile Background Image",
         "info": "1100 x 1500px recommended. Default to desktop image."
-      },
-      {
+      }, {
+        "type": "select",
+        "id": "image_size",
+        "label": "Image size",
+        "options": [
+          {
+            "value": "x-small",
+            "label": "X-Small"
+          },
+          {
+            "value": "small",
+            "label": "Small"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "large",
+            "label": "Large"
+          }, {
+            "value": "fit-screen",
+            "label": "Fit screen"
+          }
+        ],
+        "default": "fit-screen",
+        "info": "X-Small maintains original image ratio"
+      }, {
         "type": "checkbox",
         "id": "parallax_enabled",
         "label": "Enable parallax effect",
@@ -286,26 +362,6 @@
         "id": "button_link",
         "label": "Button link"
       }, {
-        "type": "header",
-        "content": "Design & Spacing"
-      }, {
-        "type": "select",
-        "id": "color_scheme",
-        "label": "Color scheme",
-        "default": "scheme-1",
-        "options": [
-          {
-            "value": "scheme-1",
-            "label": "Scheme 1"
-          }, {
-            "value": "scheme-2",
-            "label": "Scheme 2"
-          }, {
-            "value": "scheme-3",
-            "label": "Scheme 3"
-          }
-        ]
-      }, {
         "type": "checkbox",
         "id": "remove_spacing",
         "label": "Remove vertical spacing",
@@ -315,7 +371,14 @@
     "presets": [
       {
         "name": "Materials Text Block",
-        "category": "Image"
+        "category": "Image",
+        "settings": {
+          "title": "MATERIALS",
+          "description": "We only work with the best leather, chosen in collaboration with our factory.",
+          "button_text": "Learn more",
+          "color_scheme": "scheme_1",
+          "image_size": "fit-screen"
+        }
       }
     ]
   }

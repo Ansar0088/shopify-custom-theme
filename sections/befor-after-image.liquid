@@ -1,6 +1,6 @@
 {% comment %}
   A Liquid section for a responsive Before/After image comparison slider.
-  Updated with default white background and dark header text for initial section view.
+  Updated with global color scheme and typography settings.
 {% endcomment %}
 
 {% assign s = section.settings %}
@@ -12,289 +12,453 @@
   {% assign cursor_style = 'ns-resize' %}
 {% endif %}
 
-<style>
+{%- style -%}
+  /* --- GLOBAL COLOR SCHEME VARIABLES --- */
+  .color-scheme-{{ section.settings.color_scheme.id }} {
+    --background: {{ section.settings.color_scheme.settings.background }};
+    --primary-text: {{ section.settings.color_scheme.settings.primary_text }};
+    --secondary-text: {{ section.settings.color_scheme.settings.secondary_text }};
+    --header-text: {{ section.settings.color_scheme.settings.header_text }};
+    --link: {{ section.settings.color_scheme.settings.link }};
+    --button-filled: {{ section.settings.color_scheme.settings.button_filled }};
+    --button-filled-label: {{ section.settings.color_scheme.settings.button_filled_label }};
+    --button-outline-label: {{ section.settings.color_scheme.settings.button_outline_label }};
+    --border: {{ section.settings.color_scheme.settings.border }};
+    --tag: {{ section.settings.color_scheme.settings.tag }};
+    --tag-label: {{ section.settings.color_scheme.settings.tag_label }};
+    --rating-stars: {{ section.settings.color_scheme.settings.rating_stars }};
 
+    /* --- GLOBAL TYPOGRAPHY VARIABLES --- */
+    {%- comment -%} Get font families from theme settings {%- endcomment -%}
+  {%- assign heading_font = settings.font_heading -%}
+  {%- assign body_font = settings.font_body -%}
 
-  /* Base container styles - FIX: Applying schema background color directly here */
+  --font-heading: {{ heading_font.family }}, 
+  {{ heading_font.fallback_families }};
+  --font-body: {{ body_font.family }}, 
+  {{ body_font.fallback_families }};
+
+  {%- comment -%} Get font weights from theme settings {%- endcomment -%}
+--font-weight-normal: {{ settings.font_weight_normal }};
+--font-weight-bold: {{ settings.font_weight_bold }};
+
+{%- comment -%} Get font sizes from theme settings {%- endcomment -%}
+--font-size-base: {{ settings.font_size_base }}px;
+--font-size-heading-large: {{ settings.font_size_heading_large }}px;
+--font-size-heading-medium: {{ settings.font_size_heading_medium }}px;
+--font-size-heading-small: {{ settings.font_size_heading_small }}px;
+--font-size-body-large: {{ settings.font_size_body_large }}px;
+--font-size-body-small: {{ settings.font_size_body_small }}px;
+
+/* Map body and heading weights to global settings */
+--font-weight-body: var(--font-weight-normal);
+--font-weight-body-bold: var(--font-weight-bold);
+--font-weight-heading: var(--font-weight-normal);
+--font-weight-heading-bold: var(--font-weight-bold);
+
+/* --- SECTION SPECIFIC OVERRIDES --- */
+--section-bg: var(--background);
+--section-text: var(--primary-text);
+--section-heading: var(--header-text);
+--section-subheading: var(--secondary-text);
+--section-content: var(--secondary-text);
+--slider-handle-bg: var(--button-filled-label);
+--slider-handle-text: var(--button-filled);
+}
+
+/* Base container styles */
+.before-after-section {
+  background-color: var(--section-bg);
+  padding: 60px 0;
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-base);
+}
+
+{% if section.settings.separate_section_with_border %}
   .before-after-section {
-    background-color: var(--background-color);
-    padding: 60px 0;
-    margin: 0;
+    border-top: 1px solid var(--border);
   }
+{% endif %}
 
-  .before-after-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
+.before-after-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-  /* Header styles */
-  .section-header {
-    text-align: center;
-    /* margin-bottom: 50px; */
-    max-width: 100%;
-  }
+/* Header styles */
+.section-header {
+  text-align: {{ section.settings.heading_alignment }};
+  max-width: 100%;
+  margin-bottom: 50px;
+}
 
-  .subheading {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--header-text-color);
-    /* Uses dark text */
-    margin-bottom: 5px;
+.subheading {
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-body-bold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--section-subheading);
+  margin-bottom: 5px;
+  font-family: var(--font-body);
+}
+
+.heading {
+  font-size: var(--font-size-heading-large);
+  font-weight: var(--font-weight-heading);
+  text-transform: uppercase;
+  color: var(--section-heading);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: 3px;
+  font-family: var(--font-heading);
+}
+
+.section-content {
+  font-size: var(--font-size-body-large);
+  color: var(--section-content);
+  line-height: 1.6;
+  margin-top: 15px;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body);
+  max-width: 600px;
+  {% if section.settings.heading_alignment == 'center' %}
+    margin-left: auto;
+    margin-right: auto;
+  {% endif %}
+}
+
+/* Slider container */
+.slider-main-container {
+  max-width: 1210px;
+  margin: 0 auto;
+  padding: 0;
+  box-shadow: none;
+}
+
+.image-slider-wrapper {
+  position: relative;
+  overflow: hidden;
+
+  width: 100%;
+  cursor: {{ cursor_style }};
+  height: 600px;
+  border-radius: {{ section.settings.border_radius }}px;
+  box-shadow: {{ section.settings.box_shadow }};
+  background-color: transparent;
+}
+
+.image-slider-after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Image styles to ensure they fill the space */
+.image-slider-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Slider Handle */
+.image-slider-handle {
+  position: absolute;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Horizontal Handle */
+.image-slider-wrapper[data-direction="horizontal"] .image-slider-handle {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-left: -0.5px;
+}
+
+/* Vertical Handle */
+.image-slider-wrapper[data-direction="vertical"] .image-slider-handle {
+  left: 0;
+  right: 0;
+  height: 1px;
+  margin-top: -0.5px;
+}
+
+/* Slider Arrow */
+.image-slider-arrow {
+  background-color: var(--slider-handle-bg);
+  border: 1px solid var(--border);
+  color: var(--slider-handle-text);
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-body-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+}
+
+.image-slider-arrow svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.image-slider-wrapper[data-direction="horizontal"] .image-slider-arrow svg {
+  transform: rotate(90deg);
+}
+
+/* Image label placement for the current reference image (BOTTOM LEFT/RIGHT) */
+.image-label-bottom {
+  position: absolute;
+  padding: 8px 20px;
+  font-weight: var(--font-weight-body-bold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: var(--font-size-body-small);
+  z-index: 5;
+  bottom: 20px;
+  left: 20px;
+  background: none;
+  font-family: var(--font-body);
+}
+
+/* Link color is explicitly set to the content's color */
+.view-product-btn {
+  display: inline-block;
+  padding: 0;
+  margin: 5px 0 0;
+  text-decoration: none;
+  text-transform: capitalize;
+  font-weight: var(--font-weight-body);
+  letter-spacing: 0.5px;
+  font-size: var(--font-size-body-small);
+  transition: color 0.3s ease;
+  z-index: 5;
+  position: relative;
+  border: none !important;
+  background: none !important;
+  font-family: var(--font-body);
+}
+
+.view-product-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.before .image-label-bottom {
+  color: {{ s.before_text_color | default: '#FFFFFF' }};
+}
+
+.before .view-product-btn {
+  color: {{ s.before_text_color | default: '#FFFFFF' }}
+   !important;
+}
+
+.image-slider-after .image-label-bottom {
+  left: auto;
+  right: 20px;
+  color: {{ s.after_text_color | default: '#333333' }};
+}
+
+.image-slider-after .view-product-btn {
+  color: {{ s.after_text_color | default: '#333333' }}
+   !important;
+}
+
+/* Placeholder styles */
+.placeholder-svg {
+  background-color: var(--background);
+  color: var(--primary-text);
+}
+
+/* Responsive styles */
+@media (max-width: 989px) {
+  .image-slider-wrapper {
+    height: 500px;
   }
 
   .heading {
-
-    font-size: 26px;
-    font-weight: 300;
-    text-transform: uppercase;
-    color: var(--header-text-color);
-    /* Uses dark text */
-    margin: 0;
-    line-height: 1.2;
-    letter-spacing: 3px;
+    font-size: var(--font-size-heading-medium);
   }
 
   .section-content {
-    font-size: 16px;
-    color: var(--section-content-color);
-    /* Uses default gray content text */
-    line-height: 1.6;
-    margin-top: 15px;
+    font-size: var(--font-size-base);
   }
+}
 
-  /* Slider container */
-  .slider-main-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0;
-    box-shadow: none;
+@media (max-width: 768px) {
+  .before-after-section {
+    padding: 40px 0;
   }
 
   .image-slider-wrapper {
-    position: relative;
-    overflow: hidden;
-    cursor: {{ cursor_style }};
-    height: 600px;
-    border-radius: 0;
-    box-shadow: none;
-    background-color: #FFFFFF;
-    /* The image wrapper remains white */
+    height: 400px;
   }
 
-  .image-slider-after {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  .heading {
+    font-size: var(--font-size-heading-small);
+    letter-spacing: 2px;
   }
 
-  /* Image styles to ensure they fill the space */
-  .image-slider-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  .subheading {
+    font-size: calc(var(--font-size-body-small) * 0.9);
   }
 
-  /* Slider Handle */
-  .image-slider-handle {
-    position: absolute;
-    background-color: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    pointer-events: none;
-  }
-
-  /* Horizontal Handle */
-  .image-slider-wrapper[data-direction="horizontal"] .image-slider-handle {
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    margin-left: -0.5px;
-  }
-
-  /* Slider Arrow */
-  .image-slider-arrow {
-    background-color: white;
-    border: 1px solid #c0c0c0;
-    color: #333333;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    cursor: grab;
-  }
-
-  /* Image label placement for the current reference image (BOTTOM LEFT/RIGHT) */
   .image-label-bottom {
-    position: absolute;
-    padding: 8px 20px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 14px;
-    z-index: 5;
-    bottom: 20px;
-    left: 20px;
-    background: none;
+    font-size: calc(var(--font-size-body-small) * 0.9);
+    padding: 6px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-slider-wrapper {
+    height: 300px;
+    border-radius: {{ section.settings.mobile_border_radius }}px;
   }
 
-  /* Link color is explicitly set to the content's color */
-  .view-product-btn {
-    display: inline-block;
-    padding: 0;
-    margin: 0;
-    text-decoration: none;
-    text-transform: capitalize;
-    font-weight: 300;
-    letter-spacing: 0.5px;
-    font-size: 12px;
-    transition: color 0.3s ease;
-    z-index: 5;
-    position: relative;
-    border: none !important;
-    background: none !important;
+  .heading {
+    font-size: calc(var(--font-size-heading-small) * 0.85);
   }
 
-  .before .image-label-bottom {
-    color: {{ s.before_text_color | default: '#FFFFFF' }};
-    /* Default white text on dark placeholder */
+  .section-content {
+    font-size: var(--font-size-body-small);
   }
 
-  .before .view-product-btn {
-    color: {{ s.before_text_color | default: '#FFFFFF' }}
-     !important;
+  .image-label-bottom {
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    text-align: center;
   }
 
   .image-slider-after .image-label-bottom {
-    left: auto;
-    right: 20px;
-    color: {{ s.after_text_color | default: '#333333' }};
-    /* Default dark text on light placeholder */
+    left: 15px;
+    right: 15px;
   }
 
-  .image-slider-after .view-product-btn {
-    color: {{ s.after_text_color | default: '#333333' }}
-     !important;
+  .image-slider-arrow {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Fallback colors (when no color scheme is selected) */
+{% unless section.settings.color_scheme %}
+  .before-after-section {
+    background-color: {{ s.background_color | default: '#FFFFFF' }};
+    color: {{ s.text_color | default: '#333333' }};
   }
 
-  /* Responsive styles */
-  @media (max-width: 990px) {
-    .image-slider-wrapper {
-      height: 500px;
-    }
-    .heading {
-      font-size: 24px;
-    }
+  .heading {
+    color: {{ s.heading_color | default: '#000000' }};
   }
 
-  @media (max-width: 768px) {
-    .before-after-section {
-      padding: 40px 0;
-    }
-
-    .image-slider-wrapper {
-      height: 400px;
-    }
+  .subheading {
+    color: {{ s.subheading_color | default: '#666666' }};
   }
 
-  @media (max-width: 480px) {
-    .image-slider-wrapper {
-      height: 300px;
-    }
-
-    .heading {
-      font-size: 20px;
-    }
+  .section-content {
+    color: {{ s.text_color | default: '#333333' }};
   }
-</style>
+{% endunless %}
+{%- endstyle -%}
 
-<section class="before-after-section">
-  <div class="before-after-container">
-    <div class="section-header">
-      <h2 class="heading">{{ s.heading | escape | default: 'BEFORE/AFTER' }}</h2>
-      <div class="section-content">
-        {{ s.content | escape | default: 'Showcase your product benefit by using before/after image comparison.' }}
+<div class="color-scheme-{{ section.settings.color_scheme.id }}">
+  <section class="before-after-section">
+    <div class="before-after-container">
+      <div class="section-header">
+        {% if s.subheading != blank %}
+          <p class="subheading">{{ s.subheading | escape }}</p>
+        {% endif %}
+
+        <h2 class="heading">{{ s.heading | escape | default: 'BEFORE/AFTER' }}</h2>
+
+        {% if s.content != blank %}
+          <div class="section-content">
+            {{ s.content | escape | default: 'Showcase your product benefit by using before/after image comparison.' }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="slider-main-container">
+        <div
+          id="image-slider-{{ section.id }}"
+          class="image-slider-wrapper comparison-{{ cursor_direction }}"
+          data-direction="{{ cursor_direction }}"
+          data-initial-position="{{ s.initial_position | default: 50 }}">
+
+          <div class="before relative w-full h-full">
+            {% if s.before_image %}
+              <img
+                src="{{ s.before_image | image_url: width: 1200 }}"
+                alt="{{ s.before_image.alt | escape }}"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                width=""
+                height="">
+            {% else %}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'w-full h-full object-cover placeholder-svg' }}
+            {% endif %}
+
+            <div class="image-label-bottom">
+              {{ s.before_text | escape | default: 'BEFORE' }}
+              {% if s.before_button_text != blank %}
+                <br><a href="{{ s.before_button_link }}" class="view-product-btn">
+                  {{ s.before_button_text | escape | default: 'View product' }}
+                </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="image-slider-after" style="clip-path: {% if cursor_direction == 'horizontal' %}inset(0 0 0 {{ initial_position_percent }}){% else %}inset({{ initial_position_percent }} 0 0 0){% endif %}">
+            {% if s.after_image %}
+              <img
+                src="{{ s.after_image | image_url: width: 1200 }}"
+                alt="{{ s.after_image.alt | escape }}"
+                class="w-full h-full object-cover absolute left-0 top-0"
+                loading="lazy"
+                width=""
+                height="">
+            {% else %}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'w-full h-full object-cover placeholder-svg' }}
+            {% endif %}
+
+            <div class="image-label-bottom" style="left: auto; right: 20px;">
+              {{ s.after_text | escape | default: 'AFTER' }}
+              {% if s.after_button_text != blank %}
+                <br><a href="{{ s.after_button_link }}" class="view-product-btn">
+                  {{ s.after_button_text | escape | default: 'View product' }}
+                </a>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="image-slider-handle" style="{% if cursor_direction == 'horizontal' %}left: {{ initial_position_percent }}{% else %}top: {{ initial_position_percent }}{% endif %}">
+            <div class="image-slider-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
+                <path d="M247.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L179.2 256 41.9 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="slider-main-container">
-      <div
-        id="image-slider-{{ section.id }}"
-        class="image-slider-wrapper comparison-{{ cursor_direction }}"
-        data-direction="{{ cursor_direction }}"
-        data-initial-position="{{ s.initial_position | default: 50 }}">
-
-        <div class="before relative w-full h-full">
-          {% if s.before_image %}
-            <img
-              src="{{ s.before_image | image_url: width: 1200 }}"
-              alt="{{ s.before_image.alt | escape }}"
-              class="w-full h-full object-cover"
-              loading="lazy"
-              height=""
-              width="">
-          {% else %}
-            {{ 'lifestyle-1' | placeholder_svg_tag: 'w-full h-full object-cover bg-black text-white p-20' }}
-          {% endif %}
-
-          <div class="image-label-bottom">
-            {{ s.before_text | escape | default: 'BEFORE' }}
-            {% if s.before_button_text != blank %}
-              <br><a href="{{ s.before_button_link }}" class="view-product-btn">
-                {{ s.before_button_text | escape | default: 'View product' }}
-              </a>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="image-slider-after" style="clip-path: {% if cursor_direction == 'horizontal' %}inset(0 0 0 {{ initial_position_percent }}){% else %}inset({{ initial_position_percent }} 0 0 0){% endif %}">
-          {% if s.after_image %}
-            <img
-              src="{{ s.after_image | image_url: width: 1200 }}"
-              alt="{{ s.after_image.alt | escape }}"
-              class="w-full h-full object-cover absolute left-0 top-0"
-              loading="lazy"
-              height=""
-              width="">
-          {% else %}
-            {{ 'lifestyle-2' | placeholder_svg_tag: 'w-full h-full object-cover bg-white text-black p-20' }}
-          {% endif %}
-
-          <div class="image-label-bottom" style="left: auto; right: 20px;">
-            {{ s.after_text | escape | default: 'AFTER' }}
-            {% if s.after_button_text != blank %}
-              <br><a href="{{ s.after_button_link }}" class="view-product-btn">
-                {{ s.after_button_text | escape | default: 'View product' }}
-              </a>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="image-slider-handle" style="{% if cursor_direction == 'horizontal' %}left: {{ initial_position_percent }}{% else %}top: {{ initial_position_percent }}{% endif %}">
-          <div class="image-slider-arrow">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
-              <path d="M247.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L179.2 256 41.9 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z" /></svg>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <script>
   (function() {
@@ -310,7 +474,6 @@
     const initialPosition = parseFloat(slider.getAttribute('data-initial-position')) / 100;
 
     let isDragging = false;
-    
 
     function updatePosition(ratio) {
       if (ratio < 0) ratio = 0;
@@ -387,39 +550,87 @@
 
 {% schema %}
   {
-    "name": "Before/After Image Slider",
+    "name": "Image Comparison",
     "tag": "section",
     "class": "section",
     "settings": [
       {
         "type": "header",
-        "content": "Text Content"
+        "content": "Color scheme"
       },
       {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme_1"
+      },
+      {
+        "type": "header",
+        "content": "Fallback colors (if no color scheme)"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#FFFFFF"
+      }, {
+        "type": "color",
+        "id": "text_color",
+        "label": "Text color",
+        "default": "#333333"
+      }, {
+        "type": "color",
+        "id": "heading_color",
+        "label": "Heading color",
+        "default": "#000000"
+      }, {
+        "type": "color",
+        "id": "subheading_color",
+        "label": "Subheading color",
+        "default": "#666666"
+      }, {
+        "type": "checkbox",
+        "id": "separate_section_with_border",
+        "label": "Separate section with border",
+        "default": false
+      }, {
+        "type": "header",
+        "content": "Text Content"
+      }, {
         "type": "text",
         "id": "subheading",
         "label": "Subheading (Optional)",
         "default": "LE DALIA"
-      },
-      {
+      }, {
         "type": "text",
         "id": "heading",
         "label": "Heading",
         "default": "Choose your colour"
-      },
-      {
+      }, {
         "type": "textarea",
         "id": "content",
         "label": "Content",
         "default": "Showcase your product benefit by using before/after image comparison"
       }, {
+        "type": "select",
+        "id": "heading_alignment",
+        "label": "Heading alignment",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ],
+        "default": "center"
+      }, {
         "type": "header",
         "content": "Slider Settings"
-      }, {
-        "type": "checkbox",
-        "id": "border_enabled",
-        "label": "Show section border",
-        "default": false
       }, {
         "type": "select",
         "id": "cursor_direction",
@@ -444,15 +655,43 @@
         "label": "Initial slider position",
         "default": 50
       }, {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background color",
-        "default": "#FFFFFF"
+        "type": "range",
+        "id": "border_radius",
+        "min": 0,
+        "max": 50,
+        "step": 2,
+        "unit": "px",
+        "label": "Border radius (desktop)",
+        "default": 0
       }, {
-        "type": "color",
-        "id": "arrows_color",
-        "label": "Slider handle color",
-        "default": "#333333"
+        "type": "range",
+        "id": "mobile_border_radius",
+        "min": 0,
+        "max": 30,
+        "step": 2,
+        "unit": "px",
+        "label": "Border radius (mobile)",
+        "default": 0
+      }, {
+        "type": "select",
+        "id": "box_shadow",
+        "label": "Box shadow",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          }, {
+            "value": "0 4px 12px rgba(0,0,0,0.1)",
+            "label": "Light"
+          }, {
+            "value": "0 8px 24px rgba(0,0,0,0.15)",
+            "label": "Medium"
+          }, {
+            "value": "0 12px 36px rgba(0,0,0,0.2)",
+            "label": "Heavy"
+          }
+        ],
+        "default": "none"
       }, {
         "type": "header",
         "content": "Before Image (Left)"
@@ -539,12 +778,48 @@
           }
         ],
         "default": "link"
+      }, {
+        "type": "header",
+        "content": "Section Spacing"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 60
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 60
       }
     ],
     "presets": [
       {
         "name": "Image Comparison (Before/After)",
-        "category": "Image"
+        "category": "Image",
+        "settings": {
+          "color_scheme": "scheme_1",
+          "heading": "Choose your colour",
+          "subheading": "LE DALIA",
+          "content": "Showcase your product benefit by using before/after image comparison",
+          "heading_alignment": "center",
+          "cursor_direction": "horizontal",
+          "initial_position": 50,
+          "before_text": "BEFORE",
+          "before_text_color": "#FFFFFF",
+          "after_text": "AFTER",
+          "after_text_color": "#333333",
+          "padding_top": 60,
+          "padding_bottom": 60
+        }
       }
     ]
   }

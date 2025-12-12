@@ -1,11 +1,3 @@
-{% comment %}
-  ============================================================================
-  SECTION: TESTIMONIAL/QUOTE SLIDER
-  - Displays testimonials/quotes in a centered, dark-themed slider.
-  - Features smooth dot-based navigation and an enhanced two-stage fade animation.
-  ============================================================================
-{% endcomment %}
-
 {% assign current_scheme = section.settings.color_scheme %}
 {% assign blocks_count = section.blocks.size %}
 
@@ -14,30 +6,19 @@
   {% assign has_blocks = true %}
 {% endif %}
 
-{% assign border_style = '' %}
-{% if section.settings.separator %}
-  {% comment %} Assuming a light border is desired on the dark background {% endcomment %}
-  {% assign border_style = 'border-top: 1px solid rgba(255, 255, 255, 0.1);' %}
-{% endif %}
-
 <style>
-  /* Load Inter font (Best practice is to load this globally in theme.liquid) */
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&display=swap');
-
   /* --- General Section Styles --- */
   .section-{{ section.id }} {
-    font-family: 'Inter'
-    , sans-serif;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    padding: 100px 20px;
+    background-color: var(--color-background);
+    color: var(--color-primary-text);
+    padding: 50px 10px;
     text-align: center;
     overflow: hidden;
     position: relative;
 
-
-    
-  {{ border_style }}
+    {% if section.settings.separator %}
+      border-top: 1px solid var(--color-border);
+    {% endif %}
   }
 
   /* --- Content/Slider Container --- */
@@ -45,17 +26,14 @@
     max-width: 1000px;
     margin: 0 auto;
     position: relative;
-    /* Smooth height adjustment for different text lengths */
     transition: height 0.5s ease-in-out;
   }
 
-  /* --- Individual Slides (Absolute Positioning for Fade Effect) --- */
   .testimonial-slide {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-
     /* Default hidden state */
     opacity: 0;
     visibility: hidden;
@@ -63,8 +41,6 @@
     transition: opacity 0.5s ease-in-out
     , visibility 0.5s ease-in-out;
     pointer-events: none;
-
-    /* Ensure non-active slides don't contribute height or position */
     z-index: 1;
   }
 
@@ -72,7 +48,6 @@
   .testimonial-slide.active {
     opacity: 1;
     visibility: visible;
-    /* Only the active slide uses relative positioning to set container height */
     position: relative;
     pointer-events: auto;
     z-index: 2;
@@ -80,31 +55,41 @@
   }
 
   /* --- Content Text Styles --- */
-
   .testimonial-subheading {
-    font-size: 0.8rem;
+    font-family: {{ settings.font_heading.family }}, 
+    {{ settings.font_heading.fallback_families }};
+    font-size: {{ settings.font_size_base | times: 0.8 | round }}px;
     letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 8px;
-    color: #a0a0a0;
-    font-weight: 500;
+    color: var(--color-secondary-text);
+    font-weight: {{ settings.font_heading.weight }};
   }
 
   .testimonial-heading {
-    font-size: 2.5rem;
-    font-weight: 600;
+    font-family: {{ settings.font_heading.family }}, 
+    {{ settings.font_heading.fallback_families }};
+    font-size: {{ settings.font_size_heading_large }}px;
+    font-weight: {{ settings.font_weight_bold }};
     text-transform: uppercase;
     margin-bottom: 40px;
-    color: #ffffff;
+    color: var(--color-header-text);
   }
 
   .testimonial-content {
-    font-size: 1.15rem;
+    font-family: {{ settings.font_body.family }}, 
+    {{ settings.font_body.fallback_families }};
+    font-size: {{ settings.font_size_base | times: 1.15 | round }}px;
     line-height: 1.6;
     max-width: 700px;
     margin: 0 auto 40px;
-    font-weight: 300;
-    color: #d0d0d0;
+    font-weight: {{ settings.font_weight_normal }};
+    color: var(--color-primary-text);
+  }
+
+  .testimonial-content p {
+    margin: 0;
+    padding: 0;
   }
 
   /* --- Dot Navigation --- */
@@ -119,7 +104,7 @@
   .dot {
     width: 8px;
     height: 8px;
-    background-color: #555555;
+    background-color: var(--color-border);
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s
@@ -127,8 +112,12 @@
   }
 
   .dot.active {
-    background-color: #ffffff;
+    background-color: var(--color-primary-text);
     transform: scale(1.1);
+  }
+
+  .dot:hover {
+    background-color: var(--color-link);
   }
 
   /* --- Responsive Adjustments --- */
@@ -136,24 +125,35 @@
     .section-{{ section.id }} {
       padding: 60px 20px;
     }
+
     .testimonial-heading {
-      font-size: 1.8rem;
+      font-size: {{ settings.font_size_heading_medium }}px;
       margin-bottom: 25px;
     }
+
     .testimonial-content {
-      font-size: 1rem;
+      font-size: {{ settings.font_size_base }}px;
       margin-bottom: 30px;
+    }
+
+    .testimonial-subheading {
+      font-size: {{ settings.font_size_base | times: 0.75 | round }}px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .testimonial-heading {
+      font-size: {{ settings.font_size_heading_medium | times: 0.9 | round }}px;
     }
   }
 </style>
 
 <section
   id="testimonial-slider-{{ section.id }}"
-  class="section-{{ section.id }}"
+  class="section-{{ section.id }} color-{{ current_scheme }}"
   data-auto-rotate="{{ section.settings.auto_rotate }}">
 
   <div class="testimonial-slider-container" id="testimonial-slider-container-{{ section.id }}">
-
     {% for block in section.blocks %}
       {% assign is_first = forloop.first %}
       <div
@@ -190,7 +190,6 @@
         </div>
       </div>
     {% endfor %}
-
   </div>
 
   {% if blocks_count > 0 %}
@@ -224,112 +223,104 @@
         title="Placeholder slide 4"></span>
     </div>
   {% endif %}
-
 </section>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const sectionId = '{{ section.id }}';
-        const sliderContainer = document.getElementById(`testimonial-slider-container-${sectionId}`);
-        const dotsContainer = document.getElementById(`dots-container-${sectionId}`);
-        const slides = sliderContainer.querySelectorAll('.testimonial-slide');
-        const dots = dotsContainer.querySelectorAll('.dot');
-        const sliderElement = document.getElementById(`testimonial-slider-${sectionId}`);
-        
-        if (!sliderElement || slides.length === 0) return;
-
-        const autoRotate = parseInt(sliderElement.dataset.autoRotate);
-
-        let currentIndex = 0;
-        
-        // Find the initially active index
-        slides.forEach((slide, index) => {
-            if (slide.classList.contains('active')) {
-                currentIndex = index;
-            }
-        });
-
-        let interval;
-        // The duration of the CSS opacity transition (in milliseconds)
-        const FADE_DURATION = 500; 
-        
-        function updateSlider(newIndex) {
-            if (newIndex < 0) {
-                newIndex = slides.length - 1;
-            } else if (newIndex >= slides.length) {
-                newIndex = 0;
-            }
-            
-            const currentSlide = slides[currentIndex];
-            const nextSlide = slides[newIndex];
-
-            if (currentSlide === nextSlide) return;
-            
-            // --- Step 1: Fade Out Current Slide & Set New Height ---
-            
-            // 1. Deactivate current slide (initiates the fade-out)
-            currentSlide.classList.remove('active');
-            
-            // 2. Set the container height to the NEW slide's height. This starts the height transition smoothly.
-            sliderContainer.style.height = `${nextSlide.offsetHeight}px`; 
-            
-            // 3. Deactivate current dot
-            dots[currentIndex].classList.remove('active');
-
-
-            // --- Step 2: Fade In Next Slide (After a short delay for cross-fade) ---
-            
-            setTimeout(() => {
-                // 4. Activate the new slide and dot (initiates the fade-in)
-                nextSlide.classList.add('active');
-                dots[newIndex].classList.add('active');
-            }, FADE_DURATION - 50);
-
-            currentIndex = newIndex;
+      const sectionId = '{{ section.id }}';
+      const sliderContainer = document.getElementById(`testimonial-slider-container-${sectionId}`);
+      const dotsContainer = document.getElementById(`dots-container-${sectionId}`);
+      const slides = sliderContainer.querySelectorAll('.testimonial-slide');
+      const dots = dotsContainer.querySelectorAll('.dot');
+      const sliderElement = document.getElementById(`testimonial-slider-${sectionId}`);
+      
+      if (!sliderElement || slides.length === 0) return;
+  
+      const autoRotate = parseInt(sliderElement.dataset.autoRotate);
+  
+      let currentIndex = 0;
+      
+      // Find the initially active index
+      slides.forEach((slide, index) => {
+        if (slide.classList.contains('active')) {
+          currentIndex = index;
         }
-
-        function startAutoRotate() {
-            if (autoRotate > 0) {
-                clearInterval(interval);
-                interval = setInterval(() => {
-                    updateSlider(currentIndex + 1);
-                }, autoRotate * 1000); 
-            }
+      });
+  
+      let interval;
+      const FADE_DURATION = 500; 
+      
+      function updateSlider(newIndex) {
+        if (newIndex < 0) {
+          newIndex = slides.length - 1;
+        } else if (newIndex >= slides.length) {
+          newIndex = 0;
         }
-
-        function stopAutoRotate() {
-            clearInterval(interval);
+        
+        const currentSlide = slides[currentIndex];
+        const nextSlide = slides[newIndex];
+  
+        if (currentSlide === nextSlide) return;
+        
+        
+        currentSlide.classList.remove('active');
+        
+        sliderContainer.style.height = `${nextSlide.offsetHeight}px`; 
+        
+        // 3. Deactivate current dot
+        dots[currentIndex].classList.remove('active');
+  
+        
+        setTimeout(() => {
+          // 4. Activate the new slide and dot (initiates the fade-in)
+          nextSlide.classList.add('active');
+          dots[newIndex].classList.add('active');
+        }, FADE_DURATION - 50);
+  
+        currentIndex = newIndex;
+      }
+  
+      function startAutoRotate() {
+        if (autoRotate > 0) {
+          clearInterval(interval);
+          interval = setInterval(() => {
+            updateSlider(currentIndex + 1);
+          }, autoRotate * 1000); 
         }
-
-        // --- Initialization ---
-        
-        window.addEventListener('load', () => {
-             updateSlider(currentIndex); 
-             startAutoRotate();
+      }
+  
+      function stopAutoRotate() {
+        clearInterval(interval);
+      }
+  
+      // --- Initialization ---
+      
+      window.addEventListener('load', () => {
+        updateSlider(currentIndex); 
+        startAutoRotate();
+      });
+      
+      window.addEventListener('resize', () => {
+        sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
+      });
+      
+      if (slides[currentIndex]) {
+        sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
+      }
+  
+      // --- Event Listeners ---
+      
+      dots.forEach(dot => {
+        dot.addEventListener('click', function() {
+          stopAutoRotate();
+          const index = parseInt(this.dataset.index);
+          updateSlider(index);
+          startAutoRotate(); 
         });
-        
-        window.addEventListener('resize', () => {
-             sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
-        });
-        
-        if (slides[currentIndex]) {
-             sliderContainer.style.height = `${slides[currentIndex].offsetHeight}px`;
-        }
-
-        // --- Event Listeners ---
-        
-        dots.forEach(dot => {
-            dot.addEventListener('click', function() {
-                stopAutoRotate();
-                const index = parseInt(this.dataset.index);
-                updateSlider(index);
-                startAutoRotate(); 
-            });
-        });
-        
-        sliderContainer.addEventListener('mouseenter', stopAutoRotate);
-        sliderContainer.addEventListener('mouseleave', startAutoRotate);
+      });
+      
+      sliderContainer.addEventListener('mouseenter', stopAutoRotate);
+      sliderContainer.addEventListener('mouseleave', startAutoRotate);
     });
 </script>
 
@@ -353,22 +344,10 @@
         "info": "Set to 0 to disable auto-rotation.",
         "default": 8
       }, {
-        "type": "select",
+        "type": "color_scheme",
         "id": "color_scheme",
         "label": "Color scheme",
-        "default": "scheme-3",
-        "options": [
-          {
-            "value": "scheme-1",
-            "label": "Scheme 1"
-          }, {
-            "value": "scheme-2",
-            "label": "scheme-2"
-          }, {
-            "value": "scheme-3",
-            "label": "Scheme 3"
-          }
-        ]
+        "default": "scheme_3"
       }, {
         "type": "checkbox",
         "id": "separator",
@@ -411,7 +390,7 @@
           {
             "type": "testimonial",
             "settings": {
-              "subheading": "DESIGN & FUNCTION",
+              "subheading": "OWN DESIGN & FUNCTION",
               "heading": "Minimalist Mastery",
               "content": "<p>Minimalist design meets everyday function — perfect for keeping your essentials secure and stylish on the go.</p>"
             }
